@@ -1,0 +1,13 @@
+citHeader("To cite bWGR in publications use:")
+
+citEntry(entry = "Article",
+  title        = "Genomic prediction using subsampling",
+  author       = personList(as.person("Alencar Xavier"),as.person("Shizhong Xu"),as.person("William Muir"),as.person("Katy Rainey")),
+  journal      = "BMC Bioinformatics",
+  year         = "2017",
+  textVersion  =
+  paste("Xavier A, et al. (2016).",
+        "Genomic prediction using subsampling.",
+        "BMC Bioinformatics.",
+        "DOI 10.1186/s12859-017-1582-3.")
+)
