@@ -13,8 +13,8 @@ or Gibbs sampling, with optional sampling techniques and kernel term.
 \tabular{ll}{
 Package: \tab bWGR\cr
 Type: \tab Package\cr
-Version: \tab 1.5.1 \cr
-Date: \tab 2018-02-26\cr
+Version: \tab 1.5.2 \cr
+Date: \tab 2018-03-20\cr
 License: \tab GPL-3 \cr
 }
 }

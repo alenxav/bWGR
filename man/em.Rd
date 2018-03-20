@@ -6,6 +6,7 @@
 \alias{emBL}
 \alias{emDE}
 \alias{emEN}
+\alias{emCV}
 \title{
 Expectation-Maximization WGR
 }
@@ -13,13 +14,14 @@ Expectation-Maximization WGR
 Univariate models to find breeding values through regression fitted via expectation-maximization implemented in C++.
 }
 \usage{
-emRR(y, gen, df = 4, R2 = 0.5)
-emBA(y, gen, df = 4, R2 = 0.5)
-emBB(y, gen, df = 4, R2 = 0.5, Pi = 0.7)
-emBC(y, gen, df = 4, R2 = 0.5, Pi = 0.7)
+emRR(y, gen, df = 10, R2 = 0.5)
+emBA(y, gen, df = 10, R2 = 0.5)
+emBB(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
+emBC(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
 emBL(y, gen, R2 = 0.5, alpha = 0.02)
 emEN(y, gen, R2 = 0.5, alpha = 0.02)
 emDE(y, gen, R2 = 0.5)
+emCV(y, gen, k = 5, n = 5)
 }
 \arguments{
   \item{y}{
@@ -41,17 +43,25 @@ Value between 0 and 1. Expected probability pi of having null effect (or 1-Pi if
   \item{alpha}{
 Value between 0 and 1. Intensity of L1 variable selection.
 }
+  \item{k}{
+Integer. Folding of a k-fold cross-validation.
+}
+  \item{n}{
+Integer. Number of cross-validation to perform.
+}
 }
 \details{
-These regressions are still under development. The model for the whole-genome regression is as follows:
+The model for the whole-genome regression is as follows:
 
 \deqn{y = mu + Xb + e}
 
-where \eqn{y} is the response variable, \eqn{mu} is the intercept, \eqn{X} is the genotypic matrix, \eqn{b} is the effect of an allele substitution (or regression coefficient) and \eqn{e} is the residual term.
+where \eqn{y} is the response variable, \eqn{mu} is the intercept, \eqn{X} is the genotypic matrix, \eqn{b} is the effect of an allele substitution (or regression coefficient) and \eqn{e} is the residual term. A k-fold cross-validation for model evaluation is provided by \eqn{emCV}.
 
 }
 \value{
-The EM functions returns a list with the intercept (\eqn{mu}), the regression coefficient (\eqn{b}), the fitted value (\eqn{hat}), and the estimated intraclass-correlation (\eqn{h2}).
+The EM functions returns a list with the intercept (\eqn{mu}), the regression coefficient (\eqn{b}), the fitted value (\eqn{hat}), and the estimated intraclass-correlation (\eqn{h2}). 
+
+The function emCV returns the predictive ability of each model, that is, the correlation between the predicted and observed values from \eqn{k}-fold cross-validations repeated \eqn{n} times.
 }
 
 \author{
@@ -60,32 +70,6 @@ Alencar Xavier
 \examples{
 
 data(tpod)
+emCV(y,gen,3,3)
 
-# BLUP
-BRR = emRR(y,gen)
-cor(y,BRR$hat)
-
-# BayesA
-BayesA = emBA(y,gen)
-cor(y,BayesA$hat)
-
-# BayesB
-BayesB = emBB(y,gen)
-cor(y,BayesB$hat)
-
-# BayesC
-BayesC = emBC(y,gen)
-cor(y,BayesC$hat)
-
-# BayesL 1
-BayesL1 = emBL(y,gen)
-cor(y,BayesL1$hat)
-
-# BayesL 2
-BayesL2 = emDE(y,gen)
-cor(y,BayesL2$hat)
-
-# Elastic-Net
-ElasticNet = emEN(y,gen)
-cor(y,ElasticNet$hat)
 }
