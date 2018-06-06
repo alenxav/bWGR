@@ -3,7 +3,6 @@ using namespace Rcpp;
 
 // [[Rcpp::export]]
 SEXP KMUP(NumericMatrix X, NumericVector b, NumericVector d, NumericVector xx, NumericVector e, NumericVector L, double Ve, double pi){  
-  RNGScope scope;
   int p = X.ncol();
   NumericVector e1 = e+0;
   NumericVector e2 = e+0;
@@ -45,7 +44,6 @@ SEXP KMUP(NumericMatrix X, NumericVector b, NumericVector d, NumericVector xx, N
 
 // [[Rcpp::export]]
 SEXP KMUP2(NumericMatrix X, NumericVector Use, NumericVector b,  NumericVector d, NumericVector xx, NumericVector E, NumericVector L, double Ve, double pi){  
-  RNGScope scope;
   int p = X.ncol();
   int n0 = X.nrow();
   int n = Use.size();
@@ -497,7 +495,6 @@ SEXP BayesB(NumericVector y, NumericMatrix X,
             double it = 1500, double bi = 500,
             double pi = 0.95, double df = 5, double R2 = 0.5){
   //
-  RNGScope scope;
   int p = X.ncol();
   int n = X.nrow();
   int MCMC = it-bi;
