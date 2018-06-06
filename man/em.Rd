@@ -7,6 +7,10 @@
 \alias{emDE}
 \alias{emEN}
 \alias{emCV}
+\alias{SPC}
+\alias{IMP}
+\alias{CNT}
+\alias{GAU}
 \title{
 Expectation-Maximization WGR
 }

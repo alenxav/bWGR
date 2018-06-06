@@ -2,42 +2,58 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 KMUP <- function(X, b, d, xx, e, L, Ve, pi) {
-    .Call('bWGR_KMUP', PACKAGE = 'bWGR', X, b, d, xx, e, L, Ve, pi)
+    .Call('_bWGR_KMUP', PACKAGE = 'bWGR', X, b, d, xx, e, L, Ve, pi)
 }
 
 KMUP2 <- function(X, Use, b, d, xx, E, L, Ve, pi) {
-    .Call('bWGR_KMUP2', PACKAGE = 'bWGR', X, Use, b, d, xx, E, L, Ve, pi)
+    .Call('_bWGR_KMUP2', PACKAGE = 'bWGR', X, Use, b, d, xx, E, L, Ve, pi)
 }
 
-emBA <- function(y, gen, df = 4, R2 = 0.5) {
-    .Call('bWGR_emBA', PACKAGE = 'bWGR', y, gen, df, R2)
+emBA <- function(y, gen, df = 10, R2 = 0.5) {
+    .Call('_bWGR_emBA', PACKAGE = 'bWGR', y, gen, df, R2)
 }
 
-emBB <- function(y, gen, df = 4, R2 = 0.5, Pi = 0.7) {
-    .Call('bWGR_emBB', PACKAGE = 'bWGR', y, gen, df, R2, Pi)
+emBB <- function(y, gen, df = 10, R2 = 0.5, Pi = 0.75) {
+    .Call('_bWGR_emBB', PACKAGE = 'bWGR', y, gen, df, R2, Pi)
 }
 
-emBC <- function(y, gen, df = 4, R2 = 0.5, Pi = 0.7) {
-    .Call('bWGR_emBC', PACKAGE = 'bWGR', y, gen, df, R2, Pi)
+emBC <- function(y, gen, df = 10, R2 = 0.5, Pi = 0.75) {
+    .Call('_bWGR_emBC', PACKAGE = 'bWGR', y, gen, df, R2, Pi)
 }
 
-emRR <- function(y, gen, df = 4, R2 = 0.5) {
-    .Call('bWGR_emRR', PACKAGE = 'bWGR', y, gen, df, R2)
+emRR <- function(y, gen, df = 10, R2 = 0.5) {
+    .Call('_bWGR_emRR', PACKAGE = 'bWGR', y, gen, df, R2)
 }
 
 emBL <- function(y, gen, R2 = 0.5, alpha = 0.02) {
-    .Call('bWGR_emBL', PACKAGE = 'bWGR', y, gen, R2, alpha)
+    .Call('_bWGR_emBL', PACKAGE = 'bWGR', y, gen, R2, alpha)
 }
 
 emDE <- function(y, gen, R2 = 0.5) {
-    .Call('bWGR_emDE', PACKAGE = 'bWGR', y, gen, R2)
+    .Call('_bWGR_emDE', PACKAGE = 'bWGR', y, gen, R2)
 }
 
 emEN <- function(y, gen, R2 = 0.5, alpha = 0.02) {
-    .Call('bWGR_emEN', PACKAGE = 'bWGR', y, gen, R2, alpha)
+    .Call('_bWGR_emEN', PACKAGE = 'bWGR', y, gen, R2, alpha)
 }
 
 BayesB <- function(y, X, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
-    .Call('bWGR_BayesB', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
+    .Call('_bWGR_BayesB', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
+}
+
+CNT <- function(X) {
+    invisible(.Call('_bWGR_CNT', PACKAGE = 'bWGR', X))
+}
+
+IMP <- function(X) {
+    invisible(.Call('_bWGR_IMP', PACKAGE = 'bWGR', X))
+}
+
+GAU <- function(X) {
+    .Call('_bWGR_GAU', PACKAGE = 'bWGR', X)
+}
+
+SPC <- function(y, blk, row, col, rN = 3L, cN = 1L) {
+    .Call('_bWGR_SPC', PACKAGE = 'bWGR', y, blk, row, col, rN, cN)
 }
 

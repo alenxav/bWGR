@@ -396,7 +396,7 @@ SEXP emDE(NumericVector y, NumericMatrix gen, double R2 = 0.5){
     e = e-eM;
     // Variance components
     Ve = sum(e*y)/(n-1);
-    Vb = b*b+(Ve/(xx+Lmb));
+    Vb = b*b+(Ve/(xx+Lmb+0.0001));
     Lmb = sqrt(cxx*Ve/Vb);
     // Convergence
     ++numit;
@@ -579,3 +579,29 @@ SEXP BayesB(NumericVector y, NumericMatrix X,
                       Named("h2") = h2,
                       Named("MSx") = MSx);
 }
+
+// [[Rcpp::export]]
+void CNT(NumericMatrix X){for(int j=0;j<X.ncol();j++){X(_,j)=X(_,j)-mean(X(_,j));}}
+
+// [[Rcpp::export]]
+void IMP(NumericMatrix X){;int p = X.ncol(); int n = X.nrow();
+LogicalVector MIS(n); NumericVector x(n); NumericVector z; double EXP;
+for(int j=0; j<p; j++){;if(is_true(any(is_na(X(_,j))))){
+  x = X(_,j); MIS = is_na(x);z = x[!MIS]; EXP = mean(z);
+  X(_,j) = ifelse(MIS,EXP,x);};};};
+
+// [[Rcpp::export]]
+NumericMatrix GAU(NumericMatrix X){
+  int n = X.nrow(); NumericVector D; NumericMatrix K(n,n); double d2, md;
+  for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
+    if(i==j){ K(i,j)=0; }else if(j>i){ D = X(i,_)-X(j,_);
+    d2 = sum(D*D); d2 = d2*d2; K(i,j)=d2; K(j,i)=d2; }}}; md = mean(K);
+    for(int i=0; i<n; i++){K(i,_) = exp(-K(i,_)/md);} return K;}
+
+// [[Rcpp::export]]
+NumericVector SPC(NumericVector y, NumericVector blk, NumericVector row, NumericVector col, int rN=3, int cN=1){
+  int n = y.size(); NumericVector Cov(n), Phe(n), Obs(n);
+  for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
+      if( (i>j) & (blk[i]==blk[j]) & (abs(row[i]-row[j])<=rN) & (abs(col[i]-col[j])<=cN) ){
+        Phe[i] = Phe[i]+y[j]; Obs[i] = Obs[i]+1; Phe[j] = Phe[j]+y[i]; Obs[j] = Obs[j]+1; }}}
+  Cov = Phe/Obs; return Cov;}
