@@ -25,7 +25,8 @@ emBC(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
 emBL(y, gen, R2 = 0.5, alpha = 0.02)
 emEN(y, gen, R2 = 0.5, alpha = 0.02)
 emDE(y, gen, R2 = 0.5)
-emCV(y, gen, k = 5, n = 5)
+  
+emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02, df = 10, R2 = 0.5)
 }
 \arguments{
   \item{y}{
