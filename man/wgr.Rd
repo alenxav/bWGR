@@ -4,16 +4,18 @@
 \alias{KMUP2}
 \alias{GSEN}
 \alias{BayesB}
+\alias{BayesC}
 \title{
 Whole-genome Regression
 }
 \description{
-Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel). BayesB function written entirely in C++ was added in version 1.5.
+Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel). BayesB and BayesC functions written entirely in C++ were added in later version.
 }
 \usage{
 wgr(y,X,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,de=FALSE,
     pi=0,df=5,R2=0.5,eigK=NULL,VarK=0.95,verb=FALSE)
 BayesB(y,X,it=1500,bi=500,pi=0.95,df=5,R2=0.5)
+BayesC(y,X,it=1500,bi=500,pi=0.95,df=5,R2=0.5)
 }
 \arguments{
   \item{y}{

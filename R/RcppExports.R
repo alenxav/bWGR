@@ -41,6 +41,10 @@ BayesB <- function(y, X, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
     .Call('_bWGR_BayesB', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
 }
 
+BayesC <- function(y, X, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesC', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
+}
+
 CNT <- function(X) {
     invisible(.Call('_bWGR_CNT', PACKAGE = 'bWGR', X))
 }
