@@ -3,19 +3,23 @@
 \alias{KMUP}
 \alias{KMUP2}
 \alias{GSEN}
+\alias{BayesA}
+\alias{BayesA2}
 \alias{BayesB}
+\alias{BayesB2}
 \alias{BayesC}
+\alias{BayesL}
+\alias{BayesRR}
+\alias{BayesRR2}
 \title{
 Whole-genome Regression
 }
 \description{
-Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel). BayesB and BayesC functions written entirely in C++ were added in later version.
+Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel). Additional standalone functions written entirely in C++ are also implemented.
 }
 \usage{
 wgr(y,X,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,de=FALSE,
     pi=0,df=5,R2=0.5,eigK=NULL,VarK=0.95,verb=FALSE)
-BayesB(y,X,it=1500,bi=500,pi=0.95,df=5,R2=0.5)
-BayesC(y,X,it=1500,bi=500,pi=0.95,df=5,R2=0.5)
 }
 \arguments{
   \item{y}{
@@ -75,6 +79,26 @@ where \eqn{y} is the response variable, \eqn{mu} is the intercept, \eqn{X} is th
 Users can obtain four WGR methods out of this function: BRR (pi=0,iv=F), BayesA (pi=0,iv=T), BayesB (pi=0.95,iv=T), BayesC (pi=0.95,iv=F) and Bayesian LASSO or BayesL (pi=0,de=T). Theoretical basis of each model is described by de los Campos et al. (2013).
 
 Gibbs sampler that updates regression coefficients is adapted from GSRU algorithm (Legarra and Misztal 2008). The variable selection works through the unconditional prior algorithm proposed by Kuo and Mallick (1998). Prior shape estimates are computed as Sb = R2*df*var(y)/MSx and Se = (1-R2)*df*var(y). The polygenic term is solved by Bayesian algorithm of reproducing kernel Hilbert Spaces proposed by de los Campos et al. (2010).
+
+
+In addition to \code{wgr}, standalone C++ functions available include:
+
+01) \code{BayesA(y,X,it=1500,bi=500,df=5,R2=0.5)}
+
+02) \code{BayesB(y,X,it=1500,bi=500,pi=0.95,df=5,R2=0.5)}
+
+03) \code{BayesC(y,X,it=1500,bi=500,pi=0.95,df=5,R2=0.5)}
+
+04) \code{BayesL(y,X,it=1500,bi=500,df=5,R2=0.5)}
+
+05) \code{BayesRR(y,X,it=1500,bi=500,df=5,R2=0.5)}
+
+06) \code{BayesA2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
+
+07) \code{BayesB2(y,X1,X2,it=1500,bi=500,pi=0.95,df=5,R2=0.5)}
+
+08) \code{BayesRR2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
+
 }
 \value{
 The function wgr returns a list with expected value from the marker effect (\eqn{b}), probability of marker being in the model (\eqn{d}), regression coefficient (\eqn{g}), variance of each marker (\eqn{Vb}), the intercept (\eqn{mu}), the polygene (\eqn{u}) and polygenic variance (\eqn{Vk}), residual variance (\eqn{Ve}) and the fitted value (\eqn{hat}).
