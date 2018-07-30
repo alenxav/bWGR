@@ -6,16 +6,16 @@ SEXP KMUP(NumericMatrix X, NumericVector b, NumericVector d, NumericVector xx, N
   int p = X.ncol();
   NumericVector e1 = e+0;
   NumericVector e2 = e+0;
-  double b0,b1,cj,dj,pj;
+  double b0,b1,b2,cj,dj,pj;
   double C = -0.5/Ve;
   //
   for(int j=0; j<p; j++){
     b0 = b[j];
-    b1 = R::rnorm( (sum(X(_,j)*e)+xx[j]*b0)/(xx[j]+L[j]),
-                   sqrt(Ve/(xx[j]+L[j]))  );
+    b1 = R::rnorm( (sum(X(_,j)*e)+xx[j]*b0)/(xx[j]+L[j]), sqrt(Ve/(xx[j]+L[j]))  );
+    b2 = R::rnorm( 0, sqrt(Ve/(xx[j]+L[j]))  );
     e1 = e-X(_,j)*(b1-b0); // with marker
     if(pi>0){
-      e2 = e-X(_,j)*(0-b0); // without marker
+      e2 = e-X(_,j)*(b2-b0); // without marker
       //
       cj = (1-pi)*exp(C*sum(e1*e1));
       dj = (pi)*exp(C*sum(e2*e2));
@@ -26,7 +26,7 @@ SEXP KMUP(NumericMatrix X, NumericVector b, NumericVector d, NumericVector xx, N
         d[j] = 1;
         e = e1;
       }else{
-        b[j] = R::rnorm(0,sqrt(Ve/(xx[j]+L[j])));
+        b[j] = b2;
         d[j] = 0;
         e = e2;
       }
@@ -49,7 +49,7 @@ SEXP KMUP2(NumericMatrix X, NumericVector Use, NumericVector b,  NumericVector d
   int n = Use.size();
   NumericVector e1 = E+0;
   NumericVector e2 = E+0;
-  double b0,b1,cj,dj,pj;
+  double b0,b1,b2,cj,dj,pj;
   double C = -0.5/Ve;
   //
   double bg = n0/n;
@@ -68,10 +68,11 @@ SEXP KMUP2(NumericMatrix X, NumericVector Use, NumericVector b,  NumericVector d
     //
     b0 = b[j];
     b1 = R::rnorm((sum(H*e0)+b0)/(xx(j)*bg+L(j)),sqrt(Ve/(xx(j)*bg+L(j))));
+    b2 = R::rnorm( 0 ,sqrt(Ve/(xx(j)*bg+L(j))));
     e1 = e0 - H*(b1-b0);
     //
     if(pi>0){
-      e2 = e0 - H*(b1-b0);
+      e2 = e0 - H*(b2-b0);
       //
       cj = (1-pi)*exp(C*sum(e1*e1));
       dj = (pi)*exp(C*sum(e2*e2));
@@ -82,7 +83,7 @@ SEXP KMUP2(NumericMatrix X, NumericVector Use, NumericVector b,  NumericVector d
         d[j] = 1;
         e0 = e1;
       }else{
-        b[j] = R::rnorm(0,sqrt(Ve/(xx[j]+L[j])));
+        b[j] = b2;
         d[j] = 0;
         e0 = e2;
       }
