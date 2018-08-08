@@ -275,6 +275,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// emML
+SEXP emML(NumericVector y, NumericMatrix X, Rcpp::Nullable<Rcpp::NumericVector> D);
+RcppExport SEXP _bWGR_emML(SEXP ySEXP, SEXP XSEXP, SEXP DSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type D(DSEXP);
+    rcpp_result_gen = Rcpp::wrap(emML(y, X, D));
+    return rcpp_result_gen;
+END_RCPP
+}
 // CNT
 void CNT(NumericMatrix X);
 RcppExport SEXP _bWGR_CNT(SEXP XSEXP) {
@@ -341,6 +354,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_BayesA2", (DL_FUNC) &_bWGR_BayesA2, 7},
     {"_bWGR_BayesB2", (DL_FUNC) &_bWGR_BayesB2, 8},
     {"_bWGR_BayesRR2", (DL_FUNC) &_bWGR_BayesRR2, 7},
+    {"_bWGR_emML", (DL_FUNC) &_bWGR_emML, 3},
     {"_bWGR_CNT", (DL_FUNC) &_bWGR_CNT, 1},
     {"_bWGR_IMP", (DL_FUNC) &_bWGR_IMP, 1},
     {"_bWGR_GAU", (DL_FUNC) &_bWGR_GAU, 1},
