@@ -1,4 +1,4 @@
-mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emRR,...){
+mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,...){
   
   # Get y vector
   if(!is.null(data)) y = data[[deparse(substitute(y))]]
@@ -120,7 +120,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emRR,...){
           }}}
       # VarComp & Lambda
       Ve = crossprod(y,e)[1,1]/(n-df)
-      Va = (sapply(U,crossprod)+Ve)/df0
+      Va = (sapply(U,crossprod)+Ve)/(df0-1)
       LMB = sqrt(LMB0*Ve/Va)}
     
     # Print R2 and check convergence based on Ve
