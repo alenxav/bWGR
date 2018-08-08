@@ -14,7 +14,7 @@ or Gibbs sampling, with optional sampling techniques and kernel term.
 Package: \tab bWGR\cr
 Type: \tab Package\cr
 Version: \tab 1.5.4 \cr
-Date: \tab 2018-08-01\cr
+Date: \tab 2018-08-08\cr
 License: \tab GPL-3 \cr
 }
 }

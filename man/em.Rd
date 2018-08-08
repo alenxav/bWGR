@@ -6,6 +6,7 @@
 \alias{emBL}
 \alias{emDE}
 \alias{emEN}
+\alias{emML}
 \alias{emCV}
 \alias{SPC}
 \alias{IMP}
@@ -25,6 +26,7 @@ emBC(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
 emBL(y, gen, R2 = 0.5, alpha = 0.02)
 emEN(y, gen, R2 = 0.5, alpha = 0.02)
 emDE(y, gen, R2 = 0.5)
+emML(y, gen, D = NULL)
   
 emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02, df = 10, R2 = 0.5)
 }
@@ -47,6 +49,9 @@ Value between 0 and 1. Expected probability pi of having null effect (or 1-Pi if
 }
   \item{alpha}{
 Value between 0 and 1. Intensity of L1 variable selection.
+}
+  \item{D}{
+NULL or numeric vector with length p. Vector of weights for markers.
 }
   \item{k}{
 Integer. Folding of a k-fold cross-validation.

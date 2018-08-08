@@ -7,7 +7,7 @@ Mixed model solver
 Function to solve univariate mixed models with or without the usage of omic information. This function allows single-step modeling of replicated observations with marker information available through the usage of a linkage function to connect to a whole-genome regression method. Genomic estimated values are deregressed (no shrinkage) while fitting the model, which may inflate the variance component associated to this component.
 }
 \usage{
-mixed(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emRR,...)
+mixed(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,...)
 }
 \arguments{
   \item{y}{
@@ -26,7 +26,7 @@ Data frame containing the response variable, random and fixed terms.
 List of omic incidence matrix. Row names of these matrices connect the omic information to the levels of the indicated random terms (eg. \code{X=list("ID"=gen)}).
 }
   \item{alg}{
-Function. Whole-genome regression algorithm utilized to solve link functions. These include MCMC (\code{wgr}) and EM (\code{emEN}, \code{emDE}, etc) algorithms. By default, it runs \code{emRR}.
+Function. Whole-genome regression algorithm utilized to solve link functions. These include MCMC (\code{wgr}, \code{BayesB}, etc) and EM (\code{emEN}, \code{emDE}, etc) algorithms. By default, it runs maximum likelihood \code{emML}.
 }
   \item{...}{
 Additional arguments to be passed to the whole-genome regression algorithms especified on \code{alg}.
