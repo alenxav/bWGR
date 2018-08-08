@@ -276,15 +276,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // emML
-SEXP emML(NumericVector y, NumericMatrix X, Rcpp::Nullable<Rcpp::NumericVector> D);
-RcppExport SEXP _bWGR_emML(SEXP ySEXP, SEXP XSEXP, SEXP DSEXP) {
+SEXP emML(NumericVector y, NumericMatrix gen, Rcpp::Nullable<Rcpp::NumericVector> D);
+RcppExport SEXP _bWGR_emML(SEXP ySEXP, SEXP genSEXP, SEXP DSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
     Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type D(DSEXP);
-    rcpp_result_gen = Rcpp::wrap(emML(y, X, D));
+    rcpp_result_gen = Rcpp::wrap(emML(y, gen, D));
     return rcpp_result_gen;
 END_RCPP
 }
