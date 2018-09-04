@@ -1,4 +1,4 @@
-mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,...){
+mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,...){
   
   # Get y vector
   if(!is.null(data)) y = data[[deparse(substitute(y))]]
@@ -70,7 +70,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,...){
   
   # Fit (loop)
   e = y; R2c = 0.5
-  for(iter in 1:10){
+  for(iter in 1:maxit){
     cat('Iter ',iter,':',sep='')
     
     # Fixed effects 
@@ -124,7 +124,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,...){
       LMB = sqrt(LMB0*Ve/Va)}
     
     # Print R2 and check convergence based on Ve
-    R2 = round(1-Ve/var(y),3)
+    R2 = round(1-Ve/var(y),4)
     cat(' R2 =',R2,'\n')
     if(abs(R2c-R2)==0) break()
     R2c = R2}
