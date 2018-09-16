@@ -141,6 +141,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// emML
+SEXP emML(NumericVector y, NumericMatrix gen, Rcpp::Nullable<Rcpp::NumericVector> D);
+RcppExport SEXP _bWGR_emML(SEXP ySEXP, SEXP genSEXP, SEXP DSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type D(DSEXP);
+    rcpp_result_gen = Rcpp::wrap(emML(y, gen, D));
+    return rcpp_result_gen;
+END_RCPP
+}
+// emGWA
+SEXP emGWA(NumericVector y, NumericMatrix gen);
+RcppExport SEXP _bWGR_emGWA(SEXP ySEXP, SEXP genSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
+    rcpp_result_gen = Rcpp::wrap(emGWA(y, gen));
+    return rcpp_result_gen;
+END_RCPP
+}
 // BayesA
 SEXP BayesA(NumericVector y, NumericMatrix X, double it, double bi, double df, double R2);
 RcppExport SEXP _bWGR_BayesA(SEXP ySEXP, SEXP XSEXP, SEXP itSEXP, SEXP biSEXP, SEXP dfSEXP, SEXP R2SEXP) {
@@ -223,6 +248,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// BayesCpi
+SEXP BayesCpi(NumericVector y, NumericMatrix X, double it, double bi, double df, double R2);
+RcppExport SEXP _bWGR_BayesCpi(SEXP ySEXP, SEXP XSEXP, SEXP itSEXP, SEXP biSEXP, SEXP dfSEXP, SEXP R2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< double >::type it(itSEXP);
+    Rcpp::traits::input_parameter< double >::type bi(biSEXP);
+    Rcpp::traits::input_parameter< double >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< double >::type R2(R2SEXP);
+    rcpp_result_gen = Rcpp::wrap(BayesCpi(y, X, it, bi, df, R2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// BayesDpi
+SEXP BayesDpi(NumericVector y, NumericMatrix X, double it, double bi, double df, double R2);
+RcppExport SEXP _bWGR_BayesDpi(SEXP ySEXP, SEXP XSEXP, SEXP itSEXP, SEXP biSEXP, SEXP dfSEXP, SEXP R2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< double >::type it(itSEXP);
+    Rcpp::traits::input_parameter< double >::type bi(biSEXP);
+    Rcpp::traits::input_parameter< double >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< double >::type R2(R2SEXP);
+    rcpp_result_gen = Rcpp::wrap(BayesDpi(y, X, it, bi, df, R2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // BayesA2
 SEXP BayesA2(NumericVector y, NumericMatrix X1, NumericMatrix X2, double it, double bi, double df, double R2);
 RcppExport SEXP _bWGR_BayesA2(SEXP ySEXP, SEXP X1SEXP, SEXP X2SEXP, SEXP itSEXP, SEXP biSEXP, SEXP dfSEXP, SEXP R2SEXP) {
@@ -275,37 +332,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// emML
-SEXP emML(NumericVector y, NumericMatrix gen, Rcpp::Nullable<Rcpp::NumericVector> D);
-RcppExport SEXP _bWGR_emML(SEXP ySEXP, SEXP genSEXP, SEXP DSEXP) {
+// CNT
+NumericMatrix CNT(NumericMatrix X);
+RcppExport SEXP _bWGR_CNT(SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type D(DSEXP);
-    rcpp_result_gen = Rcpp::wrap(emML(y, gen, D));
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(CNT(X));
     return rcpp_result_gen;
 END_RCPP
 }
-// CNT
-void CNT(NumericMatrix X);
-RcppExport SEXP _bWGR_CNT(SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    CNT(X);
-    return R_NilValue;
-END_RCPP
-}
 // IMP
-void IMP(NumericMatrix X);
+NumericMatrix IMP(NumericMatrix X);
 RcppExport SEXP _bWGR_IMP(SEXP XSEXP) {
 BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    IMP(X);
-    return R_NilValue;
+    rcpp_result_gen = Rcpp::wrap(IMP(X));
+    return rcpp_result_gen;
 END_RCPP
 }
 // GAU
@@ -316,6 +362,18 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(GAU(X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GRM
+NumericMatrix GRM(NumericMatrix X, bool Code012);
+RcppExport SEXP _bWGR_GRM(SEXP XSEXP, SEXP Code012SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< bool >::type Code012(Code012SEXP);
+    rcpp_result_gen = Rcpp::wrap(GRM(X, Code012));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -335,6 +393,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// SPM
+NumericMatrix SPM(NumericVector blk, NumericVector row, NumericVector col, int rN, int cN);
+RcppExport SEXP _bWGR_SPM(SEXP blkSEXP, SEXP rowSEXP, SEXP colSEXP, SEXP rNSEXP, SEXP cNSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type blk(blkSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type col(colSEXP);
+    Rcpp::traits::input_parameter< int >::type rN(rNSEXP);
+    Rcpp::traits::input_parameter< int >::type cN(cNSEXP);
+    rcpp_result_gen = Rcpp::wrap(SPM(blk, row, col, rN, cN));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
@@ -346,19 +419,24 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_emBL", (DL_FUNC) &_bWGR_emBL, 4},
     {"_bWGR_emDE", (DL_FUNC) &_bWGR_emDE, 3},
     {"_bWGR_emEN", (DL_FUNC) &_bWGR_emEN, 4},
+    {"_bWGR_emML", (DL_FUNC) &_bWGR_emML, 3},
+    {"_bWGR_emGWA", (DL_FUNC) &_bWGR_emGWA, 2},
     {"_bWGR_BayesA", (DL_FUNC) &_bWGR_BayesA, 6},
     {"_bWGR_BayesB", (DL_FUNC) &_bWGR_BayesB, 7},
     {"_bWGR_BayesC", (DL_FUNC) &_bWGR_BayesC, 7},
     {"_bWGR_BayesL", (DL_FUNC) &_bWGR_BayesL, 6},
     {"_bWGR_BayesRR", (DL_FUNC) &_bWGR_BayesRR, 6},
+    {"_bWGR_BayesCpi", (DL_FUNC) &_bWGR_BayesCpi, 6},
+    {"_bWGR_BayesDpi", (DL_FUNC) &_bWGR_BayesDpi, 6},
     {"_bWGR_BayesA2", (DL_FUNC) &_bWGR_BayesA2, 7},
     {"_bWGR_BayesB2", (DL_FUNC) &_bWGR_BayesB2, 8},
     {"_bWGR_BayesRR2", (DL_FUNC) &_bWGR_BayesRR2, 7},
-    {"_bWGR_emML", (DL_FUNC) &_bWGR_emML, 3},
     {"_bWGR_CNT", (DL_FUNC) &_bWGR_CNT, 1},
     {"_bWGR_IMP", (DL_FUNC) &_bWGR_IMP, 1},
     {"_bWGR_GAU", (DL_FUNC) &_bWGR_GAU, 1},
+    {"_bWGR_GRM", (DL_FUNC) &_bWGR_GRM, 2},
     {"_bWGR_SPC", (DL_FUNC) &_bWGR_SPC, 6},
+    {"_bWGR_SPM", (DL_FUNC) &_bWGR_SPM, 5},
     {NULL, NULL, 0}
 };
 
