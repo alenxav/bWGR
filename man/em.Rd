@@ -10,6 +10,7 @@
 \alias{emCV}
 \alias{emGWA}
 \alias{SPC}
+\alias{SPM}
 \alias{IMP}
 \alias{CNT}
 \alias{GAU}
