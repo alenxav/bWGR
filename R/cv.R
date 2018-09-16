@@ -50,13 +50,15 @@ mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5)
     f3 = BayesC(y[-w], gen[-w, ], R2 = R2, df = df, it=it, bi=bi, pi=pi)
     f4 = BayesL(y[-w], gen[-w, ], R2 = R2, df = df, it=it, bi=bi)
     f5 = BayesRR(y[-w], gen[-w, ], R2 = R2, df = df, it=it, bi=bi)
+    f6 = BayesCpi(y[-w], gen[-w, ], R2 = R2, df = df, it=it, bi=bi)
+    f7 = BayesDpi(y[-w], gen[-w, ], R2 = R2, df = df, it=it, bi=bi)
     cat("DONE WITH CROSS-VALIDATION CYCLE", Seed, "\n")
-    NamesMod = c("BayesA", "BayesB", "BayesC",
-                 "BayesL", "BayesRR", "OBSERVATION")
+    NamesMod = c("BayesA", "BayesB", "BayesC", "BayesL",
+                  "BayesCpi", "BayesDpi", "BayesRR", "OBSERVATION")
     M = matrix(NA, Nk, length(NamesMod))
     colnames(M) = NamesMod
-    for (i in 1:5) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
-    M[, 6] = Y[w]
+    for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+    M[, length(NamesMod)] = Y[w]
     return(M)
   }
   Seeds = 1:n
