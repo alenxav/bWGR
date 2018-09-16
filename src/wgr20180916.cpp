@@ -1383,9 +1383,20 @@ NumericMatrix IMP(NumericMatrix X){
 NumericMatrix GAU(NumericMatrix X){
   int n = X.nrow(); NumericVector D; NumericMatrix K(n,n); double d2, md;
   for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
-    if(i==j){ K(i,j)=0; }else if(j>i){ D = X(i,_)-X(j,_);
+    if(i==j){ K(i,j)=0; }else if(j>i){; D = X(i,_)-X(j,_);
     d2 = sum(D*D); K(i,j)=d2; K(j,i)=d2; }}}; md = mean(K);
     for(int i=0; i<n; i++){K(i,_) = exp(-K(i,_)/md);} return K;}
+
+// [[Rcpp::export]]
+NumericMatrix GRM(NumericMatrix X, bool Code012 = false){
+  int n = X.nrow(), p = X.ncol();
+  NumericMatrix K(n,n); NumericVector xx(p); double zz, Sum2pq=0.0;
+  for(int i=0; i<p; i++){ xx[i] = mean(X(_,i)); }
+  if(Code012){for(int i=0; i<p; i++){ Sum2pq = Sum2pq + xx[i]*xx[i]/2;}
+  }else{ for(int i=0; i<p; i++){ Sum2pq = Sum2pq + var(X(_,i));}}
+  for(int i=0; i<n; i++){; for(int j=0; j<n; j++){; if(i<=j ){
+   zz = sum( (X(i,_)-xx(i))*(X(j,_)-xx(j)) );
+   K(i,j)=zz; K(j,i)=zz;}}}; return K/Sum2pq;}
 
 // [[Rcpp::export]]
 NumericVector SPC(NumericVector y, NumericVector blk, NumericVector row, NumericVector col, int rN=3, int cN=1){
@@ -1394,3 +1405,9 @@ NumericVector SPC(NumericVector y, NumericVector blk, NumericVector row, Numeric
       if( (i>j) & (blk[i]==blk[j]) & (abs(row[i]-row[j])<=rN) & (abs(col[i]-col[j])<=cN) ){
         Phe[i] = Phe[i]+y[j]; Obs[i] = Obs[i]+1; Phe[j] = Phe[j]+y[i]; Obs[j] = Obs[j]+1; }}}
   Cov = Phe/Obs; return Cov;}
+
+// [[Rcpp::export]]
+NumericMatrix SPM(NumericVector blk, NumericVector row, NumericVector col, int rN=3, int cN=1){
+  int n = blk.size(); NumericMatrix X(n,n); for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
+      if( (blk[i]==blk[j]) & (i>j) & (abs(row[i]-row[j])<=rN) & (abs(col[i]-col[j])<=cN) ){
+        X(i,j) = 1; X(j,i) = 1; }else{ X(i,j) = 0; X(j,i) = 0; }}; X(i,i) = 0;}; return X;}
