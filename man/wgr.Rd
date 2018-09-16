@@ -8,6 +8,8 @@
 \alias{BayesB}
 \alias{BayesB2}
 \alias{BayesC}
+\alias{BayesCpi}
+\alias{BayesDpi}
 \alias{BayesL}
 \alias{BayesRR}
 \alias{BayesRR2}
@@ -90,15 +92,19 @@ In addition to \code{wgr}, standalone C++ functions available include:
 
 03) \code{BayesC(y,X,it=1500,bi=500,pi=0.95,df=5,R2=0.5)}
 
-04) \code{BayesL(y,X,it=1500,bi=500,df=5,R2=0.5)}
+04) \code{BayesCpi(y,X,it=1500,bi=500,df=5,R2=0.5)}
+    
+05) \code{BayesDpi(y,X,it=1500,bi=500,df=5,R2=0.5)}
+    
+06) \code{BayesL(y,X,it=1500,bi=500,df=5,R2=0.5)}
 
-05) \code{BayesRR(y,X,it=1500,bi=500,df=5,R2=0.5)}
+07) \code{BayesRR(y,X,it=1500,bi=500,df=5,R2=0.5)}
 
-06) \code{BayesA2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
+08) \code{BayesA2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
 
-07) \code{BayesB2(y,X1,X2,it=1500,bi=500,pi=0.95,df=5,R2=0.5)}
+09) \code{BayesB2(y,X1,X2,it=1500,bi=500,pi=0.95,df=5,R2=0.5)}
 
-08) \code{BayesRR2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
+10) \code{BayesRR2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
 
 Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5)}
 
