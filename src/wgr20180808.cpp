@@ -1128,14 +1128,19 @@ SEXP emML(NumericVector y, NumericMatrix gen,
                       Named("Vb")=vb, Named("Ve")=ve);}
 
 // [[Rcpp::export]]
-void CNT(NumericMatrix X){for(int j=0;j<X.ncol();j++){X(_,j)=X(_,j)-mean(X(_,j));}}
+NumericMatrix CNT(NumericMatrix X){for(int j=0;j<X.ncol();j++){X(_,j)=X(_,j)-mean(X(_,j));}; return(X);}
 
 // [[Rcpp::export]]
-void IMP(NumericMatrix X){;int p = X.ncol(); int n = X.nrow();
-LogicalVector MIS(n); NumericVector x(n); NumericVector z; double EXP;
-for(int j=0; j<p; j++){;if(is_true(any(is_na(X(_,j))))){
-  x = X(_,j); MIS = is_na(x);z = x[!MIS]; EXP = mean(z);
-  X(_,j) = ifelse(MIS,EXP,x);};};};
+NumericMatrix IMP(NumericMatrix X){
+  int p = X.ncol(); int n = X.nrow();
+  LogicalVector MIS(n); NumericVector x(n);
+  NumericVector z; double EXP;
+  for(int j=0; j<p; j++){
+    if(is_true(any(is_na(X(_,j))))){
+      x = X(_,j); MIS = is_na(x);
+      z = x[!MIS]; EXP = mean(z);
+      X(_,j) = ifelse(MIS,EXP,x);}
+  };return(X);};
 
 // [[Rcpp::export]]
 NumericMatrix GAU(NumericMatrix X){
