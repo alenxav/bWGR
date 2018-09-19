@@ -1,4 +1,4 @@
-mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,...){
+mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,Deregress=TRUE,...){
   
   # Get y vector
   if(!is.null(data)) y = data[[deparse(substitute(y))]]
@@ -58,10 +58,12 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,.
     fit = as.vector(h$hat)
     names(fit) = rownames(X[[i]])
     # Deregress
-    g = c(crossprod(fit,e0)/(crossprod(fit)))
-    xb = fit*g
-    b0 = e0-xb
-    fit = b0+fit*g
+    if(Deregress){
+     g = c(crossprod(fit,e0)/(crossprod(fit)))
+     xb = fit*g
+     b0 = e0-xb
+     fit = b0+fit*g
+    }    
     # Output
     res = e00 - fit[as.character(x)]
     OUT = list(b=fit,g=h$b,e=res)
