@@ -1,12 +1,13 @@
 Package: bWGR
 Type: Package
 Title: Bayesian Whole-Genome Regression
-Version: 1.5.5
-Date: 2018-09-16
+Version: 1.5.6
+Date: 2018-10-01
 Author: Alencar Xavier, William Muir, Shizhong Xu, Katy Rainey.
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 Description: Whole-genome regression methods on Bayesian framework fitted via EM
-    or Gibbs sampling, with optional sampling techniques and kernel term.
+    or Gibbs sampling, with optional kernel term and sampling techniques as described
+    by Xavier et al. (2017) <doi.org/10.1186/s12859-017-1582-3>.
 License: GPL-3
 Imports: Rcpp
 LinkingTo: Rcpp
