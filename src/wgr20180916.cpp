@@ -1388,9 +1388,6 @@ NumericMatrix GAU(NumericMatrix X){
     for(int i=0; i<n; i++){K(i,_) = exp(-K(i,_)/md);} return K;}
 
 // [[Rcpp::export]]
-#include <Rcpp.h>
-using namespace Rcpp;
-// [[Rcpp::export]]
 NumericMatrix GRM(NumericMatrix X, bool Code012 = false){
   int n = X.nrow(), p = X.ncol();
   NumericMatrix K(n,n); NumericVector xx(p); double zz, Sum2pq=0.0;
