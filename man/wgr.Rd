@@ -106,7 +106,7 @@ In addition to \code{wgr}, standalone C++ functions available include:
 
 10) \code{BayesRR2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
 
-Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5)}
+Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=TRUE)}
 
 }
 \value{
