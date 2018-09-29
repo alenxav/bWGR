@@ -7,14 +7,15 @@ Bayesian Whole-Genome Regression
 }
 \description{
 Whole-genome regression methods on Bayesian framework fitted via EM
-or Gibbs sampling, with optional sampling techniques and kernel term.
+    or Gibbs sampling, with optional kernel term and sampling techniques as described
+    by Xavier et al. (2017) <doi.org/10.1186/s12859-017-1582-3>.
 }
 \details{
 \tabular{ll}{
 Package: \tab bWGR\cr
 Type: \tab Package\cr
-Version: \tab 1.5.5 \cr
-Date: \tab 2018-09-16\cr
+Version: \tab 1.5.6 \cr
+Date: \tab 2018-10-01\cr
 License: \tab GPL-3 \cr
 }
 }
