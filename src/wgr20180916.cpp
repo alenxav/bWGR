@@ -1013,7 +1013,7 @@ SEXP BayesCpi(NumericVector y, NumericMatrix X,
   // Getting GWAS results
   NumericVector PVAL = -log(1-D);
   // Get fitted values and h2
-  vg = VB*MSx; h2 = vg/(vg+VE);
+  vg = VB*MSx/Pi; h2 = vg/(vg+VE);
   for(int k=0; k<n; k++){fit[k] = sum(X(k,_)*B)+MU;}
   // Return output
   return List::create(Named("mu") = MU, Named("b") = B,
