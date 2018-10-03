@@ -547,7 +547,7 @@ SEXP emML(NumericVector y, NumericMatrix gen,
                       Named("Vb")=vb, Named("Ve")=ve);}
 
 // [[Rcpp::export]]
-SEXP emMix(NumericVector y, NumericMatrix gen, double R2=0.5){
+SEXP emMX(NumericVector y, NumericMatrix gen, double R2=0.5){
   int maxit = 250;
   double tol = 10e-8;
   // Functions starts here
