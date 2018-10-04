@@ -31,7 +31,7 @@ Function. Whole-genome regression algorithm utilized to solve link functions. Th
 \item{maxit}{
 Integer. Maximum number of iterations.
 }
-\item{Deregress=TRUE}{
+\item{Deregress}{
 Logical. Deregress (unshrink) coefficients while fitting the model?
 } 
 \item{...}{
