@@ -7,7 +7,7 @@ Author: Alencar Xavier, William Muir, Shizhong Xu, Katy Rainey.
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 Description: Whole-genome regression methods on Bayesian framework fitted via EM
     or Gibbs sampling, with optional kernel term and sampling techniques as described
-    by Xavier et al. (2017) <doi.org/10.1186/s12859-017-1582-3>.
+    by Xavier (2017) <doi.org/10.1186/s12859-017-1582-3>.
 License: GPL-3
 Imports: Rcpp
 LinkingTo: Rcpp
