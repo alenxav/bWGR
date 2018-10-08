@@ -1011,7 +1011,7 @@ SEXP BayesCpi(NumericVector y, NumericMatrix X,
   double Se = df*(1-R2)*vy;
   double mu = mean(y);
   // Create empty objects
-  double b0,b1,b2,eM,h2,C,MU,VB,VE,Pi,cj,dj,pj,vg,ve=vy,vb=Sb;
+  double b0,b1,b2,eM,h2,C,MU,VB,VE,Pi,pj,vg,ve=vy,vb=Sb;
   double PiAlpha,PiBeta,PiMean,PiVar;
   NumericVector d(p),b(p),D(p),B(p),fit(n);
   NumericVector e=y-mu,e1(n),e2(n);
@@ -1028,9 +1028,7 @@ SEXP BayesCpi(NumericVector y, NumericMatrix X,
       e1 = e-X(_,j)*(b1-b0); // Pr(with marker)
       e2 = e-X(_,j)*(0-b0); // Pr(without marker)
       // Pr(marker included)
-      cj = exp(C*sum(e1*e1)); // Likelihood(with marker)
-      dj = exp(C*sum(e2*e2)); // Likelihood(without marker)
-      pj = (1-pi)*cj/dj;
+      pj = (1-pi)*exp(C*(sum(e1*e1)-sum(e2*e2)));
       if(pj>1) pj = 1;
       // Smple from Bernoulli
       if(R::rbinom(1,pj)==1){
@@ -1094,7 +1092,7 @@ SEXP BayesDpi(NumericVector y, NumericMatrix X,
   double Se = (1-R2)*df*vy;
   double mu = mean(y);
   // Create empty objects
-  double b0,b1,b2,eM,h2,C,MU,VE,Pi,cj,dj,pj,vg,ve=vy;
+  double b0,b1,b2,eM,h2,C,MU,VE,Pi,pj,vg,ve=vy;
   double PiAlpha,PiBeta,PiMean,PiVar;
   NumericVector d(p),b(p),D(p),B(p),VB(p),fit(n);
   NumericVector vb=b+Sb,Lmb=ve/vb,e=y-mu,e1(n),e2(n);
@@ -1110,9 +1108,7 @@ SEXP BayesDpi(NumericVector y, NumericMatrix X,
       e1 = e-X(_,j)*(b1-b0); // Pr(with marker)
       e2 = e-X(_,j)*(b2-b0); // Pr(without marker)
       // Pr(marker included)
-      cj = exp(C*sum(e1*e1)); // Likelihood(with marker)
-      dj = exp(C*sum(e2*e2)); // Likelihood(without marker)
-      pj = (1-pi)*cj/dj;
+      pj = (1-pi)*exp(C*(sum(e1*e1)-sum(e2*e2)));
       if(pj>1) pj = 1;
       // Smple from Bernoulli
       if(R::rbinom(1,pj)==1){
