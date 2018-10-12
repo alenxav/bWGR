@@ -61,7 +61,7 @@ emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE,
     if(avg){
       dta = matrix(0, 0, m)
       for (i in 1:n) dta = rbind(dta, cv[[i]])
-      PA = sort(cor(dta)[-m, m], decreasing = TRUE)
+      PA = sort(cor(dta,use='p')[-m, m], decreasing = TRUE)
       return(round(PA, digits = 4))
     }else{
       dta = c()
@@ -133,7 +133,7 @@ mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5,
     if(avg){
       dta = matrix(0, 0, m)
       for (i in 1:n) dta = rbind(dta, cv[[i]])
-      PA = sort(cor(dta)[-m, m], decreasing = TRUE)
+      PA = sort(cor(dta,use='p')[-m, m], decreasing = TRUE)
       return(round(PA, digits = 4))
     }else{
       dta = c()
