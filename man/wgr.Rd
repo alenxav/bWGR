@@ -81,7 +81,7 @@ where \eqn{y} is the response variable, \eqn{mu} is the intercept, \eqn{X} is th
 
 Users can obtain four WGR methods out of this function: BRR (pi=0,iv=F), BayesA (pi=0,iv=T), BayesB (pi=0.95,iv=T), BayesC (pi=0.95,iv=F) and Bayesian LASSO or BayesL (pi=0,de=T). Theoretical basis of each model is described by de los Campos et al. (2013).
 
-Gibbs sampler that updates regression coefficients is adapted from GSRU algorithm (Legarra and Misztal 2008). The variable selection works through the unconditional prior algorithm proposed by Kuo and Mallick (1998). Prior shape estimates are computed as Sb = R2*df*var(y)/MSx and Se = (1-R2)*df*var(y). The polygenic term is solved by Bayesian algorithm of reproducing kernel Hilbert Spaces proposed by de los Campos et al. (2010).
+Gibbs sampler that updates regression coefficients is adapted from GSRU algorithm (Legarra and Misztal 2008). The variable selection of functions \eqn{wgr}, \eqn{BayesB} and \eqn{BayesC} works through the unconditional prior algorithm proposed by Kuo and Mallick (1998), whereas \eqn{BayesCpi} and \eqn{BayesDpi} are based on Metropolis-Hastings. Prior shape estimates are computed as Sb = R2*df*var(y)/MSx and Se = (1-R2)*df*var(y), with an exception for \eqn{BayesC} and \eqn{BayesCpi} where the prior shape is Sb = R2*df*var(y)/MSx/(1-pi). The polygenic term is solved by Bayesian algorithm of reproducing kernel Hilbert Spaces proposed by de los Campos et al. (2010).
 
 
 In addition to \code{wgr}, standalone C++ functions available include:
@@ -99,6 +99,8 @@ In addition to \code{wgr}, standalone C++ functions available include:
 06) \code{BayesL(y,X,it=1500,bi=500,df=5,R2=0.5)}
 
 07) \code{BayesRR(y,X,it=1500,bi=500,df=5,R2=0.5)}
+
+The implementations that support two random effects include:
 
 08) \code{BayesA2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
 
