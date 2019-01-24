@@ -2,12 +2,13 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
   
   # Get y vector
   if(!is.null(data)) y = data[[deparse(substitute(y))]]
+  Vy = Var(y,na.rm=TRUE)
   
   # Remove missing
   if(anyNA(y)){
     wna = which(is.na(y)); y = y[-wna]
     data = droplevels.data.frame(data[-wna,])}
-  
+    
   # Random effects
   if(!is.null(random)){
     rnd = attr(terms(random),"term.labels")
@@ -67,7 +68,6 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     # Output
     res = e00 - fit[as.character(x)]
     OUT = list(b=fit,g=h$b,e=res)
-    # cat(' (WGR on ',i,') ',sep='')
     return(OUT)}
   
   # Fit (loop)
@@ -122,11 +122,12 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
           }}}
       # VarComp & Lambda
       Ve = crossprod(y,e)[1,1]/(n-df)
-      Va = (sapply(U,crossprod)+Ve)/(df0-1)
+      Va0 = sapply(U,crossprod)
+      Va = (Vy-Ve)*(Va0/sum(Va0))      
       LMB = sqrt(LMB0*Ve/Va)}
     
     # Print R2 and check convergence based on Ve
-    R2 = round(1-Ve/var(y),4)
+    R2 = round(1-Ve/Vy,4)
     cat(' R2 =',R2,'\n')
     if(abs(R2c-R2)==0) break()
     R2c = R2}
