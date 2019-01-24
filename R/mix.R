@@ -122,7 +122,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
           }}}
       # VarComp & Lambda
       Ve = crossprod(y,e)[1,1]/(n-df)
-      Va0 = sapply(U,crossprod)
+      Va0 = sapply(U,var)
       Va = (Vy-Ve)*(Va0/sum(Va0))      
       LMB = sqrt(LMB0*Ve/Va)}
     
