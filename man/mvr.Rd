@@ -89,7 +89,7 @@ Phe = cbind(Y1,Y2,Y3)
 
 # Fit model
 test1 = mkr(Phe,G)
-test2 = mrr(Phe,gen)
+test2 = mrr(Phe,gen,TRUE)
 
 # Genetic correlation
 cov2cor(test1$VA)
