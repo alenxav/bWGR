@@ -2,7 +2,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
   
   # Get y vector
   if(!is.null(data)) y = data[[deparse(substitute(y))]]
-  Vy = Var(y,na.rm=TRUE)
+  Vy = var(y,na.rm=TRUE)
   
   # Remove missing
   if(anyNA(y)){
