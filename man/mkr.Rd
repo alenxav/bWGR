@@ -1,19 +1,23 @@
-\name{WGR3 (MKR)}
+\name{WGR3 (MVR)}
 \alias{mkr}
+\alias{mrr}
 \alias{Hmat}
 \title{
-Multivariate Kernel Regression
+Multi-variate Regression
 }
 \description{
-Multivariate model to find breeding values through kernel regression.
+Multivariate model to find breeding values.
 }
 \usage{
-mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
-    df=5,R2=0.5,EigT=0.05,verb=FALSE)
+ mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,df=5,R2=0.5,EigT=0.05,verb=FALSE)
+ mrr(Y,X)    
 }
 \arguments{
   \item{Y}{
 Numeric matrix of observations (\eqn{n,k}) describing the trait to be analyzed. \code{NA} is allowed.
+}
+  \item{X}{
+Numeric matrix containing the genotyping matrix.
 }
   \item{K}{
 Numeric matrix containing the genotypic relationship matrix. A matrix with \eqn{n} rows and columns.
