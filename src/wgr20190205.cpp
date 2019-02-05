@@ -1534,7 +1534,7 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X){
     // Variance components update
     for(int i=0; i<k; i++){
       ve(i) = sum(e(_,i)*y(_,i))/(n(i)-1);
-      vb(i,i) = (vy(i)-ve(i)+0.01)/MSx(i);}    
+      vb(i,i) = (1.1*vy(i)-ve(i))/MSx(i);}    
     // Approximate genetic correlation
     for(int i=0; i<n0; i++){ 
       for(int j=0; j<k; j++){
