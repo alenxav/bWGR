@@ -1562,6 +1562,6 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X){
   NumericVector h2(k); 
   for(int i=0; i<k; i++){ h2 = (vb(i,i)*MSx(i))/((vb(i,i)*MSx(i))+ve); }    
   // Output
-  return List::create(Named("mu")=mu, Named("beta")=b,
+  return List::create(Named("mu")=mu, Named("b")=b,
                       Named("hat")=fit, Named("h2")=h2,
                       Named("Vb")=vb, Named("Ve")=ve);}
