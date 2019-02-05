@@ -1456,7 +1456,7 @@ NumericMatrix GRM(NumericMatrix X, bool Code012 = false){
 }
 
 // [[Rcpp::export]]
-NumericVector SPC(NumericVector y, NumericVector blk, NumericVector row, NumericVector col, int rN=3, int cN=1){
+NumericVector SPC(NumericVector y, NumericVector blk, NumericVector row, NumericVector col, double rN=3, double cN=1){
   int n = y.size(); NumericVector Cov(n), Phe(n), Obs(n);
   for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
       if( (i>j) & (blk[i]==blk[j]) & (abs(row[i]-row[j])<=rN) & (abs(col[i]-col[j])<=cN) ){
@@ -1464,7 +1464,7 @@ NumericVector SPC(NumericVector y, NumericVector blk, NumericVector row, Numeric
   Cov = Phe/Obs; return Cov;}
 
 // [[Rcpp::export]]
-NumericMatrix SPM(NumericVector blk, NumericVector row, NumericVector col, int rN=3, int cN=1){
+NumericMatrix SPM(NumericVector blk, NumericVector row, NumericVector col, double rN=3, double cN=1){
   int n = blk.size(); NumericMatrix X(n,n); for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
       if( (blk[i]==blk[j]) & (i>j) & (abs(row[i]-row[j])<=rN) & (abs(col[i]-col[j])<=cN) ){
         X(i,j) = 1; X(j,i) = 1; }else{ X(i,j) = 0; X(j,i) = 0; }}; X(i,i) = 0;}; return X;}
