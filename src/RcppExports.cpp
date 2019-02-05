@@ -421,6 +421,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mrr
+SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski);
+RcppExport SEXP _bWGR_mrr(SEXP YSEXP, SEXP XSEXP, SEXP CholeskiSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< bool >::type Choleski(CholeskiSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrr(Y, X, Choleski));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
@@ -451,6 +464,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_GRM", (DL_FUNC) &_bWGR_GRM, 2},
     {"_bWGR_SPC", (DL_FUNC) &_bWGR_SPC, 6},
     {"_bWGR_SPM", (DL_FUNC) &_bWGR_SPM, 5},
+    {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 3},
     {NULL, NULL, 0}
 };
 
