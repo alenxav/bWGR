@@ -85,17 +85,21 @@ Y3 = rnorm(196,y,.3)
 Phe = cbind(Y1,Y2,Y3)
 
 # Fit model
-test = mkr(Phe,G)
+test1 = mkr(Phe,G)
+test2 = mrr(Phe,gen)
 
 # Genetic correlation
-cov2cor(test$VA)
+cov2cor(test1$VA)
 
 # Environmental correlation
-cov2cor(test$VE)
-
+cov2cor(test1$VE)
+ 
 # Heritabilies
-diag(test$VA/(test$VA+test$VE))
-
+diag(test1$VA/(test1$VA+test1$VE))
+test2$h2
+ 
 # Goodness of fit
-diag(cor(Phe,test$BV))
+diag(cor(Phe,test1$BV))
+diag(cor(Phe,test2$hat))
+ 
 }
