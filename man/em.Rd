@@ -7,6 +7,7 @@
 \alias{emDE}
 \alias{emEN}
 \alias{emML}
+\alias{emML2}
 \alias{emMX}
 \alias{emCV}
 \alias{emGWA}
@@ -32,6 +33,7 @@ emEN(y, gen, R2 = 0.5, alpha = 0.02)
 emDE(y, gen, R2 = 0.5)
 emMX(y, gen, R2 = 0.5)
 emML(y, gen, D = NULL)
+emML2(y, X1, X2, D1 = NULL, D2 = NULL)
   
 emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02, df = 10, R2 = 0.5, avg=TRUE, llo=NULL)
 }
