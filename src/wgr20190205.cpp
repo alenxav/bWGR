@@ -1621,7 +1621,7 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski = false){
     for(int i=0; i<k; i++){
       ve(i) = sum(e(_,i)*y(_,i))/(n(i)-1);
       if(Choleski){
-        vb(i,i) = (1.1*vy(i)-ve(i))/MSx(i);
+        vb(i,i) = (1.01*vy(i)-ve(i))/MSx(i);
       }else{ vb(i,i) = (vy(i)-ve(i))/MSx(i);}}    
     // Approximate genetic correlation
     for(int i=0; i<n0; i++){ 
@@ -1636,6 +1636,7 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski = false){
       for(int j=0; j<k; j++){
         if(i>j){
           vb(i,j) = rho(i,j)*sqrt(vb(i,i)*vb(j,j));
+          vb(i,j) = vb(i,j)*vb(i,j); // Tuning 
           vb(j,i) = vb(i,j); }}}
     for(int i=0; i<k; i++){vb(i,i)=vb(i,i)*1.01;}
     if(Choleski){iG = chol2inv(vb);}else{iG = solve(vb);}    
