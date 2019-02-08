@@ -19,9 +19,6 @@ Numeric matrix of observations (\eqn{n,k}) describing the trait to be analyzed. 
   \item{X}{
 Numeric matrix containing the genotyping matrix.
 } 
-  \item{Choleski}{
-Use Choleski decomposition to invert genetic covariance.
-} 
   \item{K}{
 Numeric matrix containing the genotypic relationship matrix. A matrix with \eqn{n} rows and columns.
 }
