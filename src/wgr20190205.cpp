@@ -1562,7 +1562,8 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski = false){
   // Obtain environment containing function
   Rcpp::Environment base("package:base");
   Rcpp::Function solve = base["solve"];
-  Rcpp::Function chol2inv = base["chol2inv"];  
+  Rcpp::Function chol2inv = base["chol2inv"];
+  Rcpp::Function chol = base["chol"];  
   // Functions starts here
   int k = Y.ncol(), p = X.ncol(), n0 = X.nrow();  
   // Handle missings Y's
@@ -1639,7 +1640,7 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski = false){
           vb(i,j) = rho(i,j)*sqrt(vb(i,i)*vb(j,j));
           vb(j,i) = vb(i,j); }}}
     for(int i=0; i<k; i++){vb(i,i)=vb(i,i)*1.01;}
-    if(Choleski){iG = chol2inv(vb);}else{iG = solve(vb);}    
+    if(Choleski){iG = chol2inv(chol(vb));}else{iG = solve(vb);}
     // Convergence
     ++numit;
     cnv = sum(abs(bc-b));
