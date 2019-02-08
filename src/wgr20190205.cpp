@@ -1630,13 +1630,13 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski = false){
     for(int i=0; i<k; i++){ 
       for(int j=0; j<k; j++){
         rho(i,j) = sum(fit(_,i)*fit(_,j))/sqrt(sum(fit(_,i)*fit(_,i))*sum(fit(_,j)*fit(_,j)));
+        rho(i,j) = rho(i,j)*rho(i,j); // tuning
       }}    
     // Covariance components
     for(int i=0; i<k; i++){
       for(int j=0; j<k; j++){
         if(i>j){
           vb(i,j) = rho(i,j)*sqrt(vb(i,i)*vb(j,j));
-          vb(i,j) = vb(i,j)*vb(i,j); // Tuning 
           vb(j,i) = vb(i,j); }}}
     for(int i=0; i<k; i++){vb(i,i)=vb(i,i)*1.01;}
     if(Choleski){iG = chol2inv(vb);}else{iG = solve(vb);}    
