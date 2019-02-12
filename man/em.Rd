@@ -35,7 +35,7 @@ emMX(y, gen, R2 = 0.5)
 emML(y, gen, D = NULL)
 emML2(y, X1, X2, D1 = NULL, D2 = NULL)
   
-emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02, df = 10, R2 = 0.5, avg=TRUE, llo=NULL)
+emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02, df = 10, R2 = 0.5, avg=TRUE, llo=NULL, tbv=NULL)
 }
 \arguments{
   \item{y}{
@@ -71,7 +71,10 @@ Logical. Return average across CV, or correlations within CV.
 }
   \item{llo}{
 NULL or a vector (numeric or factor) with the same length as y. If provided, the cross-validations are performed as Leave a Level Out (LLO). This argument allows the user to predefine the splits. This argument overrides \code{k} and \code{n}.
-}                                                                      
+}
+  \item{tbv}{
+NULL or numeric vector of 'true breeding values' (\eqn{n}) to use to compare cross-validations to. If NULL, the cross-validations will have the phenotypes as prediction target.
+} 
                                                                       
 }
 \details{

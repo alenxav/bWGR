@@ -110,7 +110,7 @@ The implementations that support two random effects include:
 
 And the cross-validation for the C++ implementations, with arguments analogous to the emCV function.
     
-Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=TRUE,llo=NULL)}    
+Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=TRUE,llo=NULL,tbv=NULL)}    
     
 }
 \value{
