@@ -1,4 +1,4 @@
-emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE, llo=NULL){
+emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE, llo=NULL, tbv=NULL){
   folds = function(Seed, y, gen, k) {
     N = nrow(gen)
     set.seed(Seed)
@@ -21,7 +21,11 @@ emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE,
     M = matrix(NA, Nk, length(NamesMod))
     colnames(M) = NamesMod
     for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
-    M[,length(NamesMod)] = Y[w]
+    if(is.null(tbv)){
+      M[,length(NamesMod)] = Y[w]
+    }else{
+      M[,length(NamesMod)] = tbv[w]
+    }
     return(M)
   }
   llo_folds = function(lev, y, gen) {
@@ -44,7 +48,11 @@ emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE,
     M = matrix(NA, Nk, length(NamesMod))
     colnames(M) = NamesMod
     for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
-    M[,length(NamesMod)] = Y[w]
+    if(is.null(tbv)){
+      M[,length(NamesMod)] = Y[w]
+    }else{
+      M[,length(NamesMod)] = tbv[w]
+    }
     return(M)
   }
   if(is.null(llo)){
@@ -73,7 +81,7 @@ emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE,
   return(sCV(b))
 }
 
-mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5, avg=TRUE, llo=NULL){
+mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5, avg=TRUE, llo=NULL, tbv=NULL){
   folds = function(Seed, y, gen, k) {
     N = nrow(gen)
     set.seed(Seed)
@@ -94,7 +102,11 @@ mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5,
     M = matrix(NA, Nk, length(NamesMod))
     colnames(M) = NamesMod
     for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
-    M[, length(NamesMod)] = Y[w]
+    if(is.null(tbv)){
+      M[,length(NamesMod)] = Y[w]
+    }else{
+      M[,length(NamesMod)] = tbv[w]
+    }
     return(M)
   }
   llo_folds = function(lev, y, gen) {
@@ -115,7 +127,11 @@ mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5,
     M = matrix(NA, Nk, length(NamesMod))
     colnames(M) = NamesMod
     for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
-    M[, length(NamesMod)] = Y[w]
+    if(is.null(tbv)){
+      M[,length(NamesMod)] = Y[w]
+    }else{
+      M[,length(NamesMod)] = tbv[w]
+    }
     return(M)
   }
   if(is.null(llo)){
