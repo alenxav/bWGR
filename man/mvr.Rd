@@ -2,6 +2,7 @@
 \alias{mkr}
 \alias{mrr}
 \alias{Hmat}
+\alias{SibZ}
 \title{
 Multi-variate Regression
 }
