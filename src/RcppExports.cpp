@@ -345,6 +345,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// emML2
+SEXP emML2(NumericVector y, NumericMatrix X1, NumericMatrix X2, Rcpp::Nullable<Rcpp::NumericVector> D1, Rcpp::Nullable<Rcpp::NumericVector> D2);
+RcppExport SEXP _bWGR_emML2(SEXP ySEXP, SEXP X1SEXP, SEXP X2SEXP, SEXP D1SEXP, SEXP D2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X1(X1SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X2(X2SEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type D1(D1SEXP);
+    Rcpp::traits::input_parameter< Rcpp::Nullable<Rcpp::NumericVector> >::type D2(D2SEXP);
+    rcpp_result_gen = Rcpp::wrap(emML2(y, X1, X2, D1, D2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // CNT
 NumericMatrix CNT(NumericMatrix X);
 RcppExport SEXP _bWGR_CNT(SEXP XSEXP) {
@@ -422,15 +437,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // mrr
-SEXP mrr(NumericMatrix Y, NumericMatrix X, bool Choleski);
-RcppExport SEXP _bWGR_mrr(SEXP YSEXP, SEXP XSEXP, SEXP CholeskiSEXP) {
+SEXP mrr(NumericMatrix Y, NumericMatrix X);
+RcppExport SEXP _bWGR_mrr(SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< bool >::type Choleski(CholeskiSEXP);
-    rcpp_result_gen = Rcpp::wrap(mrr(Y, X, Choleski));
+    rcpp_result_gen = Rcpp::wrap(mrr(Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -458,13 +472,14 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_BayesA2", (DL_FUNC) &_bWGR_BayesA2, 7},
     {"_bWGR_BayesB2", (DL_FUNC) &_bWGR_BayesB2, 8},
     {"_bWGR_BayesRR2", (DL_FUNC) &_bWGR_BayesRR2, 7},
+    {"_bWGR_emML2", (DL_FUNC) &_bWGR_emML2, 5},
     {"_bWGR_CNT", (DL_FUNC) &_bWGR_CNT, 1},
     {"_bWGR_IMP", (DL_FUNC) &_bWGR_IMP, 1},
     {"_bWGR_GAU", (DL_FUNC) &_bWGR_GAU, 1},
     {"_bWGR_GRM", (DL_FUNC) &_bWGR_GRM, 2},
     {"_bWGR_SPC", (DL_FUNC) &_bWGR_SPC, 6},
     {"_bWGR_SPM", (DL_FUNC) &_bWGR_SPM, 5},
-    {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 3},
+    {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
     {NULL, NULL, 0}
 };
 
