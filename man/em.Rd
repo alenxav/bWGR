@@ -33,7 +33,8 @@ emEN(y, gen, R2 = 0.5, alpha = 0.02)
 emDE(y, gen, R2 = 0.5)
 emMX(y, gen, R2 = 0.5)
 emML(y, gen, D = NULL)  
-emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02, df = 10, R2 = 0.5, avg=TRUE, llo=NULL, tbv=NULL)
+emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02,
+     df = 10, R2 = 0.5, avg=TRUE, llo=NULL, tbv=NULL)
 }
 \arguments{
   \item{y}{
