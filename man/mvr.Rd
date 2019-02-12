@@ -11,7 +11,7 @@ Multivariate model to find breeding values.
 }
 \usage{
  mkr(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,df=5,R2=0.5,EigT=0.05,verb=FALSE)
- mrr(Y,X,Choleski=FALSE)    
+ mrr(Y,X)    
 }
 \arguments{
   \item{Y}{
