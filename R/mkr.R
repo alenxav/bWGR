@@ -165,3 +165,19 @@ Hmat = function (ped,gen=NULL,Diss=FALSE,inbred=FALSE){
   }
   return(A)
 }
+
+SibZ = function(id,p1,p2){
+  lvl = unique(c(unique(as.character(p1)),
+                 unique(as.character(p2)),
+                 unique(as.character(id))))
+  id = factor(as.character(id),levels=lvl)
+  p1 = factor(as.character(p1),levels=lvl)
+  p2 = factor(as.character(p2),levels=lvl)
+  x = p1; if(any(is.na(x))) x[is.na(x)]=0; Z = model.matrix(~x-1)*0.5
+  x = p2; if(any(is.na(x))) x[is.na(x)]=0; Z = Z + model.matrix(~x-1)*0.5
+  Z = Z[,colnames(Z)!='x0']
+  x = sqrt(1-rowSums(Z*Z))
+  xx = paste('x',id,sep='')
+  for(i in 1:length(x)) Z[i,xx[i]]=x[i]
+  return(Z)}
+      
