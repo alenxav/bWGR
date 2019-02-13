@@ -1,5 +1,4 @@
 \name{Dataset}
-\alias{.Random.seed}
 \alias{tpod}
 \alias{gen}
 \alias{chr}
