@@ -27,6 +27,6 @@ Maintainer: Alencar Xavier <alenxav@gmail.com>
 \examples{
 # Fit BayesB
 data(tpod)
-Fit = BayesB(y,gen)
+Fit = wgr(y,gen)
 cor(y,Fit$hat)
 }
