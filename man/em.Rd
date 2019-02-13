@@ -92,8 +92,10 @@ The function emCV returns the predictive ability of each model, that is, the cor
 Alencar Xavier
 }
 \examples{
+     \dontrun{
 
 data(tpod)
 emCV(y,gen,3,3)
-
+          
+ }
 }
