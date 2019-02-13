@@ -25,8 +25,10 @@ Alencar Xavier, Shizhong Xu, William Muir, Katy Rainey.
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 }
 \examples{
-# Fit BayesB
+    \dontrun{
+# Fit Bayesian Ridge Regression
 data(tpod)
 Fit = wgr(y,gen)
 cor(y,Fit$hat)
+  }
 }
