@@ -74,6 +74,8 @@ Sorensen D., and Gianola D. (2002) Likelihood, Bayesian, and MCMC methods in qua
 Alencar Xavier
 }
 \examples{
+ \dontrun{
+ 
 # G matrix
 data(tpod)
 G = tcrossprod(gen)
@@ -102,5 +104,6 @@ test2$h2
 # Goodness of fit
 diag(cor(Phe,test1$BV))
 diag(cor(Phe,test2$hat))
- 
+  
+ }
 }
