@@ -1,8 +1,8 @@
 Package: bWGR
 Type: Package
 Title: Bayesian Whole-Genome Regression
-Version: 1.5.8
-Date: 2019-02-12
+Version: 1.6
+Date: 2019-02-13
 Author: Alencar Xavier, William Muir, Shizhong Xu, Katy Rainey.
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 Description: Whole-genome regression methods on Bayesian framework fitted via EM
