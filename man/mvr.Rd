@@ -50,15 +50,25 @@ Logical. If verbose is TRUE, function displays MCMC progress bar.
 
 }
 \details{
-The model for the kernel regression is as follows:
+The model for the kernel regression (mkr) is as follows:
 
-\eqn{Y = mu + Z(UB) + E},
+\eqn{Y = Mu + Z(UB) + E},
 
-where \eqn{Y} is a matrix of response variables, \eqn{mu} represents the intercepts, \eqn{Z} is the design matrix, \eqn{U} is the matrix of Eigenvector of K, \eqn{b} is a vector of regression coefficients and \eqn{E} is the residual matrix. Variance components are sampled from a inverse Wishart distribution (Sorensen and Gianola 2002). Regression coefficients are solved with an adaptation of the algorithm proposed by de los Campos et al. (2010).
+where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{Z} is the design matrix, \eqn{U} is the matrix of Eigenvector of K, \eqn{b} is a vector of regression coefficients and \eqn{E} is the residual matrix. Variance components are sampled from a inverse Wishart distribution (Sorensen and Gianola 2002). Regression coefficients are solved with an adaptation of the algorithm proposed by de los Campos et al. (2010).
 
+The model for the ridge regression (mrr) is as follows:
+
+\eqn{Y = Mu + XA + E},
+
+where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{A} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adapration of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits.
+ 
 }
 \value{
-The function mkr returns a list with the random effect covariance matrix (\eqn{VA}), residual covariance matrix (\eqn{VE}) and a matrix with breeding values (\eqn{BV}).
+
+ The function mkr returns a list with the random effect covariance matrix (\eqn{VA}), residual covariance matrix (\eqn{VE}) and a matrix with breeding values (\eqn{BV}).
+ 
+ The function mrr returns a list with the random effect covariance matrix (\eqn{Vb}), residual covariance matrix (\eqn{Ve}),  matrix with marker effects (\eqn{b}) and intercepts (\eqn{mu}), heritabilities (\eqn{h2}), and a matrix with breeding values (\eqn{hat}).
+ 
 }
 
 \references{
