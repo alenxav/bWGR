@@ -1491,17 +1491,19 @@ NumericMatrix GRM(NumericMatrix X, bool Code012 = false){
 
 // [[Rcpp::export]]
 NumericVector SPC(NumericVector y, NumericVector blk, NumericVector row, NumericVector col, double rN=3, double cN=1){
-  int n = y.size(); NumericVector Cov(n), Phe(n), Obs(n);
+  int n = y.size(), t1=0, t2=0; NumericVector Cov(n), Phe(n), Obs(n);
   for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
-      if( (i>j) & (blk[i]==blk[j]) & (abs(row[i]-row[j])<=rN) & (abs(col[i]-col[j])<=cN) ){
-        Phe[i] = Phe[i]+y[j]; Obs[i] = Obs[i]+1; Phe[j] = Phe[j]+y[i]; Obs[j] = Obs[j]+1; }}}
+    t1 = row[i]-row[j]; if(t1<0){t1=-t1;}; t2 = col[i]-col[j]; if(t2<0){t2=-t2;};
+    if( (i>j) & (blk[i]==blk[j]) & (t1<=rN) & (t2<=cN) ){
+      Phe[i] = Phe[i]+y[j]; Obs[i] = Obs[i]+1; Phe[j] = Phe[j]+y[i]; Obs[j] = Obs[j]+1; }}}
   Cov = Phe/Obs; return Cov;}
 
 // [[Rcpp::export]]
 NumericMatrix SPM(NumericVector blk, NumericVector row, NumericVector col, double rN=3, double cN=1){
-  int n = blk.size(); NumericMatrix X(n,n); for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
-      if( (blk[i]==blk[j]) & (i>j) & (abs(row[i]-row[j])<=rN) & (abs(col[i]-col[j])<=cN) ){
-        X(i,j) = 1; X(j,i) = 1; }else{ X(i,j) = 0; X(j,i) = 0; }}; X(i,i) = 0;}; return X;}
+  int n=blk.size(),t1=0,t2=0; NumericMatrix X(n,n); for(int i=0; i<n; i++){; for(int j=0; j<n; j++){
+    t1 = row[i]-row[j]; if(t1<0){t1=-t1;}; t2 = col[i]-col[j]; if(t2<0){t2=-t2;};
+    if( (blk[i]==blk[j]) & (i>j)  & (t1<=rN) & (t2<=cN) ){ X(i,j) = 1; X(j,i) = 1;
+       }else{ X(i,j) = 0; X(j,i) = 0; }}; X(i,i) = 0;}; return X;}
 
 // [[Rcpp::export]]
 SEXP mrr(NumericMatrix Y, NumericMatrix X){
