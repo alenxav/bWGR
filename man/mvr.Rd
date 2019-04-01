@@ -1,6 +1,7 @@
 \name{WGR3 (MVR)}
 \alias{mkr}
 \alias{mrr}
+\alias{mrr2}
 \alias{Hmat}
 \alias{SibZ}
 \title{
