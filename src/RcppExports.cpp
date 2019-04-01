@@ -435,7 +435,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-
+// mrr2
+SEXP mrr2(NumericMatrix Y, NumericMatrix X);
+RcppExport SEXP _bWGR_mrr2(SEXP YSEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrr2(Y, X));
+    return rcpp_result_gen;
+END_RCPP
+}
 static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
     {"_bWGR_KMUP2", (DL_FUNC) &_bWGR_KMUP2, 9},
@@ -466,6 +477,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_SPC", (DL_FUNC) &_bWGR_SPC, 6},
     {"_bWGR_SPM", (DL_FUNC) &_bWGR_SPM, 5},
     {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
+    {"_bWGR_mrr2", (DL_FUNC) &_bWGR_mrr2, 2},
     {NULL, NULL, 0}
 };
 
