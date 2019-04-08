@@ -1670,17 +1670,15 @@ SEXP mrrV2(NumericMatrix Y, NumericMatrix X){
                       Named("Vb")=vb, Named("Ve")=ve);}
 
 // [[Rcpp::export]]
-SEXP mrr2X(NumericMatrix Y,
-          NumericMatrix X1,
-          NumericMatrix X2){
-  // Convergence parameters
+SEXP mrr2X(NumericMatrix Y, NumericMatrix X1, NumericMatrix X2){
+// Convergence parameters
   int maxit = 200; double tol = 10e-8;
   // Obtain environment containing function
   Rcpp::Environment base("package:base");
   Rcpp::Function solve = base["solve"];
   // Functions starts here
   int k = Y.ncol(), p1 = X1.ncol(), p2 = X2.ncol(), n0 = X1.nrow();
-  NumericMatrix fit(n0,k),g1(n0,k),g2(n0,k),o(n0,k),y(n0,k),yc(n0,k),e(n0,k);
+  NumericMatrix fit(n0,k),g1(n0,k),g2(n0,k),o(n0,k),y(n0,k),e(n0,k);
   for(int i=0; i<k; i++){
     o(_,i) = ifelse(is_na(Y(_,i)),0,1);
     y(_,i) = ifelse(is_na(Y(_,i)),0,Y(_,i));}
@@ -1712,14 +1710,14 @@ SEXP mrr2X(NumericMatrix Y,
     for(int j=0; j<k; j++){
       vb2(i,j) = 0;
       vb1(i,j) = 0;
-    }}
+      }}
   for(int i=0; i<k; i++){
     e(_,i) = y(_,i)+0;
     vy(i) = sum(e(_,i)*e(_,i))/(n(i)-1);
     ve(i) = vy(i)*0.5;
     vb1(i,i) = ve(i)/MSx1(i);
     vb2(i,i) = ve(i)/MSx2(i);
-  }
+    }
   iG1 = solve(vb1);
   iG2 = solve(vb2);
   // Convergence control
@@ -1756,18 +1754,16 @@ SEXP mrr2X(NumericMatrix Y,
     }
     // Residual variance components update
     for(int i=0; i<k; i++){ ve(i) = (sum(e(_,i)*y(_,i)))/(n(i)-1);}
-    // Prepare y adjusted for fixed effects (yc)
-    for(int i=0; i<k; i++){ yc(_,i) = (y(_,i)-mu(i))*o(_,i);}
     // Genetic covariance components update
     for(int i=0; i<n0; i++){
       for(int j=0; j<k; j++){
-        g1(i,j) = sum(X1(i,_)*b1(_,j));
-        g2(i,j) = sum(X2(i,_)*b2(_,j));  
-      }}
+          g1(i,j) = sum(X1(i,_)*b1(_,j));
+          g2(i,j) = sum(X2(i,_)*b2(_,j));  
+        }}
     for(int i=0; i<k; i++){
       for(int j=0; j<k; j++){
-        vb1(i,j) = (sum(g1(_,i)*yc(_,j))+sum(g1(_,j)*yc(_,i))) / ((n(i)*MSx1(i))+(n(j)*MSx1(j)));
-        vb2(i,j) = (sum(g2(_,i)*yc(_,j))+sum(g2(_,j)*yc(_,i))) / ((n(i)*MSx2(i))+(n(j)*MSx2(j)));
+        vb1(i,j) = (sum(g1(_,i)*y(_,j))+sum(g1(_,j)*y(_,i))) / ((n(i)*MSx1(i))+(n(j)*MSx1(j)));
+        vb2(i,j) = (sum(g2(_,i)*y(_,j))+sum(g2(_,j)*y(_,i))) / ((n(i)*MSx2(i))+(n(j)*MSx2(j)));
       }}
     iG1 = solve(vb1);
     iG2 = solve(vb2);
@@ -1783,7 +1779,7 @@ SEXP mrr2X(NumericMatrix Y,
   return List::create(Named("mu")=mu,
                       Named("b1")=b1, Named("b2")=b2,
                       Named("hat")=fit,
-                      Named("X1b1")=g1, Named("X2b2")=g2, 
+                      Named("g1")=g1, Named("g2")=g2,
                       Named("Vb1")=vb1, Named("Vb2")=vb2, 
                       Named("MS1")=MSx1, Named("MS2")=MSx2,
                       Named("Ve")=ve, Named("h2")=h2);}
