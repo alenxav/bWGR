@@ -62,7 +62,7 @@ The model for the ridge regression (mrr) is as follows:
 
 \eqn{Y = Mu + XA + E},
 
-where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{A} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adapration of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits.
+where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{A} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adapration of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits. Try \code{mrrV2} in the case mrr returns an error, as mrrV2 is more stable but less accurate implementation.
  
 }
 \value{
