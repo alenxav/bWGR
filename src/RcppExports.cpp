@@ -435,18 +435,49 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mrr2
-SEXP mrr2(NumericMatrix Y, NumericMatrix X);
-RcppExport SEXP _bWGR_mrr2(SEXP YSEXP, SEXP XSEXP) {
+// mrrV2
+SEXP mrrV2(NumericMatrix Y, NumericMatrix X);
+RcppExport SEXP _bWGR_mrrV2(SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(mrr2(Y, X));
+    rcpp_result_gen = Rcpp::wrap(mrrV2(Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
+// mrr2X
+SEXP mrr2X(NumericMatrix Y, NumericMatrix X1, NumericMatrix X2);
+RcppExport SEXP _bWGR_mrr2X(SEXP YSEXP, SEXP X1SEXP, SEXP X2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X1(X1SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X2(X2SEXP);
+    rcpp_result_gen = Rcpp::wrap(mrr2X(Y, X1, X2));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mtgsru
+SEXP mtgsru(NumericMatrix Y, NumericMatrix X, NumericMatrix b, NumericMatrix vb, NumericVector ve, NumericMatrix iG, int maxit);
+RcppExport SEXP _bWGR_mtgsru(SEXP YSEXP, SEXP XSEXP, SEXP bSEXP, SEXP vbSEXP, SEXP veSEXP, SEXP iGSEXP, SEXP maxitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type vb(vbSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type ve(veSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type iG(iGSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(mtgsru(Y, X, b, vb, ve, iG, maxit));
+    return rcpp_result_gen;
+END_RCPP
+}
+
 static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
     {"_bWGR_KMUP2", (DL_FUNC) &_bWGR_KMUP2, 9},
@@ -477,7 +508,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_SPC", (DL_FUNC) &_bWGR_SPC, 6},
     {"_bWGR_SPM", (DL_FUNC) &_bWGR_SPM, 5},
     {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
-    {"_bWGR_mrr2", (DL_FUNC) &_bWGR_mrr2, 2},
+    {"_bWGR_mrrV2", (DL_FUNC) &_bWGR_mrrV2, 2},
+    {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},
+    {"_bWGR_mtgsru", (DL_FUNC) &_bWGR_mtgsru, 7},
     {NULL, NULL, 0}
 };
 
