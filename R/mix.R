@@ -205,9 +205,9 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=5, init=
         if(anyNA(b)) b[is.na(b)] = 0
         g = b[x00]
       }else{
-        b = cov(y0,x,use='pair')/(var(x,na.rm=T)+lmb0/sY);
+        b = cov(y0,x,use='pair')/(var(x,na.rm=T)+lmb0/length(y0));
         b = as.vector(b)
-        g = x*b00 }
+        g = b*x00 }
       return(list(h=g,b=b,e=y00-g))
     }
     outs = list()
