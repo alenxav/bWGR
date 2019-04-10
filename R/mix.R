@@ -360,9 +360,8 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=5, init=
   close(pb)
   
   # Fit model
-  fit = H[[1]]
-  if(length(fit)>1){ for(i in 2:length(H)) fit = fit+H[[i]]}
-  for(i in 1:k) fit[,i] = fit[,i]+B[['Intercept']][i]
+  fit = sapply(B[['Intercept']],function(x) rep(x,nrow(y)) )
+  for(i in 1:length(H)) fit = fit+H[[i]]
   rownames(fit) = rownames(data)
   
   # Wrapping up
