@@ -242,6 +242,7 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=5, init=
       mm = matrix(NA,length(ww),k,dimnames=list(ww,resp))
       e0 = rbind(e0,mm)}
     e0 = e0[rownames(X[[i]]),]
+    e0 = apply(e0,2,function(x) x-mean(x,na.rm=T))
     h = mtgsru(Y=e0,X=X[[i]],b=MV[[i]]$b,vb=MV[[i]]$vb,ve=MV[[i]]$ve,iG=MV[[i]]$iG,maxit=init)
     unlist(lapply(h,anyNA)); head(h$b)
     fit = h$hat
