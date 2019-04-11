@@ -143,7 +143,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
   class(OUT) = 'mixed'
   return(OUT)}
 
-mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=5, init=15, regVC=FALSE){
+mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=10, init=10, regVC=FALSE){
   
   # Get y matrix
   k = length(resp) 
