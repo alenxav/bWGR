@@ -333,17 +333,16 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=5, init=
       # VarComp & Lambda
       Error = colSums(e*e,na.rm=T)
       SSa = sapply(H, function(h) colSums(h*h,na.rm=T) )
-      # Error = colSums(yc*e,na.rm=T)
-      # SSa = sapply(H, function(h) colSums(yc*h,na.rm=T) )
       SS = cbind(SSa,Error)
       SS[SS<0] = 0.01
+      if( regVC ) SS = sqrt(SS)
       wVar = t(apply(SS,1,function(x) x/sum(x) ))
-      if( regVC ) wVar = sqrt(wVar)
       Vg = wVar*Vy
       Va = Vg[,rnd]/t(df0)*n
-      Ve = Vg[,'Error']
+      Ve = Vg[,'Error'] * (n-df)/n
       LMB = t(Ve/Va)
       LMB = matrix(LMB,nrow=length(rnd),ncol=k,dimnames=list(rnd,resp))
+      
       
     }
     
