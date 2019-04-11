@@ -248,8 +248,15 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=5, init=
     fit = h$hat
     rownames(fit) = rownames(X[[i]])
     comp = list(b=h$b,vb=h$vb,ve=h$ve,iG=h$iG,h2=h$h2,MSx=h$MSx)
-    # Output
     h = fit[as.character(x),]
+    # dereg
+    dereg = function(x,y){
+      b = c(cov(x,y,use='p')/var(x,na.rm = T))
+      xb = x*b
+      mu = mean(y-xb,na.rm=T)
+      ft = mu+xb
+      return(ft)}
+    for(drg in 1:k) h[,drg] = dereg(h[,drg],e00[,drg])               
     res = e00 - h
     colnames(fit) = resp
     OUT = list(g=fit,h=h,e=res,comp=comp)
