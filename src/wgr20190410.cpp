@@ -1812,7 +1812,7 @@ SEXP mtgsru(NumericMatrix Y, NumericMatrix X,
   NumericVector b0(k),b1(k),vy(k),RHS(k);
   
   for(int i=0; i<k; i++){ e(_,i) = y(_,i)+0;
-    vy(i) = sum(e(_,i)*e(_,i))/n(i); ve(i) = vy(i)*0.5;}
+    vy(i) = sum(e(_,i)*e(_,i))/n(i); }
   iG = solve(vb); NumericMatrix bc(p,k);
   
   int numit = 0; double cnv = 1; while(numit<maxit){
