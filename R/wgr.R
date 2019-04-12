@@ -167,3 +167,37 @@ wgr = function(y,X,
   }
   return(final)
 }
+
+markov=function(gen,chr=NULL){
+  if(is.null(chr)) chr = ncol(gen)
+  # vector chr
+  CHR=NULL;for(i in 1:length(chr)){CHR=c(CHR,rep(i,chr[i]))}
+  # Expectation and Transition Probability
+  tr = function(v1,v2){ 
+    tp=rep(NA,9) # Transition Probability
+    tp[1]=mean(v1==0&v2==0,na.rm=T);tp[2]=mean(v1==0&v2==1,na.rm=T);tp[3]=mean(v1==0&v2==2,na.rm=T)
+    tp[4]=mean(v1==1&v2==0,na.rm=T);tp[5]=mean(v1==1&v2==1,na.rm=T);tp[6]=mean(v1==1&v2==2,na.rm=T)
+    tp[7]=mean(v1==2&v2==0,na.rm=T);tp[8]=mean(v1==2&v2==1,na.rm=T);tp[9]=mean(v1==2&v2==2,na.rm=T)
+    tp[tp==0]=1e-5;tp[1:3]=tp[1:3]/sum(tp[1:3]);tp[4:6]=tp[4:6]/sum(tp[4:6]);tp[7:9]=tp[7:9]/sum(tp[7:9])
+    return(tp)}
+  # Transition matrix
+  TM = function(gen){M = ncol(gen); N = nrow(gen)
+  step1 = rbind(gen[,-M],gen[,-1])
+  step2 = function(snps) tr(snps[1:N],snps[-c(1:N)])
+  step3 = apply(step1,2,step2); rm(step1)
+  rownames(step3) = paste(gl(3,3,9,0:2),0:2,sep='to')
+  return(step3)}
+  # Calculate log-prob of transitions
+  mis = gen;  tm=log(TM(gen))
+  # Imputation with Expectation
+  IE = function(v1,v2,tp){
+    exp=rep(NA,3);exp[1]=which.max(tp[1:3])-1;exp[2]=which.max(tp[4:6])-1;exp[3]=which.max(tp[7:9])-1
+    w=which(is.na(v2));r=v1[w]+1;v=exp[r];v2[w]=v;return(v2)}
+  # Imputing first row (starting point)
+  gen[,1] = IE(IE(IE(gen[,4],gen[,3],tm[,3]),gen[,2],tm[,2]),gen[,1],tm[,1])
+  if(anyNA(gen[,1]))gen[,1][is.na(gen[,1])]=as.numeric(names(which.max(table(gen[,1],exclude=NA))))
+  # Imputing the rest
+  for(i in 2:ncol(gen)) gen[,i]=IE(gen[,i-1],gen[,i],tm[,i-1])
+  # THE END
+  return(gen)
+}
