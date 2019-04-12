@@ -234,7 +234,6 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=10, init
     x = data[[i]]
     if(iter==1){ e00 = e }else{ e00 = e + H[[i]][as.character(x),] }
     e0 = apply(e00,2,function(e00) tapply(e00,x,mean,na.rm=TRUE) )
-    e0 = e0[rownames(X[[i]]),]
     # Add for debugging
     if(any(!rownames(X[[i]])%in%rownames(e0))){
       ww = which(!rownames(X[[i]])%in%rownames(e0))
