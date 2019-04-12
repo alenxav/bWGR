@@ -60,12 +60,12 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
   # Structured random
   gws = function(e,i,...){
     x = data[[i]]
-    if(iter==1){ e00 = e }else{ e00 = e + H[[i]][as.character(x)]}
+    if(iter==1){ e00 = e }else{ e00 = e + H[[i]]}
     e0 = tapply(e00,x,mean,na.rm=TRUE)[rownames(X[[i]])]
     e0 = as.vector(ifelse(is.na(e0),0,e0))
     # Fit WGR
     h = alg(e0,X[[i]],...)
-    fit = as.vector(h$hat)
+    fit = c(h$hat)
     names(fit) = rownames(X[[i]])
     # Deregress
     if(Deregress){
