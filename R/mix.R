@@ -143,11 +143,13 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
           }}}
       
       # VarComp & Lambda
-      Error = sum(e*e,na.rm=T)
-      SSa = sapply(H, function(h) sum(h*h,na.rm=T) )
+      #Error = sum(e*e,na.rm=T)
+      #SSa = sapply(H, function(h) sum(h*h,na.rm=T) )
+      Error = sum(y*e,na.rm=T)
+      SSa = sapply(H, function(h) sum(y*h,na.rm=T) )
       SS = c(SSa,Error=Error)
       SS[SS<0] = 0.01
-      SS = sqrt(SS) # SD partitioning
+      #SS = sqrt(SS) # SD partitioning
       wVar = SS/sum(SS)
       Vg = wVar*Vy
       Va = Vg[rnd]/df0*n
