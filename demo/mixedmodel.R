@@ -7,7 +7,7 @@ fam = substr(rownames(Gen),6,7)
 Gen = Gen[which(fam%in%c('05')),]
 Gen = data.matrix(Gen-1)
 fam = substr(as.character(Obs$ID),6,7)
-Obs = data.frame(Obs,SP=NAM::SPC(Obs$YLD,Obs$Block,Obs$Row,Obs$Col))
+Obs = data.frame(Obs,SP=SPC(Obs$YLD,Obs$Block,Obs$Row,Obs$Col))
 Obs = droplevels.data.frame(Obs[which(fam=='05'),])
 rm(fam)
 
