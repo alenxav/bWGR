@@ -47,11 +47,11 @@ The model for the whole-genome regression is as follows:
 
 \deqn{y = Xb + Zu + Wa + e}
 
-where \eqn{y} is the response variable, \eqn{Xb} corresponds to the fixed effect term, \eqn{Zu} correspond to random effect term(s), \eqn{W} is the incidence matrix of terms with omic information and \eqn{a} is omic values by \eqn{a=Mg}, where \eqn{M} is the genotypic matrix and \eqn{g} are marker effects. Here, \eqn{e} is the residual term. An example is provided using the data from the NAM package with: \code{demo(mixedmodel)}
+where \eqn{y} is the response variable, \eqn{Xb} corresponds to the fixed effect term, \eqn{Zu} correspond to random effect term(s), \eqn{W} is the incidence matrix of terms with omic information and \eqn{a} is omic values by \eqn{a=Mg}, where \eqn{M} is the genotypic matrix and \eqn{g} are marker effects. Here, \eqn{e} is the residual term. An example is provided using the data from the NAM package with: \code{demo(mixedmodel)}. A multivariate version (under development) is available with the function \code{demo(mtmixed)}.
 
 }
 \value{
-The function wgr returns a list with observed values (\code{obs}), fitted value (\code{hat}), estimated variance components (\code{var}) and regression coefficients (\code{coef}). Regression coefficients would include fixed terms (\code{B}), random terms (\code{U}) and marker effects (\code{G}).
+The function wgr returns a list with Fitness values (\code{Fitness}) containing observation \code{obs}, fitted values \code{hat}, residuals \code{res}, and fitted values by model term \code{fits}; Estimated variance components (\code{VarComp}) containing the variance components per se (\code{VarComponents}) and variance explained by each model term (\code{VarExplained}), regression coefficients by model term (\code{Coefficients}), and the effects of structured terms (\code{Structure}) containing the marker effects of each model term where markers were provided.
 }
 
 \author{
