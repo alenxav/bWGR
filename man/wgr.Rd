@@ -1,4 +1,4 @@
-\name{WGR1 (MCMC)}
+\name{WGR1 (MC)}
 \alias{wgr}
 \alias{KMUP}
 \alias{KMUP2}
@@ -15,7 +15,7 @@
 \alias{BayesRR2}
 \alias{mcmcCV}
 \title{
-Whole-genome Regression
+MCMC Whole-genome Regression
 }
 \description{
 Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel). Additional standalone functions written entirely in C++ are also implemented.
