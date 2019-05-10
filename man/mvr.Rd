@@ -1,4 +1,4 @@
-\name{WGR3 (MVR)}
+\name{WGR3 (MV)}
 \alias{mkr}
 \alias{mrr}
 \alias{mrrV2}
