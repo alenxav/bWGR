@@ -33,7 +33,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
       e = y-g
     }else{
       b = cov(y,x,use='pair')/var(x,na.rm=T);
-      b = as.vector(b);
+      b = c(b);
       g = x*b
       e = y-g }
     return(list(g=g,b=b,e=e))}
@@ -62,31 +62,31 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     x = data[[i]]
     if(iter==1){ e00 = e }else{ e00 = e + H[[i]]}
     e0 = tapply(e00,x,mean,na.rm=TRUE)[rownames(X[[i]])]
-    e0 = as.vector(ifelse(is.na(e0),0,e0))
     # Fit WGR
-    h = alg(e0,X[[i]],...)
+    comn = intersect(names(e0),rownames(X[[i]]))
+    h = alg(e0[comn],X[[i]][comn,],...)
     fit = c(h$hat)
-    names(fit) = rownames(X[[i]])
+    names(fit) = comn
     # Deregress
     if(Deregress){
-      g = c(crossprod(fit,e0)/(crossprod(fit)))
+      g = c(crossprod(fit,e0[comn])/(crossprod(fit)))
       xb = fit*g
       b0 = e0-xb
       fit = b0+fit*g
-    }    
+    }
     # Output
-    hh = fit[as.character(x)]
-    if(anyNA(hh)) hh[is.na(hh)] = 0 ## Fix 051819
-    res = e00 - hh
-    OUT = list(g=fit,h=hh,b=h$b,e=res)
+    hh = e0
+    hh[comn] = fit
+    hhh = hh[as.character(x)]
+    res = e00 - hhh
+    OUT = list(g=fit,h=hhh,b=h$b,e=res)
     return(OUT)}
   
   # Fit (loop)
   e = y; R2c = 0.5
   pb = txtProgressBar(style = 3)
   for(iter in 1:maxit){
-    # cat('Iter ',iter,':',sep='')
-    
+
     # Intercept only 
     if(iter==1){
       mu = mean(e,na.rm=T)
@@ -101,26 +101,18 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     # Fixed effects 
     if(FIX){
       for(i in fxd){
-        
-        if(iter==1){
+        if(iter>1) E = e+H[[i]]
           go = FCT(e,data[[i]])
           e = go$e
           B[[i]] = go$b
           H[[i]] = go$g
-        }else{
-          E = e+H[[i]]
-          go = FCT(E,data[[i]])
-          e = go$e
-          B[[i]] = go$b
-          H[[i]] = go$g
-        }}
+      }
     }
     
     # Random effects
     if(RND){
       # Coefficients
       for(i in rnd){
-        
         # Structured
         if(i%in%ls(X)){
           go = gws(e,i,...)
@@ -130,27 +122,19 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
           A[[i]] = go$b
         }else{
           # Unstructured 
-          if(iter==1){
+          if(iter>=1) e+H[[i]]
             go = RCT(e,data[[i]],LMB[i])
             e = go$e
             B[[i]] = go$b
             H[[i]] = go$h
-          }else{
-            E = e+H[[i]]
-            go = RCT(E,data[[i]],LMB[i])
-            e = go$e
-            B[[i]] = go$b
-            H[[i]] = go$h
-          }}}
+        }
+      }
       
       # VarComp & Lambda
-      #Error = sum(e*e,na.rm=T)
-      #SSa = sapply(H, function(h) sum(h*h,na.rm=T) )
-      Error = sum(y*e,na.rm=T)
-      SSa = sapply(H, function(h) sum(y*h,na.rm=T) )
+      Error = sum((y-mu)*e,na.rm=T)
+      SSa = sapply(H, function(h) sum((y-mu)*h,na.rm=T) )
       SS = c(SSa,Error=Error)
       SS[SS<0] = 0.01
-      #SS = sqrt(SS) # SD partitioning
       wVar = SS/sum(SS)
       Vg = wVar*Vy
       Va = Vg[rnd]/df0*n
@@ -161,10 +145,9 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     # Print R2 and check convergence based on Ve
     setTxtProgressBar(pb,iter/maxit)
     R2 = round(1-Ve/Vy,6)
-    # cat(' R2 =',R2,'\n')
     if(abs(R2c-R2)==0) break()
     R2c = R2
-    }
+  }
   close(pb)
   
   # Fit model
@@ -181,7 +164,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     if(length(X)>0) OUT[['Structure']] = A
   }
   
-
+  
   class(OUT) = 'mixed'
   return(OUT)}
 
