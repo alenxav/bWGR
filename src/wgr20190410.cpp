@@ -526,8 +526,8 @@ SEXP emML(NumericVector y, NumericMatrix gen,
         b[j] = (sum(gen(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb);}
       e = e-gen(_,j)*(b[j]-b0);}
     // Variance components update
-    ve = sum(e*y)/(n-1);
-    vb = (vy-ve)/MSx;
+    ve = sum(e*(y-mu))/n;
+    vb = (1.000001*vy-ve)/MSx;
     Lmb = ve/vb;
     // Intercept update
     eM = mean(e);
