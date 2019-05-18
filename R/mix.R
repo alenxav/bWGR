@@ -76,6 +76,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     }    
     # Output
     hh = fit[as.character(x)]
+    if(anyNA(hh)) hh[is.na(hh)] = 0 ## Fix 051819
     res = e00 - hh
     OUT = list(g=fit,h=hh,b=h$b,e=res)
     return(OUT)}
