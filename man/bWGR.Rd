@@ -14,13 +14,13 @@ Whole-genome regression methods on Bayesian framework fitted via EM
 \tabular{ll}{
 Package: \tab bWGR\cr
 Type: \tab Package\cr
-Version: \tab 1.6.3 \cr
-Date: \tab 2019-04-24\cr
+Version: \tab 1.6.5 \cr
+Date: \tab 2019-05-18\cr
 License: \tab GPL-3 \cr
 }
 }
 \author{
-Alencar Xavier, Shizhong Xu, William Muir, Katy Rainey.
+Alencar Xavier, William Muir, Kyle Kocak, Shizhong Xu, Katy Rainey.
 
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 }
