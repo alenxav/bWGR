@@ -1,5 +1,5 @@
 
-mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,Deregress=TRUE,...){
+mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,Deregress=FALSE,...){
   
   # Get y vector
   if(!is.null(data)) y = data[[deparse(substitute(y))]]
