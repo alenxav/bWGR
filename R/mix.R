@@ -1,173 +1,34 @@
 
-mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,Deregress=FALSE,...){
-  
-  # Get y vector
-  if(!is.null(data)) y = data[[deparse(substitute(y))]]
-  Vy = var(y,na.rm=TRUE)
-  
-  # Remove missing
-  if(anyNA(y)){
-    wna = which(is.na(y)); y = y[-wna]
-    data = droplevels.data.frame(data[-wna,])}
-  
-  # Random effects
-  if(!is.null(random)){
-    rnd = attr(terms(random),"term.labels")
-    LMB0 = LMB = sapply(data[rnd], function(x) mean(table(x)) )
-    df0 = sapply(data[rnd],function(x) ifelse(is.factor(x),length(unique(x)),1))
-    RND = TRUE }else{ RND = FALSE }
-  
-  # Fixed effects or intercept
-  if(!is.null(fixed)){
-    fxd = attr(terms(fixed),"term.labels")
-    df = sum(sapply(data[fxd],function(x) ifelse(is.factor(x),length(unique(x)),1)))
-    FIX = TRUE }else{ FIX = FALSE; df=1 }
-  B = H = A = list(); n = length(y)
-  
-  # Fixed Categorical & Continuous Term
-  FCT = function(y,x){
-    if(is.factor(x)){
-      b = tapply(y,x,mean,na.rm=T);
-      b[is.na(b)] = 0
-      g = b[x]
-      e = y-g
-    }else{
-      b = cov(y,x,use='pair')/var(x,na.rm=T);
-      b = c(b);
-      g = x*b
-      e = y-g }
-    return(list(g=g,b=b,e=e))}
-  
-  # Random Categorical & Continuous Term
-  RCT = function(y0,x,lmb0){
-    y00 = y0
-    x00 = x
-    if( anyNA(y0) ){
-      x = x[!is.na(y0)]
-      y0 = y0[!is.na(y0)] }
-    Mean = function(x) sum(x)/(length(x)+lmb0)
-    if(is.factor(x)){
-      b = tapply(y0,x,Mean);
-      if(anyNA(b)) b[is.na(b)] = 0
-      g = b[x00]
-    }else{
-      b = cov(y0,x,use='pair')/(var(x,na.rm=T)+lmb0/length(y0));
-      b = as.vector(b)
-      g = b*x00 }
-    return(list(h=g,b=b,e=y00-g))
-  }
-  
-  # Structured random
-  gws = function(e,i,...){
-    x = data[[i]]
-    if(iter==1){ e00 = e }else{ e00 = e + H[[i]]}
-    e0 = tapply(e00,x,mean,na.rm=TRUE)[rownames(X[[i]])]
-    # Fit WGR
-    comn = intersect(names(e0),rownames(X[[i]]))
-    h = alg(e0[comn],X[[i]][comn,],...)
-    fit = c(h$hat)
-    names(fit) = comn
-    # Deregress
-    if(Deregress){
-      g = c(crossprod(fit,e0[comn])/(crossprod(fit)))
-      xb = fit*g
-      b0 = e0-xb
-      fit = b0+fit*g
-    }
-    # Output
-    hh = e0
-    hh[comn] = fit
-    hhh = hh[as.character(x)]
-    res = e00 - hhh
-    OUT = list(g=fit,h=hhh,b=h$b,e=res)
-    return(OUT)}
-  
-  # Fit (loop)
-  e = y; R2c = 0.5
-  pb = txtProgressBar(style = 3)
-  for(iter in 1:maxit){
+# Load data
+data(met,package='NAM')
+Obs$Block = factor(Obs$Block)
 
-    # Intercept only 
-    if(iter==1){
-      mu = mean(e,na.rm=T)
-      e = e-mu
-      B[['Intercept']] = mu
-    }else{
-      mu = mean(e,na.rm=T)
-      e = e-mu
-      B[['Intercept']] = mu+B[['Intercept']]
-    }
-    
-    # Fixed effects 
-    if(FIX){
-      for(i in fxd){
-        if(iter>1) E = e+H[[i]]
-          go = FCT(e,data[[i]])
-          e = go$e
-          B[[i]] = go$b
-          H[[i]] = go$g
-      }
-    }
-    
-    # Random effects
-    if(RND){
-      # Coefficients
-      for(i in rnd){
-        # Structured
-        if(i%in%ls(X)){
-          go = gws(e,i,...)
-          e = go$e
-          B[[i]] = go$g
-          H[[i]] = go$h
-          A[[i]] = go$b
-        }else{
-          # Unstructured 
-          if(iter>=1) e+H[[i]]
-            go = RCT(e,data[[i]],LMB[i])
-            e = go$e
-            B[[i]] = go$b
-            H[[i]] = go$h
-        }
-      }
-      
-      # VarComp & Lambda
-      Error = sum((y-mu)*e,na.rm=T)
-      SSa = sapply(H, function(h) sum((y-mu)*h,na.rm=T) )
-      SS = c(SSa,Error=Error)
-      SS[SS<0] = 0.01
-      wVar = SS/sum(SS)
-      Vg = wVar*Vy
-      Va = Vg[rnd]/df0*n
-      Ve = Vg['Error']*(n-df)/n
-      LMB = Ve/Va; names(LMB) = names(Va)
-    }
-    
-    # Print R2 and check convergence based on Ve
-    setTxtProgressBar(pb,iter/maxit)
-    R2 = round(1-Ve/Vy,6)
-    if(abs(R2c-R2)==0) break()
-    R2c = R2
-  }
-  close(pb)
-  
-  # Fit model
-  fit = rep(B[['Intercept']],length(y))
-  for(i in 1:length(H)) fit = fit+H[[i]]
-  
-  # Wrapping up
-  Fitness = list(obs=y,hat=fit,res=e,fits=H)
-  OUT = list(Fitness=Fitness,Coefficients=B)
-  if(RND){
-    VC = list( VarComponents = round(Vg,4),
-               VarExplained = round(wVar,3) )
-    OUT[['VarComp']] = VC;
-    if(length(X)>0) OUT[['Structure']] = A
-  }
-  
-  
-  class(OUT) = 'mixed'
-  return(OUT)}
+# Subset family 05
+fam = substr(rownames(Gen),6,7)
+Gen = Gen[which(fam%in%c('05')),]
+Gen = data.matrix(Gen-1)
+fam = substr(as.character(Obs$ID),6,7)
+Obs = droplevels.data.frame(Obs[which(fam=='05'),])
+rm(fam)
 
+# Compare BLUP vs gBLUP
+test1 = mixed(y=YLD,random=~Block+ID,fixed=~Year,data=Obs,X=list(ID=Gen))
+test2 = mixed(y=YLD,random=~Block+ID,fixed=~Year,data=Obs,maxit = 20)
+cor(test1$Coefficients$ID,test2$Coefficients$ID)
+
+# Plot
+par(mfrow=c(1,3))
+plot(test1$Fitness$hat,test1$Fitness$obs,main='Goodness of fit',xlab='Fitted',ylab='Observed',pch=20)
+abline(lm(test1$Fitness$obs~test1$Fitness$hat),col=2)
+legend('bottom',paste('Cor =',round(cor(test1$Fitness$hat,test1$Fitness$obs),4)))
+plot(test1$Coefficients$ID,test2$Coefficients$ID,xlab='GEBV',ylab='BLUP',pch=20,main='Genomic fit')
+abline(lm(test2$Coefficients$ID~test1$Coefficients$ID),col=2)
+legend('bottom',paste('Cor =',round(cor(test1$Coefficients$ID,test2$Coefficients$ID),4)))
+plot(test1$Structure$ID,main='Marker Effects',ylab='Effect',xlab='SNP',pch=20)
+
+
+#############################################################################################################                   
+                   
 mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=10, init=10, regVC=FALSE){
   
   # Get y matrix
