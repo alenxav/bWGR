@@ -7,13 +7,12 @@ fam = substr(rownames(Gen),6,7)
 Gen = Gen[which(fam%in%c('05')),]
 Gen = data.matrix(Gen-1)
 fam = substr(as.character(Obs$ID),6,7)
-Obs = data.frame(Obs,SP=SPC(Obs$YLD,Obs$Block,Obs$Row,Obs$Col))
 Obs = droplevels.data.frame(Obs[which(fam=='05'),])
 rm(fam)
 
 # Compare BLUP vs gBLUP
-test1 = mixed(y=YLD,random=~ID+Block,fixed=~Year+Row+Col,data=Obs,X=list(ID=Gen))
-test2 = mixed(y=YLD,random=~ID+Block,fixed=~Year+Row+Col,data=Obs)
+test1 = mixed(y=YLD,random=~Block+ID,fixed=~Year,data=Obs,X=list(ID=Gen))
+test2 = mixed(y=YLD,random=~Block+ID,fixed=~Year,data=Obs)
 cor(test1$Coefficients$ID,test2$Coefficients$ID)
 
 # Plot
