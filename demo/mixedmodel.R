@@ -12,7 +12,7 @@ rm(fam)
 
 # Compare BLUP vs gBLUP
 test1 = mixed(y=YLD,random=~Block+ID,fixed=~Year,data=Obs,X=list(ID=Gen))
-test2 = mixed(y=YLD,random=~Block+ID,fixed=~Year,data=Obs)
+test2 = mixed(y=YLD,random=~Block+ID,fixed=~Year,data=Obs,maxit = 20)
 cor(test1$Coefficients$ID,test2$Coefficients$ID)
 
 # Plot
