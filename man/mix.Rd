@@ -57,3 +57,9 @@ The function wgr returns a list with Fitness values (\code{Fitness}) containing 
 \author{
 Alencar Xavier
 }
+
+ \examples{
+ \dontrun{
+ demo(mixedmodel)
+ }
+}
