@@ -490,14 +490,14 @@ SEXP emEN(NumericVector y, NumericMatrix gen, double R2 = 0.5, double alpha = 0.
 }
 
 // [[Rcpp::export]]
-SEXP emML(NumericVector y, NumericMatrix X,
+SEXP emML(NumericVector y, NumericMatrix gen,
           Rcpp::Nullable<Rcpp::NumericVector> D = R_NilValue){
   // Convergence parameters
   int maxit = 300;
   double tol = 10e-8;
   // Functions starts here
-  int p = X.ncol();
-  int n = X.nrow();
+  int p = gen.ncol();
+  int n = gen.nrow();
   // Weights
   bool P_WEIGHTS = FALSE;
   NumericVector d(p);
@@ -508,8 +508,8 @@ SEXP emML(NumericVector y, NumericMatrix X,
   // Marker variance
   NumericVector xx(p), vx(p);
   for(int i=0; i<p; i++){
-    xx[i] = sum(X(_,i)*X(_,i));
-    vx[i] = var(X(_,i));}
+    xx[i] = sum(gen(_,i)*gen(_,i));
+    vx[i] = var(gen(_,i));}
   double MSx = sum(vx), Lmb=MSx;
   // Convergence control
   NumericVector bc(p);
@@ -522,10 +522,10 @@ SEXP emML(NumericVector y, NumericMatrix X,
     for(int j=0; j<p; j++){
       b0 = b[j];
       if(P_WEIGHTS){
-        b[j] = (sum(X(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb/d[j]);
+        b[j] = (sum(gen(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb/d[j]);
       }else{
-        b[j] = (sum(X(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb);}
-      e = e-X(_,j)*(b[j]-b0);}
+        b[j] = (sum(gen(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb);}
+      e = e-gen(_,j)*(b[j]-b0);}
     // Intercept update
     eM = mean(e);
     mu = mu+eM;
@@ -539,8 +539,7 @@ SEXP emML(NumericVector y, NumericMatrix X,
     cnv = sum(abs(bc-b));
     if( cnv<tol ){break;}}
   // Fitting the model
-  NumericVector fit(n);
-  for(int k=0; k<n; k++){ fit[k] = sum(X(k,_)*b)+mu; }
+  NumericVector fit = y-e;
   h2 = vb*MSx/(vb*MSx+ve);
   // Output
   return List::create(Named("mu")=mu,
