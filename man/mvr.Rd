@@ -2,6 +2,7 @@
 \alias{mkr}
 \alias{mrr}
 \alias{mrrV2}
+\alias{mrrV3}
 \alias{mrr2X}
 \alias{Hmat}
 \alias{SibZ}
@@ -62,7 +63,10 @@ The model for the ridge regression (mrr) is as follows:
 
 \eqn{Y = Mu + XA + E},
 
-where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{A} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adapration of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits. Try \code{mrrV2} in the case mrr returns an error, as mrrV2 is more stable but less accurate implementation.
+where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{A} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits. An implementation for two random effects is available as \code{mrrV2}.
+
+If \code{mrr} returns an error, an alternative implementation (\code{mrrV2}) in available. The function mrrV2 adds a little noise to the diagonal of G, thus it is a more stable but slightly less accurate implementation. Yet another implementation (\code{mrrV3}), assumes the residuals are not independent. The function \code{mrrV3} computes the residual covariances and correlations, so it can be a little slower and more sensitive to missing values.
+
  
 }
 \value{
