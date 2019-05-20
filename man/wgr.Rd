@@ -156,7 +156,7 @@ cor(y,fit_BayesC$hat)
 fit_BayesCpi = BayesCpi(y,gen)
 cor(y,fit_BayesCpi$hat)        
 
-# BayesCpi
+# BayesDpi
 fit_BayesDpi = BayesDpi(y,gen)
 cor(y,fit_BayesDpi$hat)        
         
