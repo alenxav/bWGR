@@ -61,9 +61,9 @@ where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the interce
 
 The model for the ridge regression (mrr) is as follows:
 
-\eqn{Y = Mu + XA + E},
+\eqn{Y = Mu + XB + E},
 
-where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{A} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits. An implementation for two random effects is available as \code{mrrV2}.
+where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects (each column \eqn{a} is the effect for a trait),  and \eqn{E} is the residual matrix. Covariance components updated from the conditional expectation, and regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Residuals are assumed to be independent among traits. An implementation for two random effects is available as \code{mrrV2}.
 
 If \code{mrr} returns an error, an alternative implementation (\code{mrrV2}) in available. The function mrrV2 adds a little noise to the diagonal of G, thus it is a more stable but slightly less accurate implementation. Yet another implementation (\code{mrrV3}), assumes the residuals are not independent. The function \code{mrrV3} computes the residual covariances and correlations, so it can be a little slower and more sensitive to missing values.
 
@@ -71,9 +71,9 @@ If \code{mrr} returns an error, an alternative implementation (\code{mrrV2}) in 
 }
 \value{
 
- The function mkr returns a list with the random effect covariance matrix (\eqn{VA}), residual covariance matrix (\eqn{VE}) and a matrix with breeding values (\eqn{BV}).
+ The function mkr returns a list with the random effect covariance matrix (\code{VA}), residual covariance matrix (\code{VE}) and a matrix with breeding values (\code{BV}).
  
- The function mrr returns a list with the random effect covariance matrix (\eqn{Vb}), residual covariance matrix (\eqn{Ve}),  matrix with marker effects (\eqn{b}) and intercepts (\eqn{mu}), heritabilities (\eqn{h2}), and a matrix with breeding values (\eqn{hat}).
+ The function mrr returns a list with the random effect covariance matrix (\code{Vb}), residual covariance matrix (\code{Ve}), genetic correlations (\code{GC}), matrix with marker effects (\code{b}) and intercepts (\code{mu}), heritabilities (\code{h2}), and a matrix with breeding values (\code{hat}).
  
 }
 
