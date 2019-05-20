@@ -1587,8 +1587,7 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X){
   // Fitting the model
   for(int i=0; i<n0; i++){for(int j=0; j<k; j++){fit(i,j)=sum(X(i,_)*b(_,j))+mu(j);}}
   // Heritability
-  NumericVector h2(k); 
-  for(int i=0; i<k; i++){ h2[i] = (vb(i,i)*MSx[i])/(vb(i,i)*MSx[i]+ve[i]); }
+  NumericVector h2 = 1-ve/vy;
   // Genetic correlations
   NumericMatrix GC(k,k);
   for(int i=0; i<k; i++){ for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
@@ -1780,8 +1779,7 @@ SEXP mrrV3(NumericMatrix Y, NumericMatrix X){
   // Fitting the model
   for(int i=0; i<n0; i++){for(int j=0; j<k; j++){fit(i,j)=sum(X(i,_)*b(_,j))+mu(j);}}
   // Heritability
-  NumericVector h2(k); 
-  for(int i=0; i<k; i++){ h2[i] = (vb(i,i)*MSx[i])/(vb(i,i)*MSx[i]+ve[i]); }
+  NumericVector h2 = 1-ve/vy;
   // Correlations
   NumericMatrix GC(k,k), RC(k,k);
   for(int i=0; i<k; i++){
