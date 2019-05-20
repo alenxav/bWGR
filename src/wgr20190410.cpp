@@ -1604,7 +1604,7 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X){
 // [[Rcpp::export]]
 SEXP mrrV2(NumericMatrix Y, NumericMatrix X){
   int maxit = 200;
-  double tol = 10e-8;
+  double tol = 10e-6;
   // Obtain environment containing function
   Rcpp::Environment base("package:base");
   Rcpp::Function solve = base["solve"];
@@ -1623,7 +1623,7 @@ SEXP mrrV2(NumericMatrix Y, NumericMatrix X){
   double tmp;
   for(int i=0; i<p; i++){
     for(int j=0; j<k; j++){
-     xx(i,j) = sum(X(_,i)*X(_,i)*o(_,j));
+      xx(i,j) = sum(X(_,i)*X(_,i)*o(_,j));
       tmp = sum(X(_,i)*o(_,j))/n(j);
       vx(i,j) = xx(i,j)/n(j)-tmp*tmp;}}
   //NumericVector MSx = colSums(xx);
@@ -1659,9 +1659,9 @@ SEXP mrrV2(NumericMatrix Y, NumericMatrix X){
       // Update residuals
       for(int i=0; i<k; i++){
         e(_,i) = (e(_,i)-X(_,j)*(b1(i)-b0(i)))*o(_,i);}
-      }
+    }
     // Residual variance components update
-    for(int i=0; i<k; i++){ ve(i) = (sum(e(_,i)*(y(_,i)-mu)))/n(i);}
+    for(int i=0; i<k; i++){ ve(i) = (sum(e(_,i)*y(_,i)))/(n(i)-1);}
     // Genetic covariance components update
     for(int i=0; i<n0; i++){ for(int j=0; j<k; j++){fit(i,j) = sum(X(i,_)*b(_,j));}}
     for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
@@ -1676,17 +1676,17 @@ SEXP mrrV2(NumericMatrix Y, NumericMatrix X){
     ++numit;
     cnv = sum(abs(bc-b));
     if( cnv<tol ){break;}}
-  // Genetic correlations
-  NumericMatrix GC(k,k);
-  for(int i=0; i<k; i++){ for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
   // Fitting the model
   NumericVector h2(k); 
   for(int i=0; i<n0; i++){for(int j=0; j<k; j++){fit(i,j) = sum(X(i,_)*b(_,j))+mu(j);}}
   h2 = 1-ve/vy;
+  // Genetic correlations
+  NumericMatrix GC(k,k);
+  for(int i=0; i<k; i++){ for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
   // Output
   return List::create(Named("mu")=mu, Named("b")=b,
                       Named("hat")=fit, Named("h2")=h2,
-                      Named("Vb")=vb, Named("GC")=GC, 
+                      Named("Vb")=vb, Named("GC")=GC,
                       Named("Ve")=ve);}
 
 // [[Rcpp::export]]
