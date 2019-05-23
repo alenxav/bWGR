@@ -56,6 +56,9 @@ where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the interce
  
  04) \code{mrrV3(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
  
+ 05) \code{mkr_old(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,df=5,R2=0.5,EigT=0.05,verb=FALSE):}{ Previous MCMC implementation of \code{mkr}. }
+ 
+ 
  
 }
 \value{
