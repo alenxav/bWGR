@@ -9,7 +9,7 @@
 \alias{Hmat}
 \alias{SibZ}
 \title{
-Multi-variate Regression
+Multivariate Regression
 }
 \description{
 Multivariate model to find breeding values.
@@ -20,7 +20,7 @@ Multivariate model to find breeding values.
 }
 \arguments{
   \item{Y}{
-Numeric matrix of observations (\eqn{n,k}) describing the trait to be analyzed. \code{NA} is allowed.
+Numeric matrix of observations x trait. \code{NA} is allowed.
 }
   \item{K}{
 Numeric matrix containing the relationship matrix.
@@ -52,11 +52,11 @@ where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the interce
 
  02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects. }
 
- 03) \code{mrrV2(Y,X):}{ More stable variation of \code{mrr} which ridges the genetic covariance (add small bias) to assure inversion. }
+ 03) \code{mrrV2(Y,X):}{ More stable variation of \code{mrr} which ridges the genetic covariance (add small bias to the diagonal) to assure inversion. }
  
  04) \code{mrrV3(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
  
- 05) \code{mkr_old(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,df=5,R2=0.5,EigT=0.05,verb=FALSE):}{ Previous MCMC implementation of \code{mkr}. }
+ 05) \code{mkr_old(Y,K=NULL,it=500,bu=200,th=3,df=5,R2=0.5):}{ Old MCMC implementation of \code{mkr}. }
  
  
  
