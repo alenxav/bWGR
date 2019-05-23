@@ -1,5 +1,6 @@
 \name{WGR3 (MV)}
 \alias{mkr}
+\alias{mkr_old}
 \alias{mkr2X}
 \alias{mrr}
 \alias{mrrV2}
@@ -22,7 +23,7 @@ Multivariate model to find breeding values.
 Numeric matrix of observations (\eqn{n,k}) describing the trait to be analyzed. \code{NA} is allowed.
 }
   \item{K}{
-Numeric matrix containing the genotypic relationship matrix. A matrix with \eqn{n} rows and columns.
+Numeric matrix containing the relationship matrix.
 }
  \item{X}{
 Numeric matrix containing the genotyping matrix.
