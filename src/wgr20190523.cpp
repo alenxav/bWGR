@@ -1578,6 +1578,7 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X){
     for(int i=0; i<n0; i++){ for(int j=0; j<k; j++){fit(i,j) = sum(X(i,_)*b(_,j));}}
     for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
       vb(i,j) = (sum(fit(_,i)*eps(_,j))+sum(fit(_,j)*eps(_,i)))/((n(i)*MSx(i))+(n(j)*MSx(j)));}}
+    for(int i=0; i<k; i++){ vb(i,i) = vb(i,i)*1.0001; }    
     // Inverse of G
     iG = solve(vb);
     // Convergence
