@@ -1,4 +1,4 @@
-mkr = function(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
+mkr_old = function(Y,K=NULL,eK=NULL,it=500,bu=200,th=3,
                df=5,R2=0.5,EigT=0.05,verb=FALSE){
   
   if(is.null(K)&is.null(eK)) stop('Either K or eK have to be provided')
