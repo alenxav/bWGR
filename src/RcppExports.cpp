@@ -489,6 +489,31 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mkr
+SEXP mkr(NumericMatrix Y, NumericMatrix K);
+RcppExport SEXP _bWGR_mkr(SEXP YSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type K(KSEXP);
+    rcpp_result_gen = Rcpp::wrap(mkr(Y, K));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mkr2X
+SEXP mkr2X(NumericMatrix Y, NumericMatrix K1, NumericMatrix K2);
+RcppExport SEXP _bWGR_mkr2X(SEXP YSEXP, SEXP K1SEXP, SEXP K2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type K1(K1SEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type K2(K2SEXP);
+    rcpp_result_gen = Rcpp::wrap(mkr2X(Y, K1, K2));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
@@ -524,6 +549,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_mrrV3", (DL_FUNC) &_bWGR_mrrV3, 2},
     {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},
     {"_bWGR_mtgsru", (DL_FUNC) &_bWGR_mtgsru, 7},
+    {"_bWGR_mkr", (DL_FUNC) &_bWGR_mkr, 2},
+    {"_bWGR_mkr2X", (DL_FUNC) &_bWGR_mkr2X, 3},
     {NULL, NULL, 0}
 };
 
