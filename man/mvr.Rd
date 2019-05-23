@@ -44,7 +44,7 @@ The model for the ridge regression (mrr) is as follows:
 
 where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects,  and \eqn{E} is the residual matrix. If \code{mrr} returns an error, an alternative implementation (\code{mrrV2}) in available. 
 
- Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Covariance components are solved with an efficient EM-REML.
+ Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Covariance components are solved with an efficient variation of EM-REML.
 
  Other related implementations:
  
