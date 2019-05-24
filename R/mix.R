@@ -147,7 +147,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     
     # Print R2 and check convergence based on Ve
     setTxtProgressBar(pb,iter/maxit)
-    R2 = round(1-Ve/Vy,6)
+    R2 = round(1-Ve/Vy,8)
     if(abs(R2c-R2)==0) break()
     R2c = R2
   }
