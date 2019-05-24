@@ -136,7 +136,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
       }
       
       # VarComp & Lambda
-      Error = mean(yc*e,na.rm=T)
+      Error = var(e,na.rm=T)
       SSa = sapply(H, function(h) mean(yc*h,na.rm=T) )
       Vg = c(SSa,Error=Error)
       Vg[Vg<(0.01*Vy)] = 0.01*Vy
