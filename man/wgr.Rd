@@ -18,7 +18,7 @@
 MCMC Whole-genome Regression
 }
 \description{
-Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel). Additional standalone functions written entirely in C++ are also implemented.
+Univariate model to find breeding values through regression with optional resampling techniques (SBMC) and polygenic term (Kernel). Additional standalone functions written entirely in C++ are also implemented. See "Details" for other vanilla implementations written entirely in C++.
 }
 \usage{
 wgr(y,X,it=1500,bi=500,th=1,bag=1,rp=FALSE,iv=FALSE,de=FALSE,
