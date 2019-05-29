@@ -17,7 +17,7 @@ Multivariate model to find breeding values.
 \usage{
  mkr(Y,K)
  mrr(Y,X)
- mrrV2(Y,X) # more stable for multiple traits
+ mrrV2(Y,X) # stable for large number of traits
 }
 \arguments{
   \item{Y}{
