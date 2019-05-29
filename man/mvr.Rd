@@ -17,6 +17,7 @@ Multivariate model to find breeding values.
 \usage{
  mkr(Y,K)
  mrr(Y,X)
+ mrrV2(Y,X) # more stable for multiple traits
 }
 \arguments{
   \item{Y}{
@@ -50,14 +51,11 @@ where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the interce
  
  01) \code{mkr2X(Y,K1,K2):}{ Solves multi-trait kernel regressions with two random effects.}
 
- 02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects. }
+ 02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
 
- 03) \code{mrrV2(Y,X):}{ More stable variation of \code{mrr} which ridges the genetic covariance (add small bias to the diagonal) to assure inversion. }
+ 03) \code{mrrV3(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
  
- 04) \code{mrrV3(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
- 
- 05) \code{mkr_old(Y,K=NULL,it=500,bu=200,th=3,df=5,R2=0.5):}{ Old MCMC implementation of \code{mkr}. }
- 
+ 04) \code{mkr_old(Y,K=NULL,it=500,bu=200,th=3,df=5,R2=0.5):}{ Old MCMC implementation of \code{mkr}.} 
  
  
 }
