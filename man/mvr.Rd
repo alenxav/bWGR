@@ -78,7 +78,7 @@
     G = kronecker(G0,K)
     diag(G)=diag(G)+0.001
     L = chol(G)
-    TBV = c(L%*%rnorm(196*3))
+    TBV = crossprod(L,rnorm(196*3))
     Y = rnorm(196*3,10+TBV,sd(TBV))
     Phe = matrix(Y,ncol=3)
     
