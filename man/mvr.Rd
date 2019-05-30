@@ -1,6 +1,5 @@
 \name{WGR3 (MV)}
 \alias{mkr}
-\alias{mkr_old}
 \alias{mkr2X}
 \alias{mrr}
 \alias{mrrV2}
@@ -54,9 +53,6 @@ where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the interce
  02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
 
  03) \code{mrrV3(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
- 
- 04) \code{mkr_old(Y,K=NULL,it=500,bu=200,th=3,df=5,R2=0.5):}{ Old MCMC implementation of \code{mkr}.} 
- 
  
 }
 \value{
