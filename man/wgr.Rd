@@ -66,7 +66,7 @@ Expected R2, used to calculate the prior shape.
 Output of function \code{eigen}. Spectral decomposition of the kernel used as a second random effect (eg. pedigree matrix).
 }
   \item{VarK}{
-Numeric between 0 and 1. For reduction of dimensionality. Indicates the proportion of variance explained by Eigenpairs used to fit the polygenic term.
+Numeric between 0 and 1. For reduction of dimensionality. Indicates the proportion of variance explained by Eigenpairs used to fit second random effect.
 }
   \item{verb}{
 Logical. If verbose is TRUE, function displays MCMC progress bar.
