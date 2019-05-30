@@ -108,9 +108,9 @@ The implementations that support two random effects include:
 
 10) \code{BayesRR2(y,X1,X2,it=1500,bi=500,df=5,R2=0.5)}
 
-And the cross-validation for the C++ implementations, with arguments analogous to the emCV function.
+And the cross-validation for the C++ implementations, with arguments analogous to \code{emCV}.
     
-Cross-validation: \code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=TRUE,llo=NULL,tbv=NULL)}    
+\code{mcmcCV(y,gen,k=5,n=5,it=1500,bi=500,pi=0.95,df=5,R2=0.5,avg=TRUE,llo=NULL,tbv=NULL)}    
     
 }
 \value{
