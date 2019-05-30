@@ -71,32 +71,36 @@ Alencar Xavier
 \examples{
  \dontrun{
  
-# G matrix
+# Load data and compute G matrix
 data(tpod)
-G = tcrossprod(gen)
-G = G/mean(diag(G))
+gen = CNT(gen)
+K = tcrossprod(gen)
+K = K/mean(diag(K))
 
-# Phenotypes
-Y1 = rnorm(196,y,.1)
-Y2 = rnorm(196,y,.2)
-Y3 = rnorm(196,y,.3)
-Phe = cbind(Y1,Y2,Y3)
+# Phenotypes: 3 traits correlated r=0.5
+G0 = 0.5+diag(0.5,3) 
+G = kronecker(G0,K)
+L = chol(G)
+TBV = c(L%*%rnorm(196*3))
+Y = rnorm(196*3,TBV,sd(TBV))
+Phe = matrix(Y,ncol=3)
 
-# Fit model
+# Fit kernel and regression models
 test1 = mkr(Phe,G)
 test2 = mrrV2(Phe,gen)
 
 # Genetic correlation
 test1$GC
 test2$GC
- 
+
 # Heritabilies
 test1$h2
 test2$h2
- 
+
 # Goodness of fit
 diag(cor(Phe,test1$hat))
 diag(cor(Phe,test2$hat))
+
   
  }
 }
