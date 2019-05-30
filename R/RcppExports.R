@@ -37,6 +37,18 @@ emEN <- function(y, gen, R2 = 0.5, alpha = 0.02) {
     .Call('_bWGR_emEN', PACKAGE = 'bWGR', y, gen, R2, alpha)
 }
 
+emML <- function(y, gen, D = NULL) {
+    .Call('_bWGR_emML', PACKAGE = 'bWGR', y, gen, D)
+}
+
+emGWA <- function(y, gen) {
+    .Call('_bWGR_emGWA', PACKAGE = 'bWGR', y, gen)
+}
+
+BayesA <- function(y, X, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesA', PACKAGE = 'bWGR', y, X, it, bi, df, R2)
+}
+
 BayesB <- function(y, X, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
     .Call('_bWGR_BayesB', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
 }
@@ -45,19 +57,87 @@ BayesC <- function(y, X, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
     .Call('_bWGR_BayesC', PACKAGE = 'bWGR', y, X, it, bi, pi, df, R2)
 }
 
+BayesL <- function(y, X, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesL', PACKAGE = 'bWGR', y, X, it, bi, df, R2)
+}
+
+BayesRR <- function(y, X, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesRR', PACKAGE = 'bWGR', y, X, it, bi, df, R2)
+}
+
+BayesCpi <- function(y, X, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesCpi', PACKAGE = 'bWGR', y, X, it, bi, df, R2)
+}
+
+BayesDpi <- function(y, X, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesDpi', PACKAGE = 'bWGR', y, X, it, bi, df, R2)
+}
+
+BayesA2 <- function(y, X1, X2, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesA2', PACKAGE = 'bWGR', y, X1, X2, it, bi, df, R2)
+}
+
+BayesB2 <- function(y, X1, X2, it = 1500, bi = 500, pi = 0.95, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesB2', PACKAGE = 'bWGR', y, X1, X2, it, bi, pi, df, R2)
+}
+
+BayesRR2 <- function(y, X1, X2, it = 1500, bi = 500, df = 5, R2 = 0.5) {
+    .Call('_bWGR_BayesRR2', PACKAGE = 'bWGR', y, X1, X2, it, bi, df, R2)
+}
+
+emML2 <- function(y, X1, X2, D1 = NULL, D2 = NULL) {
+    .Call('_bWGR_emML2', PACKAGE = 'bWGR', y, X1, X2, D1, D2)
+}
+
 CNT <- function(X) {
-    invisible(.Call('_bWGR_CNT', PACKAGE = 'bWGR', X))
+    .Call('_bWGR_CNT', PACKAGE = 'bWGR', X)
 }
 
 IMP <- function(X) {
-    invisible(.Call('_bWGR_IMP', PACKAGE = 'bWGR', X))
+    .Call('_bWGR_IMP', PACKAGE = 'bWGR', X)
 }
 
 GAU <- function(X) {
     .Call('_bWGR_GAU', PACKAGE = 'bWGR', X)
 }
 
-SPC <- function(y, blk, row, col, rN = 3L, cN = 1L) {
+GRM <- function(X, Code012 = FALSE) {
+    .Call('_bWGR_GRM', PACKAGE = 'bWGR', X, Code012)
+}
+
+SPC <- function(y, blk, row, col, rN = 3, cN = 1) {
     .Call('_bWGR_SPC', PACKAGE = 'bWGR', y, blk, row, col, rN, cN)
+}
+
+SPM <- function(blk, row, col, rN = 3, cN = 1) {
+    .Call('_bWGR_SPM', PACKAGE = 'bWGR', blk, row, col, rN, cN)
+}
+
+mrr <- function(Y, X) {
+    .Call('_bWGR_mrr', PACKAGE = 'bWGR', Y, X)
+}
+
+mrrV2 <- function(Y, X) {
+    .Call('_bWGR_mrrV2', PACKAGE = 'bWGR', Y, X)
+}
+
+mrrV3 <- function(Y, X) {
+    .Call('_bWGR_mrrV3', PACKAGE = 'bWGR', Y, X)
+}
+
+mrr2X <- function(Y, X1, X2) {
+    .Call('_bWGR_mrr2X', PACKAGE = 'bWGR', Y, X1, X2)
+}
+
+mtgsru <- function(Y, X, b, vb, ve, iG, maxit = 50L) {
+    .Call('_bWGR_mtgsru', PACKAGE = 'bWGR', Y, X, b, vb, ve, iG, maxit)
+}
+
+mkr <- function(Y, K) {
+    .Call('_bWGR_mkr', PACKAGE = 'bWGR', Y, K)
+}
+
+mkr2X <- function(Y, K1, K2) {
+    .Call('_bWGR_mkr2X', PACKAGE = 'bWGR', Y, K1, K2)
 }
 
