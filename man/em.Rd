@@ -36,17 +36,17 @@ emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02,
 }
 \arguments{
   \item{y}{
-Numeric vector of observations (\eqn{n}) describing the trait to be analyzed. \code{NA} is not allowed.
+Numeric vector of response variable (\eqn{n}). \code{NA} is not allowed.
 }
   \item{gen}{
 Numeric matrix containing the genotypic data. A matrix with \eqn{n}
-rows of observations and (\eqn{m}) columns of molecular markers.
+rows of observations and \eqn{m} columns of molecular markers.
 }
   \item{df}{
 Hyperprior degrees of freedom of variance components.
 }
   \item{R2}{
-Expected R2, used to calculate the prior shape as proposed by de los Campos et al. (2013).
+Expected R2, used to calculate the prior shape (de los Campos et al. 2013).
 }
   \item{Pi}{
 Value between 0 and 1. Expected probability pi of having null effect (or 1-Pi if Pi>0.5).
