@@ -1,7 +1,6 @@
-\name{XTRA}
+\name{XTRA 1}
 \alias{mixed}
 \alias{mtmixed}
-\alias{markov}
 \alias{mtgsru}
 \title{
 Mixed model solver

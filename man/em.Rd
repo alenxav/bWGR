@@ -9,13 +9,6 @@
 \alias{emML}
 \alias{emML2}
 \alias{emCV}
-\alias{emGWA}
-\alias{SPC}
-\alias{SPM}
-\alias{IMP}
-\alias{CNT}
-\alias{GAU}
-\alias{GRM}
 \title{
 Expectation-Maximization WGR
 }

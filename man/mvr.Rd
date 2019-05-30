@@ -5,8 +5,6 @@
 \alias{mrrV2}
 \alias{mrrV3}
 \alias{mrr2X}
-\alias{Hmat}
-\alias{SibZ}
 \title{
   Multivariate Regression
 }
