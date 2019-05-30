@@ -17,7 +17,7 @@ Multivariate model to find breeding values.
 \usage{
  mkr(Y,K)
  mrr(Y,X)
- mrrV2(Y,X) # stable for larger number of traits
+ mrrV2(Y,X) # more stable
 }
 \arguments{
   \item{Y}{
@@ -43,9 +43,9 @@ The model for the ridge regression (mrr) is as follows:
 
 \deqn{Y = Mu + XB + E}
 
-where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects,  and \eqn{E} is the residual matrix. If \code{mrr} returns an error, an alternative implementation (\code{mrrV2}) in available. 
+where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects,  and \eqn{E} is the residual matrix. Use \code{mrrV2} if \code{mrr} returns an error, where a small noise is added the genetic covariance to assure inversion. 
 
- Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Covariance components are solved with an efficient variation of EM-REML.
+ Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Variance and covariance components are solved with an efficient variation of EM-REML.
 
  Other related implementations:
  
