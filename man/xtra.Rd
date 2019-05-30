@@ -13,7 +13,7 @@
 Additional tools
 }
 \description{
-Minor functions that may help with data manipulation.
+Complementary functions that may help with handling parameters and routine operations.
 }
 
 \details{
