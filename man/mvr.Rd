@@ -79,7 +79,7 @@
     diag(G)=diag(G)+0.001
     L = chol(G)
     TBV = c(L%*%rnorm(196*3))
-    Y = rnorm(196*3,TBV,sd(TBV))
+    Y = rnorm(196*3,10+TBV,sd(TBV))
     Phe = matrix(Y,ncol=3)
     
     # Fit kernel and regression models
