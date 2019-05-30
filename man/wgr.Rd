@@ -63,7 +63,7 @@ Prior degrees of freedom of variance components.
 Expected R2, used to calculate the prior shape.
 }
   \item{eigK}{
-Output of function 'eigen'. Spectral decomposition of the kernel used to compute the polygenic term.
+Output of function \code{eigen}. Spectral decomposition of the kernel used as a second random effect (eg. pedigree matrix).
 }
   \item{VarK}{
 Numeric between 0 and 1. For reduction of dimensionality. Indicates the proportion of variance explained by Eigenpairs used to fit the polygenic term.
