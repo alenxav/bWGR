@@ -34,14 +34,14 @@ Numeric matrix containing the genotyping matrix.
 \details{
 
 The model for the kernel regression (mkr) is as follows:
-
-\eqn{Y = Mu + UB + E},
+ 
+\deqn{Y = Mu + UB + E}
 
 where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{U} is the matrix of Eigenvector of K, \eqn{b} is a vector of regression coefficients and \eqn{E} is the residual matrix.
 
 The model for the ridge regression (mrr) is as follows:
 
-\eqn{Y = Mu + XB + E},
+\deqn{Y = Mu + XB + E}
 
 where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects,  and \eqn{E} is the residual matrix. If \code{mrr} returns an error, an alternative implementation (\code{mrrV2}) in available. 
 
