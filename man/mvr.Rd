@@ -83,7 +83,7 @@
     Phe = matrix(Y,ncol=3)
     
     # Fit kernel and regression models
-    test1 = mkr(Phe,G)
+    test1 = mkr(Phe,K)
     test2 = mrrV2(Phe,gen)
     
     # Genetic correlation
