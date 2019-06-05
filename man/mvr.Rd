@@ -46,9 +46,9 @@
     
     01) \code{mkr2X(Y,K1,K2):}{ Solves multi-trait kernel regressions with two random effects.}
 
-02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
+    02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
 
-03) \code{mrrR(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
+    03) \code{mrrR(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
 
 }
 \value{
