@@ -1576,8 +1576,8 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X){
       // Diag VC
       if(i==j){
         vb(i,j) = (1.01*vy(i)-ve(i))/MSx(i); }else{
-        vb(i,j) = (sum(fit(_,i)*y(_,j))+sum(fit(_,j)*y(_,i))) / ((n(i)*MSx(i))+(n(j)*MSx(j)));
-      }}}
+          vb(i,j) = (sum(fit(_,i)*y(_,j))+sum(fit(_,j)*y(_,i))) / ((n(i)*MSx(i))+(n(j)*MSx(j)));
+        }}}
     iG = solve(vb);
     // Convergence
     ++numit;

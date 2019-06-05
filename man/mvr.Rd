@@ -77,6 +77,7 @@
     TBV = crossprod(L,rnorm(196*3))
     Y = rnorm(196*3,10+TBV,sd(TBV))
     Phe = matrix(Y,ncol=3)
+    TBV = matrix(TBV,ncol=3)
     
     # Fit kernel and regression models
     test1 = mkr(Phe,K)
@@ -91,8 +92,8 @@
     test2$h2
     
     # Goodness of fit
-    diag(cor(Phe,test1$hat))
-    diag(cor(Phe,test2$hat))
+    diag(cor(TBV,test1$hat))
+    diag(cor(TBV,test2$hat))
     
     
   }
