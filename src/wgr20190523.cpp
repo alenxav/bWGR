@@ -1578,12 +1578,15 @@ SEXP mrr(NumericMatrix Y, NumericMatrix X){
     for(int i=0; i<n0; i++){ for(int j=0; j<k; j++){fit(i,j) = sum(X(i,_)*b(_,j));}}
     for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
       vb(i,j) = (sum(fit(_,i)*eps(_,j))+sum(fit(_,j)*eps(_,i)))/((n(i)*MSx(i))+(n(j)*MSx(j)));}}
-    // Inverse of G
+    // Ridge and inverse of G
+    for(int i=0; i<k; i++){ vb(i,i)=vb(i,i)*1.001;}
     iG = solve(vb);
     // Convergence
     ++numit;
     cnv = sum(abs(bc-b));
     if( cnv<tol ){break;}}
+  // Remove ridging from genetic variance
+  for(int i=0; i<k; i++){ vb(i,i)=vb(i,i)/1.001;}
   // Fitting the model
   for(int i=0; i<n0; i++){for(int j=0; j<k; j++){fit(i,j)=sum(X(i,_)*b(_,j))+mu(j);}}
   // Heritability
