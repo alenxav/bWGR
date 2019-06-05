@@ -1,9 +1,8 @@
 \name{WGR3 (MV)}
 \alias{mkr}
-\alias{mkr2X}
 \alias{mrr}
-\alias{mrrV2}
-\alias{mrrV3}
+\alias{mrrR}
+\alias{mkr2X}
 \alias{mrr2X}
 \title{
   Multivariate Regression
@@ -14,7 +13,6 @@
 \usage{
   mkr(Y,K)
   mrr(Y,X)
-  mrrV2(Y,X) # more stable
 }
 \arguments{
   \item{Y}{
@@ -40,7 +38,7 @@
     
     \deqn{Y = Mu + XB + E}
   
-  where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects,  and \eqn{E} is the residual matrix. Use \code{mrrV2} if \code{mrr} returns an error, where a small noise is added the genetic covariance to assure inversion. 
+  where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects,  and \eqn{E} is the residual matrix.
   
   Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Variance and covariance components are solved with an efficient variation of EM-REML.
   
@@ -50,7 +48,7 @@
 
 02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
 
-03) \code{mrrV3(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
+03) \code{mrrR(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
 
 }
 \value{
