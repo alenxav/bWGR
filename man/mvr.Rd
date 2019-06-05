@@ -82,7 +82,7 @@
     
     # Fit kernel and regression models
     test1 = mkr(Phe,K)
-    test2 = mrrV2(Phe,gen)
+    test2 = mrr(Phe,gen)
     
     # Genetic correlation
     test1$GC
