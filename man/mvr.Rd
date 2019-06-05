@@ -3,6 +3,7 @@
 \alias{mrr}
 \alias{mrrR}
 \alias{mkr2X}
+\alias{mrr2X}
 \title{
   Multivariate Regression
 }
