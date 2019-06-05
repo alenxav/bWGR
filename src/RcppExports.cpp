@@ -435,27 +435,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mrrV2
-SEXP mrrV2(NumericMatrix Y, NumericMatrix X);
-RcppExport SEXP _bWGR_mrrV2(SEXP YSEXP, SEXP XSEXP) {
+// mrrR
+SEXP mrrR(NumericMatrix Y, NumericMatrix X);
+RcppExport SEXP _bWGR_mrrR(SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
     Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(mrrV2(Y, X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mrrV3
-SEXP mrrV3(NumericMatrix Y, NumericMatrix X);
-RcppExport SEXP _bWGR_mrrV3(SEXP YSEXP, SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(mrrV3(Y, X));
+    rcpp_result_gen = Rcpp::wrap(mrrR(Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -545,8 +533,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_SPC", (DL_FUNC) &_bWGR_SPC, 6},
     {"_bWGR_SPM", (DL_FUNC) &_bWGR_SPM, 5},
     {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
-    {"_bWGR_mrrV2", (DL_FUNC) &_bWGR_mrrV2, 2},
-    {"_bWGR_mrrV3", (DL_FUNC) &_bWGR_mrrV3, 2},
+    {"_bWGR_mrrR", (DL_FUNC) &_bWGR_mrrR, 2},
     {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},
     {"_bWGR_mtgsru", (DL_FUNC) &_bWGR_mtgsru, 7},
     {"_bWGR_mkr", (DL_FUNC) &_bWGR_mkr, 2},
