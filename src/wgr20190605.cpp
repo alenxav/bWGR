@@ -364,7 +364,9 @@ SEXP emDE(NumericVector y, NumericMatrix gen, double R2 = 0.5){
   NumericVector e = y-mu;
   // Marker variance
   NumericVector xx(p);
-  for(int k=0; k<p; k++){xx[k] = sum(gen(_,k)*gen(_,k));}
+  for(int k=0; k<p; k++){
+    xx[k] = sum(gen(_,k)*gen(_,k));
+    if(xx[k]==0) xx[k]=0.1;}
   NumericVector vx(p);
   for(int k=0; k<p; k++){vx[k] = var(gen(_,k));}
   double cxx = sum(vx)*(1-R2)/R2;
