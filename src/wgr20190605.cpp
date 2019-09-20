@@ -1013,7 +1013,7 @@ SEXP BayesCpi(NumericVector y, NumericMatrix X,
   // Get posterior means
   double MCMC = it-bi;
   MU = MU/MCMC; B = B/MCMC; D = D/MCMC;
-  VB = VB/MCMC; VE = VE/MCMC; Pi = Pi/MCMC;
+  VB = VB/MCMC; VE = VE/MCMC; Pi = 1-Pi/MCMC;
   // Getting GWAS results
   NumericVector PVAL = -log(1-D);
   // Get fitted values and h2
@@ -1094,7 +1094,7 @@ SEXP BayesDpi(NumericVector y, NumericMatrix X,
   // Get posterior means
   double MCMC = it-bi;
   MU = MU/MCMC; B = B/MCMC; D = D/MCMC;
-  VB = VB/MCMC; VE = VE/MCMC; Pi = Pi/MCMC;
+  VB = VB/MCMC; VE = VE/MCMC; Pi = 1-Pi/MCMC;
   // Getting GWAS results
   NumericVector PVAL = -log(1-D);
   // Get fitted values and h2
