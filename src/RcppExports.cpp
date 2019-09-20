@@ -86,6 +86,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// emBD
+SEXP emBD(NumericVector y, NumericMatrix gen, double df, double R2);
+RcppExport SEXP _bWGR_emBD(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
+    Rcpp::traits::input_parameter< double >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< double >::type R2(R2SEXP);
+    rcpp_result_gen = Rcpp::wrap(emBD(y, gen, df, R2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // emRR
 SEXP emRR(NumericVector y, NumericMatrix gen, double df, double R2);
 RcppExport SEXP _bWGR_emRR(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP) {
@@ -502,6 +516,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mrrFast
+SEXP mrrFast(NumericMatrix Y, NumericMatrix X);
+RcppExport SEXP _bWGR_mrrFast(SEXP YSEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(mrrFast(Y, X));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
@@ -509,6 +535,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_emBA", (DL_FUNC) &_bWGR_emBA, 4},
     {"_bWGR_emBB", (DL_FUNC) &_bWGR_emBB, 5},
     {"_bWGR_emBC", (DL_FUNC) &_bWGR_emBC, 5},
+    {"_bWGR_emBD", (DL_FUNC) &_bWGR_emBD, 4},
     {"_bWGR_emRR", (DL_FUNC) &_bWGR_emRR, 4},
     {"_bWGR_emBL", (DL_FUNC) &_bWGR_emBL, 4},
     {"_bWGR_emDE", (DL_FUNC) &_bWGR_emDE, 3},
@@ -538,6 +565,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_mtgsru", (DL_FUNC) &_bWGR_mtgsru, 7},
     {"_bWGR_mkr", (DL_FUNC) &_bWGR_mkr, 2},
     {"_bWGR_mkr2X", (DL_FUNC) &_bWGR_mkr2X, 3},
+    {"_bWGR_mrrFast", (DL_FUNC) &_bWGR_mrrFast, 2},
     {NULL, NULL, 0}
 };
 
