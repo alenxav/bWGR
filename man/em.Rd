@@ -2,6 +2,7 @@
 \alias{emBA}
 \alias{emBB}
 \alias{emBC}
+\alias{emBD}
 \alias{emRR}
 \alias{emBL}
 \alias{emDE}
