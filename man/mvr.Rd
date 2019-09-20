@@ -4,6 +4,7 @@
 \alias{mrrR}
 \alias{mkr2X}
 \alias{mrr2X}
+\alias{mrrFast}
 \title{
   Multivariate Regression
 }
