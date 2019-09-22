@@ -14,8 +14,8 @@ Whole-genome regression methods on Bayesian framework fitted via EM
 \tabular{ll}{
 Package: \tab bWGR\cr
 Type: \tab Package\cr
-Version: \tab 1.6.5 \cr
-Date: \tab 2019-06-05\cr
+Version: \tab 1.6.6 \cr
+Date: \tab 2019-09-22\cr
 License: \tab GPL-3 \cr
 }
 }
@@ -26,7 +26,6 @@ Maintainer: Alencar Xavier <alenxav@gmail.com>
 }
 \examples{
     \dontrun{
-# Fit Bayesian Ridge Regression
 data(tpod)
 Fit = wgr(y,gen)
 cor(y,Fit$hat)
