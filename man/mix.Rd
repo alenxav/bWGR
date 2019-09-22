@@ -54,6 +54,9 @@ where \eqn{y} is the response variable, \eqn{Xb} corresponds to the fixed effect
 The function wgr returns a list with Fitness values (\code{Fitness}) containing observation \code{obs}, fitted values \code{hat}, residuals \code{res}, and fitted values by model term \code{fits}; Estimated variance components (\code{VarComp}) containing the variance components per se (\code{VarComponents}) and variance explained by each model term (\code{VarExplained}), regression coefficients by model term (\code{Coefficients}), and the effects of structured terms (\code{Structure}) containing the marker effects of each model term where markers were provided.
 }
 
+\references{
+Xavier, A. (2019). Efficient Estimation of Marker Effects in Plant Breeding. G3: Genes, Genomes, Genetics, DOI: 10.1534/g3.119.400728      
+}
 \author{
 Alencar Xavier
 }
