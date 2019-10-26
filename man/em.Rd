@@ -2,7 +2,6 @@
 \alias{emBA}
 \alias{emBB}
 \alias{emBC}
-\alias{emBD}
 \alias{emRR}
 \alias{emBL}
 \alias{emDE}
@@ -21,7 +20,6 @@ emRR(y, gen, df = 10, R2 = 0.5)
 emBA(y, gen, df = 10, R2 = 0.5)
 emBB(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
 emBC(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
-emBD(y, gen, df = 10, R2 = 0.5)
 emBL(y, gen, R2 = 0.5, alpha = 0.02)
 emEN(y, gen, R2 = 0.5, alpha = 0.02)
 emDE(y, gen, R2 = 0.5)
