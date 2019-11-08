@@ -1,13 +1,14 @@
 citHeader("To cite bWGR in publications use:")
 
 citEntry(entry = "Article",
-  title        = "Genomic prediction using subsampling",
-  author       = personList(as.person("Alencar Xavier"),as.person("Shizhong Xu"),as.person("William Muir"),as.person("Katy Rainey")),
-  journal      = "BMC Bioinformatics",
-  year         = "2017",
+  title        = "bWGR: Bayesian whole-genome regression",
+  author       = personList(as.person("Alencar Xavier"),as.person("William Muir"),as.person("Katy Rainey")),
+  journal      = "Bioinformatics",
+  year         = "2019",
+  pages        = "btz794",
   textVersion  =
-  paste("Xavier A, et al. (2016).",
-        "Genomic prediction using subsampling.",
-        "BMC Bioinformatics.",
-        "DOI 10.1186/s12859-017-1582-3.")
+  paste("Xavier A, et al. (2019).",
+        "bWGR: Bayesian whole-genome regression.",
+        "Bioinformatics.", "btz794.",
+        "DOI 10.1093/bioinformatics/btz794")
 )
