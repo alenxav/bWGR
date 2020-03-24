@@ -4,11 +4,13 @@ citEntry(entry = "Article",
   title        = "bWGR: Bayesian whole-genome regression",
   author       = personList(as.person("Alencar Xavier"),as.person("William Muir"),as.person("Katy Rainey")),
   journal      = "Bioinformatics",
+  volume       = "36",
+  number       = "6",
   year         = "2019",
-  pages        = "btz794",
+  pages        = "1957-1959",
+  doi          = "10.1093/bioinformatics/btz794",
   textVersion  =
   paste("Xavier A, et al. (2019).",
         "bWGR: Bayesian whole-genome regression.",
-        "Bioinformatics.", "btz794.",
-        "DOI 10.1093/bioinformatics/btz794")
+        "Bioinformatics. 36(6), 1957-1959.")
 )
