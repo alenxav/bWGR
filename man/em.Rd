@@ -25,7 +25,7 @@ emEN(y, gen, R2 = 0.5, alpha = 0.02)
 emDE(y, gen, R2 = 0.5)
 emML(y, gen, D = NULL)  
 emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02,
-     df = 10, R2 = 0.5, avg=TRUE, llo=NULL, tbv=NULL)
+     df = 10, R2 = 0.5, avg=TRUE, llo=NULL, tbv=NULL, ReturnGebv = FALSE)
 }
 \arguments{
   \item{y}{
@@ -64,8 +64,11 @@ NULL or a vector (numeric or factor) with the same length as y. If provided, the
 }
   \item{tbv}{
 NULL or numeric vector of 'true breeding values' (\eqn{n}) to use to compare cross-validations to. If NULL, the cross-validations will have the phenotypes as prediction target.
+}
+  \item{ReturnGebv}{
+Logical. If TRUE, it returns a list with the average marker values and fitted values across all cross-validations, in addition to the regular output.
 } 
-                                                                      
+                                                                    
 }
 \details{
 The model for the whole-genome regression is as follows:
