@@ -1,4 +1,8 @@
-emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE, llo=NULL, tbv=NULL){
+
+emCV = function (y, gen, k=5, n=5,
+                 Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE, llo=NULL, tbv=NULL,
+                 ReturnGebv = FALSE){
+  B0 = list()
   folds = function(Seed, y, gen, k) {
     N = nrow(gen)
     set.seed(Seed)
@@ -18,13 +22,19 @@ emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE,
     NamesMod = c("emRR", "emEN", "emBL", "emDE", "emBA", 
                  "emBB", "emBC", "emML", "OBSERVATION")
     M = matrix(NA, Nk, length(NamesMod))
+    B = matrix(NA, ncol(gen), length(NamesMod)-1)
     colnames(M) = NamesMod
-    for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+    for (i in 1:(length(NamesMod)-1)){
+      M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+      B[, i] = get(paste("f", i,sep = ""))$b
+    } 
+    colnames(B) = NamesMod[1:(length(NamesMod)-1)]
     if(is.null(tbv)){
       M[,length(NamesMod)] = Y[w]
     }else{
       M[,length(NamesMod)] = tbv[w]
     }
+    B0[[length(B0)+1]] <<- B
     return(M)
   }
   llo_folds = function(lev, y, gen) {
@@ -44,13 +54,19 @@ emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE,
     NamesMod = c("emRR", "emEN", "emBL", "emDE", "emBA", 
                  "emBB", "emBC", "emML", "OBSERVATION")
     M = matrix(NA, Nk, length(NamesMod))
+    B = matrix(NA, ncol(gen), length(NamesMod)-1)
     colnames(M) = NamesMod
-    for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+    for (i in 1:(length(NamesMod)-1)){
+      M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+      B[, i] = get(paste("f", i,sep = ""))$b
+    } 
+    colnames(B) = NamesMod[1:(length(NamesMod)-1)]
     if(is.null(tbv)){
       M[,length(NamesMod)] = Y[w]
     }else{
       M[,length(NamesMod)] = tbv[w]
     }
+    B0[[length(B0)+1]] <<- B
     return(M)
   }
   if(is.null(llo)){
@@ -76,10 +92,22 @@ emCV = function (y, gen, k=5, n=5, Pi=0.75, alpha=0.02, df=10, R2=0.5, avg=TRUE,
       return(round(dta, digits = 4))
     }
   }
-  return(sCV(b))
+  if(ReturnGebv){
+    beta = B0[[1]]
+    for(i in 2:length(B0)) beta=beta+B0[[i]]
+    beta = beta/length(B0)
+    hat = gen%*%beta + mean(y,na.rm = T)
+    OUT = list(cv=sCV(b),hat=hat,beta=beta)
+  }else{
+    OUT = sCV(b)
+  }
+  return(OUT)
 }
 
-mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5, avg=TRUE, llo=NULL, tbv=NULL){
+mcmcCV = function (y, gen, k = 5, n = 5,
+                   it=1500, bi=500, pi=0.95, df=5, R2=0.5, avg=TRUE, llo=NULL, tbv=NULL,
+                   ReturnGebv = FALSE){
+  B0 = list()
   folds = function(Seed, y, gen, k) {
     N = nrow(gen)
     set.seed(Seed)
@@ -98,13 +126,19 @@ mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5,
     NamesMod = c("BayesA", "BayesB", "BayesC", "BayesL",
                  "BayesCpi", "BayesDpi", "BayesRR", "OBSERVATION")
     M = matrix(NA, Nk, length(NamesMod))
+    B = matrix(NA, ncol(gen), length(NamesMod)-1)
     colnames(M) = NamesMod
-    for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+    for (i in 1:(length(NamesMod)-1)){
+      M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+      B[, i] = get(paste("f", i,sep = ""))$b
+    } 
+    colnames(B) = NamesMod[1:(length(NamesMod)-1)]
     if(is.null(tbv)){
       M[,length(NamesMod)] = Y[w]
     }else{
       M[,length(NamesMod)] = tbv[w]
     }
+    B0[[length(B0)+1]] <<- B
     return(M)
   }
   llo_folds = function(lev, y, gen) {
@@ -123,13 +157,19 @@ mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5,
     NamesMod = c("BayesA", "BayesB", "BayesC", "BayesL",
                  "BayesCpi", "BayesDpi", "BayesRR", "OBSERVATION")
     M = matrix(NA, Nk, length(NamesMod))
+    B = matrix(NA, ncol(gen), length(NamesMod)-1)
     colnames(M) = NamesMod
-    for (i in 1:(length(NamesMod)-1)) M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+    for (i in 1:(length(NamesMod)-1)){
+      M[, i] = gen[w, ] %*% get(paste("f", i,sep = ""))$b
+      B[, i] = get(paste("f", i,sep = ""))$b
+    } 
+    colnames(B) = NamesMod[1:(length(NamesMod)-1)]
     if(is.null(tbv)){
       M[,length(NamesMod)] = Y[w]
     }else{
       M[,length(NamesMod)] = tbv[w]
     }
+    B0[[length(B0)+1]] <<- B
     return(M)
   }
   if(is.null(llo)){
@@ -156,5 +196,14 @@ mcmcCV = function (y, gen, k = 5, n = 5, it=1500, bi=500, pi=0.95, df=5, R2=0.5,
       return(round(dta, digits = 4))
     }
   }
-  return(sCV(b))
+  if(ReturnGebv){
+    beta = B0[[1]]
+    for(i in 2:length(B0)) beta=beta+B0[[i]]
+    beta = beta/length(B0)
+    hat = gen%*%beta + mean(y,na.rm = T)
+    OUT = list(cv=sCV(b),hat=hat,beta=beta)
+  }else{
+    OUT = sCV(b)
+  }
+  return(OUT)
 }
