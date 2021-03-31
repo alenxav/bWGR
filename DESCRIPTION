@@ -15,4 +15,4 @@ Depends: R (>= 3.2.0)
 Packaged: 2018-05-18 01:14:54 UTC; Alencar
 NeedsCompilation: yes
 Repository: CRAN
-Suggests: BGLR,ranger,glmnet,kernlab
+Suggests: BGLR,ranger,glmnet,kernlab,keras,h2o,xgboost
