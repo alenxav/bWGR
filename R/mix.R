@@ -412,3 +412,600 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=10, init
   # Return
   class(OUT) = 'mixed'
   return(OUT)}
+
+#############################################################################################################                   
+
+SimY = function(Z, k=5, h2=0.5,GC=0.5,  seed=123, unbalanced=FALSE){
+  
+  # Store inputs
+  trueVal = c(h2=h2,GC=GC,seed=seed)
+  n = nrow(Z)
+  p = ncol(Z)
+  
+  # Pick a dataset
+  set.seed(seed)
+  
+  # Genetic parameters
+  h20 = h2
+  h2 = rep(h20,k)
+  
+  # GC
+  numGC = (k*(k-1))/2
+  GC = rep(GC,numGC)
+  G0 = diag(k)
+  G0[lower.tri(G0)] = GC
+  G0[upper.tri(G0)] = t(G0)[upper.tri(t(G0))]
+  GC = mean(GC)
+  
+  # Sample effects
+  alpha = 1/sum(apply(Z,2,var))
+  trueVal['scaleG'] = alpha
+  Vb = G0*alpha
+  ev = eigen(Vb, symmetric = TRUE)
+  UD = ev$vectors %*% diag(sqrt(ev$values))
+  beta = matrix(rnorm(p * k), nrow = p)
+  trueBeta = UD %*% t(beta)
+  
+  # True breeding values
+  tbv = Z %*% t(trueBeta)
+  
+  # Residual variances and phenotypes
+  ve = (1-h2)/h2;
+  E = sapply(ve,function(ve) rnorm(n,0,sqrt(ve)))
+  Y = 10 + tbv + E
+  colnames(Y) = paste('y',1:k,sep='')
+  
+  # Unbalance
+  if(unbalanced){
+    Miss = sample(1:k,n,T)
+    for(i in 1:k) Y[which(Miss!=i),i] = NA
+  }
+  
+  return(list(Y=Y,tbv=tbv,settings=trueVal))
+  
+}
+
+#############################################################################################################                   
+
+# Main function
+mm = function(y,random=NULL,fixed=NULL,data=NULL,
+              M=NULL,bin=FALSE,AM=NULL,it=10,verb=TRUE,
+              FLM=TRUE,wgtM=TRUE,cntM=TRUE,nPc=3){
+  
+  # Datasets for testing and debugging
+  # require(eMM3); data(cateto);
+  # random=~ID+Tester+Env:ID+Tester:ID+Env:Tester;
+  # fixed=~Env; data=dt; M=list(ID=Geno);
+  # bin=FALSE; AM=NULL; it=10; verb=TRUE
+  # FLM=FALSE; wgtM=TRUE; nPc=3
+  
+  # Base algorithm settings
+  if(nPc<2) nPc=2
+  if(!is.null(data)) data = droplevels.data.frame(data); as = 0
+  if(!verb){ cat = function(...) NULL }
+  
+  # Spline
+  if(!is.null(AM)){
+    SPACE = function(y,NN) (NN$X%*%y)[,1]/NN$n # Fit
+    data = data.frame( data, obs_num_space = 1:nrow(data)) # Track what was removed after QC
+    spc = TRUE
+  }else{
+    spc = FALSE
+  } 
+  
+  ######################
+  ### Design Matrices ##
+  ######################
+  
+  # Response variable
+  if(!is.null(data)) y = data[[deparse(substitute(y))]]
+  # y = data$Yield; # For debugging with example dataset
+  
+  Y = y
+  sdy = sqrt(var(Y,na.rm = T))
+  my = mean(Y,na.rm = T)
+  upLim = my+5*sdy
+  loLim = my-5*sdy
+  w = which(Y<loLim | Y>upLim)
+  if(length(w)>0){
+    cat("Phenotypes contained",length(w),"outlier(s)\n")
+    y[w] = NA
+  }
+  
+  # Fixed effects or intercept
+  if(!is.null(fixed)){
+    cat("Setting fixed effect design matrices\n")
+    fixed = update(fixed,~.-1)
+    X = sparse.model.matrix(fixed,data = data)
+    XX = as(crossprod(X),"dgCMatrix")
+    B = rep(0,ncol(X)); names(B) = colnames(X)
+    Lmb_X = (1e-12)*sum(colMeans(X^2)-colMeans(X)^2)
+    mu = 0
+    FIX = TRUE
+  }else{
+    mu = 0
+    FIX = FALSE
+  }
+  
+  # Random effects
+  if(!is.null(random)){
+    cat("Setting random effect design matrices\n")
+    rnd0 = rnd = attr(terms(random),"term.labels")
+    rndInt = grep(':',rnd)
+    # Temporarily drop interactions with Markers
+    if(length(rndInt)>0){
+      tmp = rnd[grep(':',rnd)]
+      ms = ifelse(!is.null(M), paste(ls(M),sep='|'), 'NothingReally')
+      tmp = grep(ms,tmp,invert=F,value=T)
+      rnd = rnd[!rnd%in%tmp]}
+    nr0 = length(rnd0)
+    nr = length(rnd)
+    rndInt = nr0>nr
+    Z = list()
+    for(i in 1:nr) Z[[i]]=sparse.model.matrix(formula(paste('~',rnd[i],'-1')),data=data,drop.unused.levels=TRUE)
+    names(Z) = rnd
+    U = lapply(Z, function(x){z=rep(0,ncol(x));names(z)=colnames(x);return(z)}  )
+    RND = TRUE
+  }else{
+    nr = nr0 = 0
+    rndInt = nr0>nr
+    rnd = NULL
+    RND = FALSE
+  }
+  
+  # Spatial to Random effects
+  if(spc & RND){
+    cat("Adding adjacency matrix to random effects\n")
+    rnd = c(rnd,'spatial')
+    nr = nr+1
+    Z[[nr]] = AM$X[data$obs_num_space,data$obs_num_space]
+    names(Z)[nr] = 'spatial'
+    U[[nr]] = rep(0,nrow(data))
+    names(U)[nr] = 'spatial'
+  }
+  
+  # Pre-cook marker terms to redesign matrices for interactions
+  if(!is.null(M) ){
+    ms = ls(M)
+    # Second level logic
+    if(cntM | any(sapply(M, anyNA)) ){
+      cat('Centralize marker matrices\n')
+      # QC'ish
+      for(i in ms){
+        # Assign correct class
+        if(!is.matrix(M[[i]])) M[[i]] = data.matrix(M[[i]])
+        # Centralize
+        M[[i]] = apply(M[[i]],2,function(x) x-mean(x,na.rm=T))
+        # Impute
+        if(anyNA(M[[i]])) M[[i]][is.na(M[[i]])] = 0
+      }
+    }
+  }
+  
+  # Adding back design matrices for interactions
+  if(rndInt){
+    keyInteractions = rnd0[!rnd0%in%rnd]
+    mainTerms = grep(gsub(':','|',paste(keyInteractions,collapse=':')),ms,value=T)
+    # Eigen decomposing key main terms
+    M_SVD = lapply(M[mainTerms], svd, nu=nPc, nv=nPc)
+    Zpc = list()
+    for(i in mainTerms){
+      cat('Extracting PCs of',i,'\n')
+      rownames(M_SVD[[i]]$u) = rownames(M[[i]])
+      rownames(M_SVD[[i]]$v) = colnames(M[[i]])
+      # Rescale for more meaningful variance components
+      k = sqrt(nPc/min(dim(M[[i]])))
+      M_SVD[[i]]$d = M_SVD[[i]]$d*k
+      M_SVD[[i]]$v = M_SVD[[i]]$v*k
+      # Add a value for missing ids
+      M_SVD[[i]]$u = rbind(M_SVD[[i]]$u,miss=0)
+      # Scale eigenvectors based on their eigenvalues
+      M_SVD[[i]]$u = M_SVD[[i]]$u %*% diag(M_SVD[[i]]$d)
+      tmp_ids = as.character(data[[i]])
+      tmp_ids[ ! tmp_ids%in%rownames(M[[i]]) ] = 'miss'
+      Zpc[[i]] = M_SVD[[i]]$u[tmp_ids,]
+      if(anyNA(Zpc[[i]])) Zpc[[i]][is.na(Zpc[[i]])]=0
+      colnames(Zpc[[i]]) = paste('_pc',1:nPc,sep='')}
+    # Create interaction matrices
+    AxB = function(i){
+      tmp = list()
+      individual_terms = strsplit(i,':')[[1]]
+      for(j in individual_terms){
+        if(j%in%ls(Zpc)){ tmp[[j]] = Zpc[[j]] }else{ tmp[[j]] = data[[j]] }}
+      AB = model.matrix(as.formula(paste('~',i,'-1')),data=tmp)
+      AB = as(AB,'dgCMatrix')
+      # AB = sparse.model.matrix(~tmp[[1]]:tmp[[2]],drop.unused.levels=TRUE)
+      return(AB)}
+    # Add terms back to: nr, rnd, Z, U
+    for(i in keyInteractions){
+      cat('Creating',i,'matrix\n')
+      Z[[i]] = AxB(i)
+      U[[i]] = rep(0,ncol(Z[[i]]))
+      names(U[[i]]) = colnames(Z[[i]])
+      rnd = c(rnd,i)
+      nr = nr+1 
+    }
+  }else{
+    keyInteractions = c()
+  }
+  
+  # Missing values
+  if(anyNA(y)){
+    y0 = y;
+    if(FIX) X0 = X
+    if(RND) Z0 = Z
+    wNA = which(is.na(y))
+    y = y[-wNA];
+    if(FIX) X = X[-wNA,]
+    if(RND) Z = lapply(Z,function(z) z[-wNA,] )
+    for(i in 1:nr){
+      cm = colSums(Z[[i]]);
+      if(any(cm==0)){
+        w = which(cm==0);
+        Z[[i]] = Z[[i]][,-w]
+        Z0[[i]] = Z0[[i]][,-w]
+        U[[i]] = U[[i]][-w]
+      }
+    }
+    MIS = TRUE
+  }else{MIS = FALSE}
+  n0 = length(Y)
+  n = length(y)
+  
+  # Binomial
+  if(bin){
+    cat("Logit tranformation\n")
+    MinY = min(y)-1
+    MaxY = max(y)+1
+    ry = c(MinY,MaxY)
+    y = (y-MinY)/(MaxY-MinY)
+    y = log(y/(1-y))
+  }
+  
+  # Random parameters for regularization
+  if(RND){
+    ZZ = lapply(Z, function(z) as(crossprod(z),"dgCMatrix") )
+    Z_cxx = lapply(Z, function(X) sum(colMeans(X^2)-colMeans(X)^2) )
+    Lmb_Z = mapply( function(cxx,h2) cxx*((1-h2)/h2), cxx = Z_cxx, h2=0.5)
+    trAC22 = sapply(ZZ,function(x) mean(1/(diag(x)+1)))
+    fxx = ifelse(FIX,sum(1/diag(XX)),0)
+  }
+  
+  # Starting value for variances
+  Vy = var(y)
+  Ve = Vy*0.5
+  if(RND){ Va = rep(var(y)*0.5,nr); names(Va) = rnd } 
+  e = y
+  
+  # Work on genotypes and structured terms
+  if(!is.null(M)){
+    
+    # Name of structured terms
+    ms = ls(M)
+    ZXX = lapply(ms, function(z){  ZXX = diag(ZZ[[z]]); names(ZXX)=sub(z,'',colnames(ZZ[[z]])); return(ZXX) })
+    names(ZXX) = ms
+    
+    # Empty lists to store structure stuff
+    gFit = gHat = M_xx = M_cxx = Beta = UM = LMB = Gh2 = nrep = list()
+    
+    # Loop across matrices of M to collect parameters and indeces
+    cat("Computing parameters of M terms \n")
+    for(i in ms){
+      
+      if(wgtM){
+        
+        # Get weights for M
+        wgts = sqrt(ZXX[[i]][rownames(M[[i]])])
+        if(anyNA(wgts)) wgts[is.na(wgts)] = 0
+        
+        # Compute cross-products with weights
+        M_xx[[i]] = apply(M[[i]],2,crossprod)
+        M_cxx[[i]] = sum(M_xx[[i]])/nrow(M[[i]])
+        M_xx[[i]] = apply(M[[i]],2,function(x) crossprod(x*wgts) )
+        M_xx[[i]] = ifelse(M_xx[[i]]!=0,M_xx[[i]],0.0001)
+        M[[i]] = apply(M[[i]],2,function(x){x*wgts})
+        
+      }else{
+        
+        # Compute cross-products without weights
+        M_xx[[i]] = apply(M[[i]],2,crossprod)
+        M_cxx[[i]] = sum(M_xx[[i]])/nrow(M[[i]])
+        M_xx[[i]] = ifelse(M_xx[[i]]!=0,M_xx[[i]],0.0001)
+        
+      }
+      
+      # Controls
+      if( is.null(rownames( M[[i]] )) ) stop(paste("Matrix M",i,"does not have row names to indentify levels"))
+      if( !i%in%rnd ) stop(paste("No random effect called",i,"was declared"))
+      
+      # Rename and match levels
+      colnames(Z[[i]]) = gsub(i,"",colnames(Z[[i]]))
+      names(U[[i]]) = gsub(i,"",names(U[[i]]))
+      proportion_genotyped = round(mean(colnames(Z[[i]])%in%rownames( M[[i]] ))*100,2)
+      cat(' (',proportion_genotyped," percent of ",i," have markers)\n",sep='')
+      if(proportion_genotyped==0) stop(paste(i,"levels from data and M do not match"))
+      
+      # Match M to levels
+      mm = mean(rownames(M[[i]])%in%colnames(Z[[i]]))*100
+      if(mm<100){
+        cat(' Note: ',round(100-mm)," percent of ",i," markers have no observations\n",sep='')
+        UM[[i]] = M[[i]][ which( ! rownames(M[[i]]) %in% colnames(Z[[i]]) ) , ]
+        M[[i]] = M[[i]][ which( rownames(M[[i]]) %in% colnames(Z[[i]]) ) , ]
+      }  
+      
+      # Mapping matrix
+      wGen = which(!rownames(M[[i]])%in%colnames(Z[[i]]))
+      if(length(wGen)!=0) M[[i]] = M[[i]][-wGen,]
+      gFit[[i]] = rep(0,ncol(Z[[i]])); names(gFit[[i]]) = colnames(Z[[i]])
+      gHat[[i]] = rep(0,n)
+      
+      # Other fitting parameters
+      Beta[[i]] = rep(0,ncol(M[[i]]))
+      LMB[[i]] = rep(M_cxx[[i]],ncol(M[[i]]))
+      nrep[[i]] = median(diag(ZZ[[i]]))
+      
+    }
+    
+  }else{ms=c();UM=list()}
+  
+  # Remove overall mean
+  m0 = mean(e)
+  mu = mu+m0
+  e = e-m0
+  
+  ###########
+  ### Loop ##
+  ###########
+  
+  if(verb) pb = txtProgressBar(style = 3)
+  resids0 = e
+  conv = 0
+  
+  for(i in 1:it){
+    
+    # Fixed coefficient update
+    if(FIX) upFix = GS2EIGEN(e,X,B,XX,Lmb_X)
+    
+    # Randomc oefficient update
+    if(RND){
+      for(j in 1:nr){
+        
+        # UPDATE TERMS WITH MARKERS
+        if(rnd[j]%in%ms){
+          
+          ## Collect information
+          w = rnd[j]
+          e = e + gHat[[w]]
+          
+          # Mapping function
+          Gmap0 = c(crossprod(Z[[w]],e)[,1])/diag(ZZ[[w]])
+          Gmap = Gmap0[rownames(M[[w]])]
+          
+          # Whole-genome regression
+          tmpY = c(Gmap)
+          Gmap = c(Gmap-M[[w]]%*%Beta[[w]])
+          if(FLM){
+            G_update = GSFLM(tmpY,Gmap,M[[w]],Beta[[w]],LMB[[w]],M_xx[[w]],M_cxx[[w]],maxit=20)
+          }else{
+            G_update = GSRR(tmpY,Gmap,M[[w]],Beta[[w]],LMB[[w]],M_xx[[w]],M_cxx[[w]],maxit=20)
+          }
+          Gh2[[w]] = G_update$h2
+          
+          # Update coefficients of non-M
+          e_tmp = e * 1.0
+          u_tmp = U[[w]] * 1.0
+          GS2EIGEN(e_tmp,Z[[w]],u_tmp,ZZ[[w]],Lmb_Z[w])
+          gFit[[w]] = u_tmp # - mean(u_tmp)
+          
+          # Update coefficients
+          tmp = c(M[[w]]%*%Beta[[w]])
+          gFit[[w]][rownames(M[[w]])] = tmp # - mean(tmp)
+          U[[w]] = gFit[[w]]
+          
+          # Update fitted values and residuals
+          gHat[[w]] = (Z[[w]]%*%U[[w]])[,1]
+          e = e - gHat[[w]]
+          
+        }else{
+          
+          # UPDATE TERMS WITHOUT MARKERS
+          
+          # Update coefficients
+          GS2EIGEN(e,Z[[j]],U[[j]],ZZ[[j]],Lmb_Z[j])
+          
+        }
+        
+      }
+    }
+    
+    # Update overall intercept
+    m0 = mean(e)
+    mu = mu+m0
+    e = e-m0
+    
+    # Variance components update
+    Ve = abs(crossprod(e,y)[1,1]/(n-ifelse(FIX,ncol(X),1)))
+    
+    if(RND){
+      trAC22 = (unlist(mapply(function(ZZ,lmb) sum(1/(diag(ZZ)+lmb)),ZZ=ZZ,lmb=as.list(Lmb_Z))))
+      Va = sapply(U,crossprod)/(sapply(U,length)-trAC22*Lmb_Z)
+      Lmb_Z = abs(Ve/Va)
+    }
+    
+    # Convergence and update progress bar
+    conv = log(sum((e-resids0)^2))/log(1e-4)
+    resids0 = e
+    if(verb) setTxtProgressBar(pb, max(i/it,conv))
+    if( conv>=1 & ( !is.null(M) | spc ) ) break()
+    
+  }
+  
+  # Close pregression bar 
+  if(verb) close(pb)
+  
+  ##################
+  ### Wrapping up ##
+  ##################
+  
+  # Empty list of outputs
+  fx = coef = list()
+  class(fx) = "FLMSS"
+  
+  # Add fixed effects
+  coef[['mu']] = mu
+  if(FIX){ coef[['Fxd']] = B } 
+  
+  # Add random effects
+  if(RND){
+    coef = c(coef,U)
+    fx[['VC']] = round(c(Va,Ve=Ve),4)
+  }
+  
+  # Add marker effects
+  if(!is.null(M)){
+    names(Beta) = ms
+    for(i in ms) names(Beta[[i]]) = colnames(M[[i]])
+    fx[['Mrk']] = Beta
+  }
+  
+  # Marker interactions
+  if(rndInt){
+    # Add PCs to output
+    fx[['PCs']] = M_SVD
+    # Loop across interactions to best allocate output
+    for(i in keyInteractions){
+      tmp_terms = strsplit(i,':')[[1]]
+      num_terms = length(tmp_terms)
+      countMs = sum(tmp_terms%in%mainTerms)
+      # Fetch markers effects under simple compound symmetry
+      if( countMs==1 & num_terms==2 ){
+        
+        is_M = which(tmp_terms%in%mainTerms)
+        if(is_M==1){  tmp0 = t(matrix(coef[[i]],nrow=nPc))
+        rownames(tmp0) = unique(gsub('^.+:','',names(coef[[i]])))} 
+        if(is_M==2){  tmp0 = matrix(coef[[i]],ncol=nPc)
+        rownames(tmp0) = unique(gsub(':.+','',names(coef[[i]])))}
+        
+        SnpEff = M_SVD[[ tmp_terms[is_M] ]]$v %*% t(tmp0)
+        fx[['Mrk']][[i]] = data.frame(SnpEff)
+        
+      }
+    }
+  }
+  
+  # Add coefficients to output
+  fx[['Coef']] = coef
+  
+  # Fitting model
+  GOF = list()
+  
+  ######## WITH MISSING
+  if(MIS){
+    fit = rep(0,length(y0))
+    if(FIX){
+      fit=fit+X0%*%B+mu
+    }else{
+      fit=fit+mu
+    }
+    GOF[['Fixed']]=as.vector(fit)
+    if(RND){
+      for( i in rnd ){
+        # Unobserved with markers
+        if( (!is.null(M)) & (i%in%ls(UM)) ){
+          # Fit unobserved
+          ufit = (UM[[i]]%*%Beta[[i]])[,1]
+          U[[i]] = c(U[[i]],ufit)
+          # Check if unobserved was in the data
+          all_obs = as.character(data[[i]])
+          all_fits = U[[i]][all_obs]
+          if(anyNA(all_fits)) all_fits[is.na(all_fits)] = 0
+          # Fit
+          GOF[[i]] = as.vector(all_fits)
+          fit = fit + all_fits
+        }else{
+          tmp = Z0[[i]]%*%U[[i]]
+          GOF[[i]] = as.vector(tmp)
+          zu = tmp
+          fit = fit + zu
+        }
+      } 
+    }
+    Obs = y0
+    
+    ######## NO MISSING
+  }else{
+    fit = rep(0,n)
+    if(FIX){
+      tmp = fit+X%*%B+mu
+    }else{
+      tmp = fit+mu  
+    }
+    fit=fit+mu
+    GOF[['Fixed']]=as.vector(fit)
+    if(RND){
+      for(i in rnd){
+        tmp = Z[[i]]%*%U[[i]]
+        GOF[[i]]=as.vector(tmp)
+        zu = tmp
+        fit = fit+zu
+      }}
+    Obs = y
+  }
+  
+  # Store fitted values
+  GOF = cbind(data.frame(Observed=as.vector(Obs),
+                         Predicted=as.vector(fit),
+                         Residuals=as.vector(Obs-fit)),GOF)
+  fx[['GOF']] = GOF
+  
+  # Store spatial info
+  if(spc){
+    tmp = cbind(AM$dt,sp=U$spatial)
+    sp_tmp = by(tmp,tmp$blk,function(Q){sparseMatrix(i=Q$row,j=Q$col,x=Q$sp)})
+    fx[['SpVar']] = sp_tmp
+  }
+  
+  # If binary
+  if(bin){
+    b_fit = exp(fit)/(1+exp(fit));
+    b_fit = b_fit*(ry[2]-ry[1])+ry[1]
+    fx[['Bin']] = round(as.numeric(b_fit))
+  } 
+  
+  # Log-likelihood, Adj R2, BIC
+  LogLik = sum(dnorm(as.numeric(y),as.numeric(fit),sqrt(as.numeric(Ve)),T))
+  px = 1+ifelse(FIX,ncol(X),0)+ifelse(RND,length(Z),0)
+  Adj_R2 = 1 - Ve/var(Y,na.rm=T)
+  BIC = log(n)*px + log(Ve)*n
+  Stat = c(LogLik=LogLik,Adj_R2=Adj_R2,BIC=BIC)
+  if(!is.null(M)){
+    H2 = unlist(Gh2)
+    names(H2) = paste('h2',names(H2),sep='.')
+    Stat = c(Stat,H2)
+  }
+  fx[['Stat']] = round(Stat,3)
+  
+  # Return
+  return(fx)
+}
+
+# Spline function
+NNS = function(blk,row,col,rN=2,cN=2){
+  if(is.factor(blk)|is.character(blk)) blk = as.numeric(as.character(blk))
+  if(is.factor(row)|is.character(row)) row = as.numeric(as.character(row))
+  if(is.factor(col)|is.character(col)) col = as.numeric(as.character(col))
+  e = NNSEARCH(blk,row,col,rN,cN)
+  e[e==0]=NA
+  E = apply(e,1,function(x) x[!is.na(x)] )
+  n = sapply(E, length)
+  J = unlist(E)
+  e = cbind(1:nrow(e),e)
+  E = apply(e,1,function(x) x[!is.na(x)] )
+  I = unlist(sapply(E,function(x) rep(x[1],length(x)-1)  ))
+  X = sparseMatrix(i=I,j=J,x=1)
+  colnames(X) = 1:ncol(X)
+  rownames(X) = 1:ncol(X)
+  dt = data.frame(blk=blk,row=row,col=col)
+  OUT = list(X=X,n=n,dt=dt)
+  class(OUT) = "NNS"
+  return(OUT)}

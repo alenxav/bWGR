@@ -14,8 +14,8 @@ Whole-genome regression methods on Bayesian framework fitted via EM
 \tabular{ll}{
 Package: \tab bWGR\cr
 Type: \tab Package\cr
-Version: \tab 1.6.6 \cr
-Date: \tab 2020-01-07\cr
+Version: \tab 2.0 \cr
+Date: \tab 2022-02-13\cr
 License: \tab GPL-3 \cr
 }
 }
@@ -25,9 +25,9 @@ Alencar Xavier, William Muir, Kyle Kocak, Shizhong Xu, Katy Rainey.
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 }
 \examples{
-    \dontrun{
+
 data(tpod)
 Fit = wgr(y,gen)
 cor(y,Fit$hat)
-  }
+
 }

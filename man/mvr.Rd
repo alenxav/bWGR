@@ -1,10 +1,10 @@
 \name{WGR3 (MV)}
 \alias{mkr}
 \alias{mrr}
-\alias{mrrR}
 \alias{mkr2X}
 \alias{mrr2X}
-\alias{mrrFast}
+\alias{MRR3}
+\alias{SimY}
 \title{
   Multivariate Regression
 }
@@ -12,8 +12,8 @@
   Multivariate model to find breeding values.
 }
 \usage{
-  mkr(Y,K)
   mrr(Y,X)
+  mkr(Y,K)
 }
 \arguments{
   \item{Y}{
@@ -29,19 +29,19 @@
 }
 \details{
   
+ The model for the ridge regression (mrr) is as follows:
+    
+    \deqn{Y = Mu + XB + E}
+  
+  where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects,  and \eqn{E} is the residual matrix.
+  
   The model for the kernel regression (mkr) is as follows:
     
     \deqn{Y = Mu + UB + E}
   
   where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{U} is the matrix of Eigenvector of K, \eqn{b} is a vector of regression coefficients and \eqn{E} is the residual matrix.
   
-  The model for the ridge regression (mrr) is as follows:
-    
-    \deqn{Y = Mu + XB + E}
-  
-  where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{X} is the matrix of genotypic information, \eqn{B} is the matrix of marker effects,  and \eqn{E} is the residual matrix.
-  
-  Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Variance and covariance components are solved with an efficient variation of EM-REML.
+   Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Since version 2.0, the solver of \code{mrr} is based on the Randomized Gauss-Seidel algorithm. Variance and covariance components are solved with an EM-REML like approach proposed by Schaeffer called Pseudo-Expectation. S
   
   Other related implementations:
     
@@ -49,7 +49,7 @@
 
     02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
 
-    03) \code{mrrR(Y,X):}{ Variation of \code{mrr} that assumes correlated residuals. }
+    03) \code{MRR3(Y,X,...):}{ Similar to mrr.}
 
 }
 \value{
@@ -59,43 +59,29 @@
 }
 
 \author{
-  Alencar Xavier
+  Alencar Xavier, David Habier
 }
 \examples{
-  \dontrun{
     
-    # Load data and compute G matrix
+    # Load genomic data
     data(tpod)
-    gen = CNT(gen)
-    K = tcrossprod(gen)
-    K = K/mean(diag(K))
+    X = CNT(gen)
     
-    # Phenotypes: 3 traits correlated r=0.5
-    G0 = 0.5+diag(0.5,3) 
-    G = kronecker(G0,K)
-    diag(G)=diag(G)+0.001
-    L = chol(G)
-    TBV = crossprod(L,rnorm(196*3))
-    Y = rnorm(196*3,10+TBV,sd(TBV))
-    Phe = matrix(Y,ncol=3)
-    TBV = matrix(TBV,ncol=3)
+    # Simulate phenotyp
+    sim = SimY(X)
+    Y = sim$Y
+    TBV = sim$tbv
     
-    # Fit kernel and regression models
-    test1 = mkr(Phe,K)
-    test2 = mrr(Phe,gen)
+    # Fit regression model
+    test = mrr(Y,X)
     
     # Genetic correlation
-    test1$GC
-    test2$GC
+    test$GC
     
     # Heritabilies
-    test1$h2
-    test2$h2
+    test$h2
     
-    # Goodness of fit
-    diag(cor(TBV,test1$hat))
-    diag(cor(TBV,test2$hat))
-    
-    
-  }
+    # Accuracy
+    diag(cor(TBV,test$hat))
+
 }
