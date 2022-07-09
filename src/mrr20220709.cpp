@@ -367,11 +367,76 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
 }
 
 
+
 // [[Rcpp::export]]
-SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X,
-          int maxit = 1000, double tol = 10e-9, int cores = 2,
-          bool TH = false, double NLfactor = 0.0,
-          bool HCS = false, bool XFA2 = false){
+Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeZ = true, int cores = 2){
+  Eigen::setNbThreads(cores); int p = X.cols(), n = X.rows(); 
+  double tmp, Npi=3.1416;
+  if(centralizeZ){
+    for(int i=0; i<p; i++){
+      tmp = (X.col(i).array()).mean();
+      X.col(i) = X.col(i).array()-tmp;}}
+  Eigen::MatrixXd XXp = X*X.transpose();
+  tmp = 1/(XXp.diagonal().mean()); XXp *= tmp;
+  Eigen::VectorXd DiagXXp = XXp.diagonal().array();
+  Eigen::VectorXd SqDiagXXp = DiagXXp.array().sqrt();
+  for(int i=0; i<n; i++){
+    for(int j=0; j<n; j++){
+      if(i>j){
+        tmp = acos( XXp(i,j)/(SqDiagXXp(i)*SqDiagXXp(j)) );
+        tmp = (sin(tmp)*DiagXXp[i]*DiagXXp[j])/Npi+(Npi-tmp)*cos(tmp);
+        tmp /= Npi; XXp(i,j) = tmp*1.0; XXp(j,i) = tmp*1.0;
+      }else if(i==j){ XXp(i,j) = 1;}}}
+  return XXp;}
+
+// [[Rcpp::export]]
+Eigen::MatrixXd EigenGAU(Eigen::MatrixXd X, double phi = 1.0, int cores = 2){
+  Eigen::setNbThreads(cores);
+  int n = X.rows(); double tmp;
+  Eigen::MatrixXd XXp = X*X.transpose();
+  for(int i=0; i<n; i++){ for(int j=0; j<n; j++){ if(i>j){
+    tmp = sqrt(XXp(i,i) + XXp(j,j) - 2*XXp(i,j));
+    XXp(i,j) = tmp*1.0; XXp(j,i) = tmp*1.0;}}};
+  for(int i=0; i<n; i++){XXp(i,i) = 0.0;}
+  tmp = phi * (-n*(n-1)) / (XXp.colwise().sum()).sum();
+  XXp *= tmp; return exp(XXp.array());}
+
+// [[Rcpp::export]]
+Eigen::MatrixXd EigenGRM(Eigen::MatrixXd X, bool centralizeZ = true, int cores = 2){
+  Eigen::setNbThreads(cores); int p = X.cols(); double tmp;
+  if(centralizeZ){
+    for(int i=0; i<p; i++){
+      tmp = (X.col(i).array()).mean();
+      X.col(i) = X.col(i).array()-tmp;}}
+  Eigen::MatrixXd XXp = X*X.transpose();
+  tmp = 1/(XXp.diagonal().mean());
+  XXp *= tmp; return XXp;}
+
+// [[Rcpp::export]]
+Eigen::MatrixXd EigenCNT(Eigen::MatrixXd X, int cores = 2){
+  Eigen::setNbThreads(cores); int p = X.cols();
+  Eigen::VectorXd xx = X.colwise().mean();
+  for(int i=0; i<p; i++){ X.col(i) = X.col(i).array() - xx(i);}
+  return X;}
+
+
+// [[Rcpp::export]]
+SEXP MRR3(Eigen::MatrixXd Y,
+         Eigen::MatrixXd X,
+         int maxit = 1000,
+         double tol = 10e-9,
+         int cores = 2,
+         bool TH = false,
+         double NLfactor = 0.0,
+         bool HCS = false,
+         bool XFA2 = false,
+         double R2 = 0.5,
+         double gc0 = 0.0, 
+         double df0 = 0.0,
+         double PenCor = 0.0,
+         double MinCor = 1.0,
+         bool InnerGS = false,
+         bool NoInv = false){
   
   //Set multi-core processing
   Eigen::setNbThreads(cores);
@@ -416,12 +481,24 @@ SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X,
   // Variances
   iN = (n.array()-1).inverse();
   Eigen::VectorXd vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
-  Eigen::VectorXd ve = vy * 0.5;
+  Eigen::VectorXd ve = vy * (1-R2);
   Eigen::VectorXd iVe = ve.array().inverse();
   Eigen::MatrixXd vb(k,k), TildeHat(k,k);
-  vb = (ve.array()/MSx.array()).matrix().asDiagonal();
+  vb = ((vy*R2).array()/MSx.array()).matrix().asDiagonal();
   Eigen::MatrixXd iG = vb.inverse();
   Eigen::VectorXd h2 = 1 - ve.array()/vy.array();
+  
+  // Starting covariance values
+  double tmp;
+  for(int i=0; i<k; i++){
+    for(int j=0; j<k; j++){
+      if(i>j){
+        tmp = gc0 * sqrt(vb(i,i)*vb(j,j));
+        vb(i,j) = tmp;
+        vb(j,i) = tmp;
+      }
+    }
+  }
   
   // Beta tilde;
   Eigen::MatrixXd tilde = X.transpose() * y;
@@ -432,6 +509,11 @@ SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X,
       XSX.col(i) = XSX.col(i).array() * n(i);
     }
   }
+  
+  // Prior shape
+  Eigen::MatrixXd Sb = vb*df0;
+  Eigen::VectorXd Se = ve*df0;
+  Eigen::VectorXd iNp = (n.array()+df0-1).inverse();
   
   // Initialize coefficient matrices
   Eigen::MatrixXd LHS(k,k);
@@ -482,15 +564,36 @@ SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X,
     std::shuffle(RGSvec.begin(), RGSvec.end(), g);
     for(int j=0; j<p; j++){
       J = RGSvec[j];
+      
+      // System of equations - Traditional vs Stranden and Garrick 2009
+      if(NoInv){
+        LHS = vb * (XX.row(J).transpose().array() * iVeWj.array()).matrix().asDiagonal(); 
+        for(int i=0; i<k; i++){ LHS(i,i) += 1.0; }
+        RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
+        RHS = (vb * (RHS.array() * iVeWj.array()).matrix()).array();
+      }else{
+        LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVeWj.array()).matrix();
+        RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
+        RHS = RHS.array() * iVeWj.array();
+      }
+      
       // Update coefficient
       b0 = b.row(J)*1.0;
       for(int i=0; i<k; i++){ iVeWj(i) = iVe(i)*W(J,i); }
       LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVeWj.array()   ).matrix();
       RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
       RHS = RHS.array() * iVeWj.array();
-      b1 = LHS.llt().solve(RHS);
-      b.row(J) = b1;
+      
+      // Inner GS
+      if(InnerGS){
+        b1 = b.row(J)*1.0;
+        for(int i=0; i<k; i++){b1(i) = (RHS(i)-(LHS.col(i).array()*b1.array()).sum()+LHS(i,i)*b1(i))/LHS(i,i);}
+      }else{
+        b1 = LHS.llt().solve(RHS); 
+      }
+      
       // Update residuals
+      b.row(J) = b1;
       e = (e-(X.col(J)*(b1-b0).transpose()).cwiseProduct(Z)).matrix();
     }
     
@@ -507,7 +610,7 @@ SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X,
     
     // Residual variance
     ve = (e.cwiseProduct(y)).colwise().sum();
-    ve = ve.array() * iN.array();
+    ve = (ve.array()+Se.array()) * iNp.array();
     iVe = ve.array().inverse();
     iVeWj = iVe*1.0;
     h2 = 1 - ve.array()/vy.array();
@@ -525,19 +628,20 @@ SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X,
       TildeHat = b.transpose()*tilde;
     }
     
+    // Estimate variances and covariance components
     for(int i=0; i<k; i++){
       for(int j=0; j<k; j++){
         if(i==j){ // Variances
           if(TH){
-            vb(i,i) = TildeHat(i,i)/TrDinvXSX(i);
+            vb(i,i) = (TildeHat(i,i)+Sb(i,i))/(TrDinvXSX(i)+df0);
           }else{
-            vb(i,i) = TildeHat(i,i)/TrXSX(i);
+            vb(i,i) = (TildeHat(i,i)+Sb(i,i))/(TrXSX(i)+df0);
           }
         }else{ // Covariances
           if(TH){
-            vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrDinvXSX(i)+TrDinvXSX(j));
+            vb(i,j) = (TildeHat(i,j)+TildeHat(j,i)+Sb(i,j))/(TrDinvXSX(i)+TrDinvXSX(j)+df0);
           }else{
-            vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrXSX(i)+TrXSX(j));
+            vb(i,j) = (TildeHat(i,j)+TildeHat(j,i)+Sb(i,j))/(TrXSX(i)+TrXSX(j)+df0);
           }
         }}}
     
@@ -552,34 +656,63 @@ SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X,
           if(i>j){gs += GC(i,j);}}}
       gs = gs/((k*(k-1))/2);
       for(int i=0; i<k; i++){
-          for(int j=0; j<k; j++){
-            if(i!=j){ vb(i,j) =  gs*sqrt(vb(i,i)*vb(j,j));}}}
-    // Extended Factor Analytics
+        for(int j=0; j<k; j++){
+          if(i!=j){ vb(i,j) =  gs*sqrt(vb(i,i)*vb(j,j));}}}
+      // Extended Factor Analytics
     }else if(XFA2){
       es.compute(vb);
       UDU = es.eigenvalues()[k] * es.eigenvectors().col(k) * es.eigenvectors().col(k).transpose() +
-            es.eigenvalues()[k-1] * es.eigenvectors().col(k-1) * es.eigenvectors().col(k-1).transpose();
+        es.eigenvalues()[k-1] * es.eigenvectors().col(k-1) * es.eigenvectors().col(k-1).transpose();
       UDU.diagonal() = vb.diagonal();
       vb = UDU*1.0;
     }
     
+    // Penalize Correlations
+    if(PenCor>0.0){
+      for(int i=0; i<k; i++){
+        for(int j=0; j<k; j++){
+          GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
+      for(int i=0; i<k; i++){
+        for(int j=0; j<k; j++){
+          if(i!=j){ vb(i,j) = tanh(PenCor*abs(GC(i,j)))*GC(i,j)*sqrt(vb(i,i)*vb(j,j)); }}}
+    }
+    
+    // Zeroing  Correlations
+    if(MinCor<1.0){
+      for(int i=0; i<k; i++){
+        for(int j=0; j<k; j++){
+          GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));
+          if(GC(i,j)<MinCor){ vb(i,j) *= 0.0; }}}}
+    
     // Bending
-    A = vb*1.0;
-    for(int i=0; i<k; i++){
-      for(int j=0; j<k; j++){
-        if(i!=j){A(i,j) *= deflate;}}}
-    while(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
-      Rcpp::Rcout << "Bend at "<< numit << "\n";
-      deflate = deflate - 0.01;
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}
-    }    
+    if(NoInv){
+      
+      if(TH){
+        A = vb*1.0;
+        for(int i=0; i<k; i++){ for(int j=0; j<k; j++){if(i!=j){A(i,j) *= deflate;}}}
+        while(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
+          Rcpp::Rcout << "Bend at "<< numit << "\n";
+          deflate = deflate - 0.01;
+          for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}}    
+        iG = A.inverse();}
     
-    iG = A.inverse();
+    }else{
+      
+      A = vb*1.0;
+      for(int i=0; i<k; i++){ for(int j=0; j<k; j++){if(i!=j){A(i,j) *= deflate;}}}
+      while(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
+        Rcpp::Rcout << "Bend at "<< numit << "\n";
+        deflate = deflate - 0.01;
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}}    
+      iG = A.inverse();
     
+    }
+
     // Compute convergence and print status
     
     // Covariances
-    cnv = log10((beta0.array()-b.array()).square().sum());  CNV1(numit) = cnv;
+    cnv = log10((beta0.array()-b.array()).square().sum());
+    CNV1(numit) = cnv; if( std::isnan(cnv) ){break;}
     CNV2(numit) = log10((h20.array()-h2.array()).square().sum());
     CNV3(numit) = log10((vb0.array()-vb.array()).square().sum());
     
@@ -623,5 +756,3 @@ SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X,
                             Rcpp::Named("Its")=numit);
   
 }
-
-
