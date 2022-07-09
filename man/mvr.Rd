@@ -29,7 +29,7 @@
 }
 \details{
   
- The model for the ridge regression (mrr) is as follows:
+ Algorithm is described in Xavier and Habier (2022). The model for the ridge regression (mrr) is as follows:
     
     \deqn{Y = Mu + XB + E}
   
@@ -84,4 +84,8 @@
     # Accuracy
     diag(cor(TBV,test$hat))
 
+}
+
+\references{
+Xavier, A and Habier, D. (2022). A new approach fits multivariate genomic prediction models efficiently. GSE, DOI: 10.1186/s12711-022-00730-w    
 }
