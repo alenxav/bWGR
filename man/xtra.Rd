@@ -9,6 +9,11 @@
 \alias{GRM}
 \alias{Hmat}
 \alias{SibZ}
+\alias{EigenGAU}
+\alias{EigenGRM}
+\alias{EigenCNT}
+\alias{EigenARC}
+
 \title{
 Additional tools
 }
@@ -37,6 +42,9 @@ Complementary functions that may help with handling parameters and routine opera
 \code{SibZ(id,p1,p2)} # Pedigree design matrix compatible to regression methods
 
 \code{Hmat(ped,gen=NULL)} # Kinship combining pedigree and genomics
+  
+ Some updated functions include EigenGAU, EigenGRM, EigenCNT, EigenARC.
+  
 }
 \author{
 Alencar Xavier
