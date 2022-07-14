@@ -13,6 +13,10 @@
 \alias{EigenGRM}
 \alias{EigenCNT}
 \alias{EigenARC}
+\alias{EigenEVD}
+\alias{EigenBDCSVD}
+\alias{EigenJacobiSVD}
+\alias{EigenAcc}
 
 \title{
 Additional tools
@@ -43,8 +47,22 @@ Complementary functions that may help with handling parameters and routine opera
 
 \code{Hmat(ped,gen=NULL)} # Kinship combining pedigree and genomics
   
- Some updated functions include EigenGAU, EigenGRM, EigenCNT, EigenARC.
-  
+\code{EigenGRM(X, centralizeZ = TRUE, cores = 2)} # GRM using Eigen library
+
+\code{EigenARC(X, centralizeZ = TRUE, cores = 2)} # ArcCosine kernel
+
+\code{EigenGAU(X, phi = 1.0, cores = 2)} # Gaussian kernel using Eigen library
+
+\code{EigenCNT(X, cores = 2)} # Center SNPs without missing Eigen library
+
+\code{EigenEVD(A, cores = 2)} # Eigendecomposition from Eigen library
+
+\code{EigenBDCSVD(X, cores = 2)} # BDC single value composition from Eigen
+
+\code{EigenJacobiSVD(X, cores = 2)} # Jacobi single value composition from Eigen
+
+\code{EigenAcc(X1, X2, h2 = 0.5, cores = 2)} # Deterministic accuracy X1 -> X2
+
 }
 \author{
 Alencar Xavier

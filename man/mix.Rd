@@ -58,7 +58,7 @@ The model for the whole-genome regression is as follows:
 
 where \eqn{y} is the response variable, \eqn{Xb} corresponds to the fixed effect term, \eqn{Zu} corresponds to one or more random effect terms, \eqn{W} is the incidence matrix of terms with omic information and \eqn{a} is omic values by \eqn{a=Mg}, where \eqn{M} is the genotypic matrix and \eqn{g} are marker effects. Here, \eqn{e} is the residual term. An example is provided using the data from the NAM package with: \code{demo(mixedmodel)}.
 
-Other alterinative (updated) implementations have similar syntax:
+Alterinative (and updated) implementations have similar syntax:
     
     01) \code{mm(y,random=NULL,fixed=NULL,data=NULL,
               M=NULL,bin=FALSE,AM=NULL,it=10,verb=TRUE,

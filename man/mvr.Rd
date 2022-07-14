@@ -49,7 +49,7 @@
 
     02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
 
-    03) \code{MRR3(Y,X,...):}{ Similar to mrr.}
+    03) \code{MRR3(Y,X,...):}{ Similar to mrr, with a couple additional parameters.}
 
 }
 \value{
