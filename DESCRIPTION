@@ -10,7 +10,7 @@ Description: Whole-genome regression methods on Bayesian framework fitted via EM
     with optional kernel term and sampling techniques (<doi.org/10.1186/s12859-017-1582-3>).
 License: GPL-3
 Imports: Matrix, Rcpp, RcppEigen
-LinkingTo: RcppEigen
+LinkingTo: Rcpp, RcppEigen
 Depends: R (>= 4.0)
 Packaged: 2021-02-13 01:14:54 UTC; Alencar
 NeedsCompilation: yes
