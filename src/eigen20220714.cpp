@@ -65,6 +65,7 @@ SEXP EigenBDCSVD(Eigen::MatrixXd X, int cores = 2){
   Eigen::setNbThreads(cores);
   Eigen::BDCSVD<Eigen::MatrixXd> svd(X, Eigen::ComputeThinU | Eigen::ComputeThinV );
   return Rcpp::List::create(Rcpp::Named("U")=svd.matrixU(),
+                            Rcpp::Named("D")=svd.singularValues(),
                             Rcpp::Named("V")=svd.matrixV());}
 
 // [[Rcpp::export]]
@@ -72,6 +73,7 @@ SEXP EigenJacobiSVD(Eigen::MatrixXd X, int cores = 2){
   Eigen::setNbThreads(cores);
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(X, Eigen::ComputeThinU | Eigen::ComputeThinV );
   return Rcpp::List::create(Rcpp::Named("U")=svd.matrixU(),
+                            Rcpp::Named("D")=svd.singularValues(),
                             Rcpp::Named("V")=svd.matrixV());}
 
 // [[Rcpp::export]]
