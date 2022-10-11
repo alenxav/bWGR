@@ -971,8 +971,8 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
   
   # Store fitted values
   GOF = cbind(data.frame(Observed=as.vector(Obs),
-                         Predicted=as.vector(fit),
-                         Residuals=as.vector(Obs-fit)),GOF)
+                       Predicted=as.vector(fit),
+                       Residuals=as.vector(Obs-as.vector(fit))),GOF)
   fx[['GOF']] = GOF
   
   # Store spatial info
