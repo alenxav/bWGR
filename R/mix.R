@@ -467,17 +467,24 @@ SimY = function(Z, k=5, h2=0.5,GC=0.5,  seed=123, unbalanced=FALSE){
 
 #############################################################################################################                   
 
+
 # Main function
 mm = function(y,random=NULL,fixed=NULL,data=NULL,
-              M=NULL,bin=FALSE,AM=NULL,it=10,verb=TRUE,
-              FLM=TRUE,wgtM=TRUE,cntM=TRUE,nPc=3){
+              M=NULL,bin=FALSE,AM=NULL,it=20,verb=TRUE,
+              FLM=FALSE,wgtM=FALSE,cntM=FALSE,nPc=3){
   
   # Datasets for testing and debugging
   # require(eMM3); data(cateto);
   # random=~ID+Tester+Env:ID+Tester:ID+Env:Tester;
   # fixed=~Env; data=dt; M=list(ID=Geno);
   # bin=FALSE; AM=NULL; it=10; verb=TRUE
-  # FLM=FALSE; wgtM=TRUE; nPc=3
+  # FLM=FALSE; wgtM=TRUE; cntM=TRUE; nPc=3
+  
+  # require(Matrix); require(eMM3)
+  # random=~imm1+imm2;
+  # fixed=NULL; data=dta; M=list(imm1=Z1,imm2=Z2);
+  # bin=FALSE; AM=NULL; it=10; verb=TRUE
+  # FLM=FALSE; wgtM=TRUE; cntM=TRUE; nPc=3
   
   # Base algorithm settings
   if(nPc<2) nPc=2
@@ -500,6 +507,7 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
   # Response variable
   if(!is.null(data)) y = data[[deparse(substitute(y))]]
   # y = data$Yield; # For debugging with example dataset
+  # y = dta$NY
   
   Y = y
   sdy = sqrt(var(Y,na.rm = T))
@@ -517,7 +525,9 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
     cat("Setting fixed effect design matrices\n")
     fixed = update(fixed,~.-1)
     X = sparse.model.matrix(fixed,data = data)
-    XX = as(crossprod(X),"dgCMatrix")
+    #XX = as(crossprod(X),"dgCMatrix")
+    XX = as(as(as(crossprod(X), "dMatrix"),"generalMatrix"), "CsparseMatrix")
+    
     B = rep(0,ncol(X)); names(B) = colnames(X)
     Lmb_X = (1e-12)*sum(colMeans(X^2)-colMeans(X)^2)
     mu = 0
@@ -542,7 +552,10 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
     nr = length(rnd)
     rndInt = nr0>nr
     Z = list()
-    for(i in 1:nr) Z[[i]]=sparse.model.matrix(formula(paste('~',rnd[i],'-1')),data=data,drop.unused.levels=TRUE)
+    for(i in 1:nr){
+      Z[[i]]=sparse.model.matrix(formula(paste('~',rnd[i],'-1')),data=data,drop.unused.levels=TRUE)
+      Z[[i]] = as(as(as(Z[[i]], "dMatrix"),"generalMatrix"), "CsparseMatrix")
+    } 
     names(Z) = rnd
     U = lapply(Z, function(x){z=rep(0,ncol(x));names(z)=colnames(x);return(z)}  )
     RND = TRUE
@@ -613,7 +626,9 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
       for(j in individual_terms){
         if(j%in%ls(Zpc)){ tmp[[j]] = Zpc[[j]] }else{ tmp[[j]] = data[[j]] }}
       AB = model.matrix(as.formula(paste('~',i,'-1')),data=tmp)
-      AB = as(AB,'dgCMatrix')
+      #AB = as(AB,'dgCMatrix')
+      AB = as(as(as(AB, "dMatrix"), "generalMatrix"), "CsparseMatrix")
+      
       # AB = sparse.model.matrix(~tmp[[1]]:tmp[[2]],drop.unused.levels=TRUE)
       return(AB)}
     # Add terms back to: nr, rnd, Z, U
@@ -664,7 +679,8 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
   
   # Random parameters for regularization
   if(RND){
-    ZZ = lapply(Z, function(z) as(crossprod(z),"dgCMatrix") )
+    #ZZ = lapply(Z, lapply(Z, function(z) as(crossprod(z),"dgCMatrix") )
+    ZZ = lapply(Z, function(z){as(as(as(crossprod(z), "dMatrix"),"generalMatrix"), "CsparseMatrix") }  )
     Z_cxx = lapply(Z, function(X) sum(colMeans(X^2)-colMeans(X)^2) )
     Lmb_Z = mapply( function(cxx,h2) cxx*((1-h2)/h2), cxx = Z_cxx, h2=0.5)
     trAC22 = sapply(ZZ,function(x) mean(1/(diag(x)+1)))
@@ -778,7 +794,8 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
           e = e + gHat[[w]]
           
           # Mapping function
-          Gmap0 = c(crossprod(Z[[w]],e)[,1])/diag(ZZ[[w]])
+          #Gmap0 = c(crossprod(Z[[w]],e)[,1])/diag(ZZ[[w]])
+          Gmap0 = c(crossprod(Z[[w]],Matrix(e) )[,1])/diag(ZZ[[w]])
           Gmap = Gmap0[rownames(M[[w]])]
           
           # Whole-genome regression
@@ -1009,3 +1026,124 @@ NNS = function(blk,row,col,rN=2,cN=2){
   OUT = list(X=X,n=n,dt=dt)
   class(OUT) = "NNS"
   return(OUT)}
+
+# Plot function
+plot.FLMSS = function(x,...){
+  plot(x$GOF[,1:2],pch=20,main='Model fitness',...)
+  lines(x=c(-10000,10000),y=c(-10000,10000),col=2,lwd=2)
+}
+
+# Summary function
+summary.FLMSS = function(object, ...){
+  x = object
+  cat('\nStats\n')
+  print(x$Stat,...)
+  cat('\nFactor levels\n')
+  print(c(Obs=nrow(x$GOF),sapply(x$Coef,length)),...)
+  if("Coef"%in%ls(x)){
+    cat('\nVariances\n')
+    print(x$VC,...)}
+  if("Mrk"%in%ls(x)){
+    cat('\nMarker effects\n')
+    print(sapply(x$Mrk,length),...)}
+}
+
+# Print function
+print.FLMSS = function(x, ...){
+  cat('\nStats\n');  print(x$Stat,...)
+  if("Coef"%in%ls(x)){ cat('\nVariances\n'); print(x$VC,...)}
+}
+
+# Prediction function
+predict_FLMSS = function(x, data=NULL, M=NULL){
+  
+  # Nothing provided
+  if(is.null(data)&is.null(M)) return(x$GOF$Predicted)
+  
+  #########################
+  # If data M is provided #
+  #########################
+  
+  if(!is.null(data)){
+    # Design matrices
+    cat('Getting design matrices\n')
+    Xs0 = lapply(names(data), function(aaa) sparse.model.matrix(as.formula(paste('~',aaa,'-1')),data=data) )
+    Xs = Xs0[[1]]
+    if(length(Xs0)>1){
+      for(i in 1:length(Xs0)){
+        Xs = cbind(Xs,Xs0[[i]])
+      }
+    } 
+    # Coefficients
+    bs = unlist(x$Coef)
+    # Collect some more coefficients
+    if( (!is.null(M)) & ("Mrk"%in%ls(x)) ){
+      for(i in names(M)){
+        if(i %in% ls(x$Mrk)){
+          cat('Computing marker coefficients',i,'\n')
+          tmp = c( M[[i]] %*% x$Mrk[[i]] )
+          names(tmp) = paste(i,rownames(M[[i]]),sep='.')
+          bs = c(tmp,bs)
+          bs = bs[!duplicated(names(bs))]
+        }
+      }
+    }
+    # Match overlapping
+    #names(bs) = gsub('^.+\\.','',names(bs))
+    names(bs) = gsub('-|:|^Fxd|\\.| ','',names(bs))
+    #colnames(Xs) = gsub('^.+\\.','',colnames(Xs))
+    colnames(Xs) = gsub('-|:|\\.| ','',colnames(Xs))
+    i = intersect(names(bs),colnames(Xs))
+    # Prediction
+    if(length(i)>0){
+      cat('Fitting',length(i),'coefficients\n')
+      bs = bs[i]
+      Xs = data.matrix(Xs[,i])
+      prd = x$Coef$mu + c(Xs%*%bs)
+    }else{
+      prd = rep(x$Coef$mu,nrow(data))
+    }
+  }
+  
+  ######################
+  # Only M is provided #
+  ######################
+  
+  if( (!is.null(M)) & (is.null(data)) & ("Mrk"%in%ls(x)) ){
+    cat('Predicting marker effects\n')
+    prd = list()
+    # Additive
+    for(i in names(M)){
+      if(i %in% ls(x$Mrk)){
+        cat('Computing',i,'\n')
+        prd[[i]] = c( M[[i]] %*% x$Mrk[[i]] ) + x$Coef$mu
+        names(prd[[i]]) = rownames(x$Mrk[[i]])
+      }
+    }
+    # Compound symmetry interactions
+    if(any( sapply(x$Mrk,class)=="data.frame" )){
+      interactions = ls(x$Mrk)[which(sapply(x$Mrk,class)=="data.frame")]
+      for(i in interactions){
+        Terms = strsplit(i,':')[[1]]
+        if(any(Terms%in%ls(M))){
+          cat('Computing',i,'\n')
+          MainTerm = Terms[which(Terms%in%ls(M))]
+          prd[[i]] = apply(x$Mrk[[i]],2,function(x) M[[MainTerm]]%*%x )
+          rownames(prd[[i]]) = rownames(M[[MainTerm]])
+        }
+      }
+    }
+    # If there was only one possible solution
+    if(length(prd)==1) prd=prd[[1]]
+  }
+  # Return
+  return(prd)
+}
+
+
+predict.FLMSS = function(object, ...){
+  return(predict_FLMSS(x=object,...))
+}
+
+
+   
