@@ -18,7 +18,8 @@ Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeZ = true, int cores =
     for(int j=0; j<n; j++){
       if(i>j){
         tmp = acos( XXp(i,j)/(SqDiagXXp(i)*SqDiagXXp(j)) );
-        tmp = (sin(tmp)*DiagXXp[i]*DiagXXp[j])/Npi+(Npi-tmp)*cos(tmp);
+        //tmp = (sin(tmp)*DiagXXp[i]*DiagXXp[j])/Npi+(Npi-tmp)*cos(tmp);
+        tmp = (sin(tmp)*DiagXXp[i]*DiagXXp[j])+(Npi-tmp)*cos(tmp);
         tmp /= Npi; XXp(i,j) = tmp*1.0; XXp(j,i) = tmp*1.0;
       }else if(i==j){ XXp(i,j) = 1;}}}
   return XXp;}
