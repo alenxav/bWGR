@@ -4,7 +4,7 @@
 \alias{mkr2X}
 \alias{mrr2X}
 \alias{MRR3}
-\alias{SimY}
+
 \title{
   Multivariate Regression
 }

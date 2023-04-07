@@ -3,7 +3,7 @@
 #include <RcppEigen.h>
 
 // [[Rcpp::export]]
-Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeZ = true, int cores = 2){
+Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeX = true, int cores = 2){
   // cseweb.ucsd.edu/~saul/papers/nips09_kernel.pdf
   Eigen::setNbThreads(cores); int p = X.cols(), n = X.rows(); 
   double tmp, Npi=3.1416, theta, J1, Kij, Norm;

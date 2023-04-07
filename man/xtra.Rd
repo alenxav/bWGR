@@ -17,6 +17,12 @@
 \alias{EigenBDCSVD}
 \alias{EigenJacobiSVD}
 \alias{EigenAcc}
+\alias{EigenArcZ}
+\alias{EigenGauZ}
+\alias{K2X}
+\alias{SimY}
+\alias{MvSimY}
+\alias{MLM}
 
 \title{
 Additional tools
@@ -62,6 +68,18 @@ Complementary functions that may help with handling parameters and routine opera
 \code{EigenJacobiSVD(X, cores = 2)} # Jacobi single value composition from Eigen
 
 \code{EigenAcc(X1, X2, h2 = 0.5, cores = 2)} # Deterministic accuracy X1 -> X2
+
+\code{EigenArcZ(Zfndr, Zsamp, cores = 2)} # Reduced rank ArcCos kernel PCs with founder rotation
+
+\code{EigenGauZ(Zfndr, Zsamp, phi=1, cores = 2)} # Reduced rank Gaussian kernel PCs with founder rotation 
+
+\code{K2X(K)} # Reparametrize kernel to PCs to run regression models 
+
+\code{SimY(Z,k=5,h2=0.5,GC=0.5,seed=123,unbalanced=FALSE)} # Simulate Y for multiple environments
+
+\code{MvSimY(Ufndr,Zfndr,Zsamp,GxY,GxL,H2plot,nLoc = 20,Seed = 123)} # Simulate traits given founders
+
+\code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1)} # Multivariate model with fixed effects
 
 }
 \author{

@@ -6,21 +6,88 @@
 
 using namespace Rcpp;
 
-#ifdef RCPP_USE_GLOBAL_ROSTREAM
-Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
-Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
-#endif
-
+// EigenArcZ
+Eigen::MatrixXd EigenArcZ(Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, int cores);
+RcppExport SEXP _bWGR_EigenArcZ(SEXP ZfndrSEXP, SEXP ZsampSEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zfndr(ZfndrSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zsamp(ZsampSEXP);
+    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(EigenArcZ(Zfndr, Zsamp, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// EigenGauZ
+Eigen::MatrixXd EigenGauZ(Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, double phi, int cores);
+RcppExport SEXP _bWGR_EigenGauZ(SEXP ZfndrSEXP, SEXP ZsampSEXP, SEXP phiSEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zfndr(ZfndrSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zsamp(ZsampSEXP);
+    Rcpp::traits::input_parameter< double >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(EigenGauZ(Zfndr, Zsamp, phi, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// K2X
+Eigen::MatrixXd K2X(Eigen::MatrixXd K);
+RcppExport SEXP _bWGR_K2X(SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type K(KSEXP);
+    rcpp_result_gen = Rcpp::wrap(K2X(K));
+    return rcpp_result_gen;
+END_RCPP
+}
+// MvSimY
+SEXP MvSimY(Eigen::MatrixXd Ufndr, Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, Eigen::VectorXd GxY, Eigen::VectorXd GxL, Eigen::VectorXd H2plot, int nLoc, int Seed);
+RcppExport SEXP _bWGR_MvSimY(SEXP UfndrSEXP, SEXP ZfndrSEXP, SEXP ZsampSEXP, SEXP GxYSEXP, SEXP GxLSEXP, SEXP H2plotSEXP, SEXP nLocSEXP, SEXP SeedSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Ufndr(UfndrSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zfndr(ZfndrSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zsamp(ZsampSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type GxY(GxYSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type GxL(GxLSEXP);
+    Rcpp::traits::input_parameter< Eigen::VectorXd >::type H2plot(H2plotSEXP);
+    Rcpp::traits::input_parameter< int >::type nLoc(nLocSEXP);
+    Rcpp::traits::input_parameter< int >::type Seed(SeedSEXP);
+    rcpp_result_gen = Rcpp::wrap(MvSimY(Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc, Seed));
+    return rcpp_result_gen;
+END_RCPP
+}
+// MLM
+SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z, int maxit, double logtol, int cores);
+RcppExport SEXP _bWGR_MLM(SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< double >::type logtol(logtolSEXP);
+    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLM(Y, X, Z, maxit, logtol, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
 // EigenARC
-Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeZ, int cores);
-RcppExport SEXP _bWGR_EigenARC(SEXP XSEXP, SEXP centralizeZSEXP, SEXP coresSEXP) {
+Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeX, int cores);
+RcppExport SEXP _bWGR_EigenARC(SEXP XSEXP, SEXP centralizeXSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
-    Rcpp::traits::input_parameter< bool >::type centralizeZ(centralizeZSEXP);
+    Rcpp::traits::input_parameter< bool >::type centralizeX(centralizeXSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(EigenARC(X, centralizeZ, cores));
+    rcpp_result_gen = Rcpp::wrap(EigenARC(X, centralizeX, cores));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -691,6 +758,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
+    {"_bWGR_EigenArcZ", (DL_FUNC) &_bWGR_EigenArcZ, 3},
+    {"_bWGR_EigenGauZ", (DL_FUNC) &_bWGR_EigenGauZ, 4},
+    {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 1},
+    {"_bWGR_MvSimY", (DL_FUNC) &_bWGR_MvSimY, 8},
+    {"_bWGR_MLM", (DL_FUNC) &_bWGR_MLM, 6},
     {"_bWGR_EigenARC", (DL_FUNC) &_bWGR_EigenARC, 3},
     {"_bWGR_EigenGAU", (DL_FUNC) &_bWGR_EigenGAU, 3},
     {"_bWGR_EigenGRM", (DL_FUNC) &_bWGR_EigenGRM, 3},
