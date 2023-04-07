@@ -11,6 +11,5 @@ License: GPL-3
 Imports: Matrix, Rcpp, RcppEigen
 LinkingTo: Rcpp, RcppEigen
 Depends: R (>= 4.0)
-Packaged: 2021-02-13 01:14:54 UTC; Alencar
 NeedsCompilation: yes
 Repository: CRAN
