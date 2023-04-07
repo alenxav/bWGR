@@ -20,7 +20,7 @@ License: \tab GPL-3 \cr
 }
 }
 \author{
-Alencar Xavier, William Muir, Kyle Kocak, Shizhong Xu, Katy Rainey.
+Alencar Xavier, William Muir, David Habier, Kyle Kocak, Shizhong Xu, Katy Rainey.
 
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 }
