@@ -8,11 +8,7 @@
 \alias{GSRR}
 \alias{GS2EIGEN}
 \alias{NNSEARCH}
-\alias{plot.FLMSS}
-\alias{predict.FLMSS}
 \alias{predict_FLMSS}
-\alias{print.FLMSS}
-\alias{summary.FLMSS}
 
 \title{
 Mixed model solver
