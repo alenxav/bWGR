@@ -4,7 +4,7 @@
 
 // [[Rcpp::export]]
 Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeZ = true, int cores = 2){
-   // cseweb.ucsd.edu/~saul/papers/nips09_kernel.pdf
+  // cseweb.ucsd.edu/~saul/papers/nips09_kernel.pdf
   Eigen::setNbThreads(cores); int p = X.cols(), n = X.rows(); 
   double tmp, Npi=3.1416, theta, J1, Kij, Norm;
   if(centralizeX){
@@ -14,12 +14,12 @@ Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeZ = true, int cores =
   Eigen::MatrixXd XXp = X*X.transpose();
   tmp = 1/(XXp.diagonal().mean()); XXp *= tmp;
   Eigen::VectorXd DiagXXp = XXp.diagonal().array();
-  for(int i=0; i<n; i++){ for(int j=0; j<n; j++){ if(i>=j){ 
-    Norm = sqrt(DiagXXp(i)*DiagXXp(j));
+  for(int i=0; i<n; i++){ for(int j=i; j<n; j++){ 
+    Norm = sqrt(DiagXXp(i)*DiagXXp(j)*1.001);
     theta = acos( XXp(i,j)/Norm);
     J1 = sin(theta) + (Npi-theta)*cos(theta);
     Kij = Norm/Npi*J1;
-    XXp(i,j) = Kij*1.0; XXp(j,i) = Kij*1.0;}}}
+    XXp(i,j) = Kij*1.0; XXp(j,i) = Kij*1.0;}}
   return XXp;}
 
 // [[Rcpp::export]]
