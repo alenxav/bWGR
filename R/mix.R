@@ -1027,33 +1027,6 @@ NNS = function(blk,row,col,rN=2,cN=2){
   class(OUT) = "NNS"
   return(OUT)}
 
-# Plot function
-plot.FLMSS = function(x,...){
-  plot(x$GOF[,1:2],pch=20,main='Model fitness',...)
-  lines(x=c(-10000,10000),y=c(-10000,10000),col=2,lwd=2)
-}
-
-# Summary function
-summary.FLMSS = function(object, ...){
-  x = object
-  cat('\nStats\n')
-  print(x$Stat,...)
-  cat('\nFactor levels\n')
-  print(c(Obs=nrow(x$GOF),sapply(x$Coef,length)),...)
-  if("Coef"%in%ls(x)){
-    cat('\nVariances\n')
-    print(x$VC,...)}
-  if("Mrk"%in%ls(x)){
-    cat('\nMarker effects\n')
-    print(sapply(x$Mrk,length),...)}
-}
-
-# Print function
-print.FLMSS = function(x, ...){
-  cat('\nStats\n');  print(x$Stat,...)
-  if("Coef"%in%ls(x)){ cat('\nVariances\n'); print(x$VC,...)}
-}
-
 # Prediction function
 predict_FLMSS = function(x, data=NULL, M=NULL){
   
@@ -1138,11 +1111,6 @@ predict_FLMSS = function(x, data=NULL, M=NULL){
   }
   # Return
   return(prd)
-}
-
-
-predict.FLMSS = function(object, ...){
-  return(predict_FLMSS(x=object,...))
 }
 
 
