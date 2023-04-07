@@ -1,9 +1,14 @@
 Package: bWGR
 Type: Package
 Title: Bayesian Whole-Genome Regression
-Version: 2.1
-Date: 2022-07-14
+Version: 2.2
+Date: 2023-04-10
 Author: Alencar Xavier, William Muir, David Habier, Kyle Kocak, Shizhong Xu, Katy Rainey.
+Maintainer: Alencar Xavier <alenxav@gmail.com>
+Authors@R: c(person("Alencar", "Xavier", role=c("aut", "cre"), email = "alenxav@gmail.com"),
+    person("Muir", "William", role=c("aut")), person("Habier", "David", role=c("aut")),
+    person("Kocak", "Kyle", role=c("aut")),person("Shizhong", "Xu", role=c("aut")),person("Rainey", "Katy", role=c("aut")),)
+Author: Alencar Xavier [aut, cre], William Muir [aut], David Habier [aut], Kyle Kocak [aut], Shizhong Xu [aut], Katy Rainey [aut]
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 Description: Whole-genome regression methods on Bayesian framework fitted via EM
     or Gibbs sampling, single step (<doi:10.1534/g3.119.400728>), univariate and multivariate (<doi:10.1186/s12711-022-00730-w>),
