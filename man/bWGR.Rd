@@ -21,13 +21,10 @@ License: \tab GPL-3 \cr
 }
 \author{
 Alencar Xavier, William Muir, David Habier, Kyle Kocak, Shizhong Xu, Katy Rainey.
-
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 }
 \examples{
-
 data(tpod)
 Fit = wgr(y,gen)
 cor(y,Fit$hat)
-
 }
