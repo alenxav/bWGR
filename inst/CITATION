@@ -2,7 +2,7 @@ citHeader("To cite bWGR in publications use:")
 
 citEntry(entry = "Article",
   title        = "bWGR: Bayesian whole-genome regression",
-  author       =  c("Alencar Xavier","William Muir","Katy Rainey"),
+  author       =  c(person("Alencar", "Xavier", role=c("aut", "cre"), email = "alenxav@gmail.com", comment = c(ORCID = "0000-0001-5034-9954")), person("William", "Muir", role=c("aut")), person("David", "Habier", role=c("aut")), person("Kyle", "Kocak", role=c("aut")),person("Shizhong", "Xu", role=c("aut")),person("Katy", "Rainey", role=c("aut"))),
   journal      = "Bioinformatics",
   volume       = "36",
   number       = "6",
