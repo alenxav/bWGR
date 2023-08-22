@@ -366,28 +366,13 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
   
 }
 
-EXP MRR3(Eigen::MatrixXd Y,
-         Eigen::MatrixXd X,
-         int maxit = 500,
-         double tol = 10e-9,
-         int cores = 1,
-         bool TH = false,
-         double NLfactor = 0.0,
-         bool HCS = false,
-         bool XFA2 = false,
-         double R2 = 0.5,
-         double gc0 = 0.5, 
-         double df0 = 0.0, 
-         double h20w = 0.0,
-         double gc0w = 0.0,
-         double PenCor = 0.0,
-         double MinCor = 1.0,
-         bool InnerGS = false,
-         bool NoInv = false,
-         int NumXFA = 2,
-         bool OneVarB = false,
-         bool OneVarE = false,
-         bool verb = false){
+// [[Rcpp::export]]
+SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X, int maxit = 500, double tol = 10e-9,
+         int cores = 1, bool TH = false, double NLfactor = 0.0,
+         bool HCS = false, bool XFA2 = false, double R2 = 0.5,
+         double gc0 = 0.5,  double df0 = 0.0,  double h20w = 0.0, double gc0w = 0.0,
+         double PenCor = 0.0, double MinCor = 1.0, bool InnerGS = false, bool NoInv = false,
+         int NumXFA = 2, bool OneVarB = false, bool OneVarE = false, bool verb = false){
   
   //Set multi-core processing
   if(cores!=1) Eigen::setNbThreads(cores);
@@ -732,3 +717,4 @@ EXP MRR3(Eigen::MatrixXd Y,
                             Rcpp::Named("b_Weights")=W,
                             Rcpp::Named("Its")=numit);
 }
+

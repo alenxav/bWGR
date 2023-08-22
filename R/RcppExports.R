@@ -77,6 +77,10 @@ mrr2X <- function(Y, X1, X2) {
     .Call('_bWGR_mrr2X', PACKAGE = 'bWGR', Y, X1, X2)
 }
 
+MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, HCS = FALSE, XFA2 = FALSE, R2 = 0.5, gc0 = 0.5, df0 = 0.0, h20w = 0.0, gc0w = 0.0, PenCor = 0.0, MinCor = 1.0, InnerGS = FALSE, NoInv = FALSE, NumXFA = 2L, OneVarB = FALSE, OneVarE = FALSE, verb = FALSE) {
+    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, HCS, XFA2, R2, gc0, df0, h20w, gc0w, PenCor, MinCor, InnerGS, NoInv, NumXFA, OneVarB, OneVarE, verb)
+}
+
 KMUP <- function(X, b, d, xx, e, L, Ve, pi) {
     .Call('_bWGR_KMUP', PACKAGE = 'bWGR', X, b, d, xx, e, L, Ve, pi)
 }

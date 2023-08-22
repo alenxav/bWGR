@@ -277,6 +277,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// MRR3
+SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X, int maxit, double tol, int cores, bool TH, double NLfactor, bool HCS, bool XFA2, double R2, double gc0, double df0, double h20w, double gc0w, double PenCor, double MinCor, bool InnerGS, bool NoInv, int NumXFA, bool OneVarB, bool OneVarE, bool verb);
+RcppExport SEXP _bWGR_MRR3(SEXP YSEXP, SEXP XSEXP, SEXP maxitSEXP, SEXP tolSEXP, SEXP coresSEXP, SEXP THSEXP, SEXP NLfactorSEXP, SEXP HCSSEXP, SEXP XFA2SEXP, SEXP R2SEXP, SEXP gc0SEXP, SEXP df0SEXP, SEXP h20wSEXP, SEXP gc0wSEXP, SEXP PenCorSEXP, SEXP MinCorSEXP, SEXP InnerGSSEXP, SEXP NoInvSEXP, SEXP NumXFASEXP, SEXP OneVarBSEXP, SEXP OneVarESEXP, SEXP verbSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
+    Rcpp::traits::input_parameter< bool >::type TH(THSEXP);
+    Rcpp::traits::input_parameter< double >::type NLfactor(NLfactorSEXP);
+    Rcpp::traits::input_parameter< bool >::type HCS(HCSSEXP);
+    Rcpp::traits::input_parameter< bool >::type XFA2(XFA2SEXP);
+    Rcpp::traits::input_parameter< double >::type R2(R2SEXP);
+    Rcpp::traits::input_parameter< double >::type gc0(gc0SEXP);
+    Rcpp::traits::input_parameter< double >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< double >::type h20w(h20wSEXP);
+    Rcpp::traits::input_parameter< double >::type gc0w(gc0wSEXP);
+    Rcpp::traits::input_parameter< double >::type PenCor(PenCorSEXP);
+    Rcpp::traits::input_parameter< double >::type MinCor(MinCorSEXP);
+    Rcpp::traits::input_parameter< bool >::type InnerGS(InnerGSSEXP);
+    Rcpp::traits::input_parameter< bool >::type NoInv(NoInvSEXP);
+    Rcpp::traits::input_parameter< int >::type NumXFA(NumXFASEXP);
+    Rcpp::traits::input_parameter< bool >::type OneVarB(OneVarBSEXP);
+    Rcpp::traits::input_parameter< bool >::type OneVarE(OneVarESEXP);
+    Rcpp::traits::input_parameter< bool >::type verb(verbSEXP);
+    rcpp_result_gen = Rcpp::wrap(MRR3(Y, X, maxit, tol, cores, TH, NLfactor, HCS, XFA2, R2, gc0, df0, h20w, gc0w, PenCor, MinCor, InnerGS, NoInv, NumXFA, OneVarB, OneVarE, verb));
+    return rcpp_result_gen;
+END_RCPP
+}
 // KMUP
 SEXP KMUP(NumericMatrix X, NumericVector b, NumericVector d, NumericVector xx, NumericVector e, NumericVector L, double Ve, double pi);
 RcppExport SEXP _bWGR_KMUP(SEXP XSEXP, SEXP bSEXP, SEXP dSEXP, SEXP xxSEXP, SEXP eSEXP, SEXP LSEXP, SEXP VeSEXP, SEXP piSEXP) {
@@ -758,6 +790,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_GSRR", (DL_FUNC) &_bWGR_GSRR, 8},
     {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
     {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},
+    {"_bWGR_MRR3", (DL_FUNC) &_bWGR_MRR3, 22},
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
     {"_bWGR_KMUP2", (DL_FUNC) &_bWGR_KMUP2, 9},
     {"_bWGR_emBA", (DL_FUNC) &_bWGR_emBA, 4},
