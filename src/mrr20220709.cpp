@@ -366,26 +366,31 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
   
 }
 
-// [[Rcpp::export]]
-SEXP MRR3(Eigen::MatrixXd Y,
+EXP MRR3(Eigen::MatrixXd Y,
          Eigen::MatrixXd X,
-         int maxit = 1000,
+         int maxit = 500,
          double tol = 10e-9,
-         int cores = 2,
+         int cores = 1,
          bool TH = false,
          double NLfactor = 0.0,
          bool HCS = false,
          bool XFA2 = false,
          double R2 = 0.5,
-         double gc0 = 0.0, 
-         double df0 = 0.0,
+         double gc0 = 0.5, 
+         double df0 = 0.0, 
+         double h20w = 0.0,
+         double gc0w = 0.0,
          double PenCor = 0.0,
          double MinCor = 1.0,
          bool InnerGS = false,
-         bool NoInv = false){
+         bool NoInv = false,
+         int NumXFA = 2,
+         bool OneVarB = false,
+         bool OneVarE = false,
+         bool verb = false){
   
   //Set multi-core processing
-  Eigen::setNbThreads(cores);
+  if(cores!=1) Eigen::setNbThreads(cores);
   
   // Gather basic info
   int k = Y.cols(), n0 = Y.rows(), p = X.cols();
@@ -407,9 +412,11 @@ SEXP MRR3(Eigen::MatrixXd Y,
   Eigen::VectorXd mu = Y.colwise().sum();
   mu = mu.array() * iN.array();
   Eigen::MatrixXd y(n0,k);
-  for(int i=0; i<k; i++){
-    y.col(i) = (Y.col(i).array()-mu(i)).array() * Z.col(i).array();
-  }
+  for(int i=0; i<k; i++){y.col(i) = (Y.col(i).array()-mu(i)).array() * Z.col(i).array();}
+  
+  // Center X
+  Eigen::VectorXd xx = X.colwise().mean();
+  for(int i=0; i<p; i++){ X.col(i) = X.col(i).array() - xx(i);}
   
   // Sum of squares of X
   Eigen::MatrixXd XX(p,k);
@@ -427,10 +434,13 @@ SEXP MRR3(Eigen::MatrixXd Y,
   // Variances
   iN = (n.array()-1).inverse();
   Eigen::VectorXd vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
+  
   Eigen::VectorXd ve = vy * (1-R2);
   Eigen::VectorXd iVe = ve.array().inverse();
   Eigen::MatrixXd vb(k,k), TildeHat(k,k);
-  vb = ((vy*R2).array()/MSx.array()).matrix().asDiagonal();
+  Eigen::VectorXd vbInit = ((vy*R2).array()/MSx.array());
+  Eigen::VectorXd veInit = ve*1.0;
+  vb = vbInit.array().matrix().asDiagonal();
   Eigen::MatrixXd iG = vb.inverse();
   Eigen::VectorXd h2 = 1 - ve.array()/vy.array();
   
@@ -470,7 +480,9 @@ SEXP MRR3(Eigen::MatrixXd Y,
   
   // Bending and convergence control
   Eigen::MatrixXd A = vb*1.0, GC(k,k);
-  double deflate = 1.0, deflateMax = 0.75;
+  double deflate = 1.0, deflateMax = 0.9;
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EVDofA(A);
+  double MinDVb, inflate = 0.0;
   Eigen::MatrixXd beta0(p,k), vb0(k,k);
   Eigen::VectorXd CNV1(maxit),CNV2(maxit),CNV3(maxit), ve0(k), h20(k);
   double cnv = 10.0;
@@ -483,6 +495,13 @@ SEXP MRR3(Eigen::MatrixXd Y,
   std::random_device rd;
   std::mt19937 g(rd());
   int J;
+  
+  // Inner RGS
+  std::vector<int> InnerRGSvec(k);
+  for(int j=0; j<k; j++){InnerRGSvec[j]=j;}
+  std::random_device rd2;
+  std::mt19937 g2(rd2());
+  int ri;
   
   // Non-Linear weights for marker effects
   bool NonLinear = NLfactor!=0.0;
@@ -508,6 +527,8 @@ SEXP MRR3(Eigen::MatrixXd Y,
     
     // Randomized Gauss-Seidel loop
     std::shuffle(RGSvec.begin(), RGSvec.end(), g);
+    std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), g2);
+    
     for(int j=0; j<p; j++){
       J = RGSvec[j];
       
@@ -533,7 +554,9 @@ SEXP MRR3(Eigen::MatrixXd Y,
       // Inner GS
       if(InnerGS){
         b1 = b.row(J)*1.0;
-        for(int i=0; i<k; i++){b1(i) = (RHS(i)-(LHS.col(i).array()*b1.array()).sum()+LHS(i,i)*b1(i))/LHS(i,i);}
+        for(int i=0; i<k; i++){
+          ri = InnerRGSvec[i];
+          b1(ri) = (RHS(ri)-(LHS.col(ri).array()*b1.array()).sum()+LHS(ri,ri)*b1(ri))/LHS(ri,ri);}
       }else{
         b1 = LHS.llt().solve(RHS); 
       }
@@ -557,9 +580,12 @@ SEXP MRR3(Eigen::MatrixXd Y,
     // Residual variance
     ve = (e.cwiseProduct(y)).colwise().sum();
     ve = (ve.array()+Se.array()) * iNp.array();
+    // Proportion-based prior
+    if(h20w>0){for(int i=0; i<k; i++){gs = ve(i)*(1-h20w) + h20w*veInit(i); ve(i) = gs*1.0;}}
+    // Single variance
+    if(OneVarE){tmp = ve.array().mean(); for(int i=0; i<k; i++) ve(i) = tmp*1.0;}
     iVe = ve.array().inverse();
     iVeWj = iVe*1.0;
-    h2 = 1 - ve.array()/vy.array();
     
     //Genetic variance
     
@@ -591,12 +617,17 @@ SEXP MRR3(Eigen::MatrixXd Y,
           }
         }}}
     
+    
+    // Proportion-based prior
+    if(h20w>0){for(int i=0; i<k; i++){gs = vb(i,i)*(1-h20w) + h20w*vbInit(i); vb(i,i) = gs*1.0;}}
+    if(gc0w>0){
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)= (1.0-gc0w)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*gc0w;}}
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){ vb(i,j) =  GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}
+    
     // Heterogeneous Compound Symmetry
     if(HCS){
       gs = 0.0;
-      for(int i=0; i<k; i++){
-        for(int j=0; j<k; j++){
-          GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
       for(int i=0; i<k; i++){
         for(int j=0; j<k; j++){
           if(i>j){gs += GC(i,j);}}}
@@ -606,66 +637,65 @@ SEXP MRR3(Eigen::MatrixXd Y,
           if(i!=j){ vb(i,j) =  gs*sqrt(vb(i,i)*vb(j,j));}}}
       // Extended Factor Analytics
     }else if(XFA2){
-      es.compute(vb);
-      UDU = es.eigenvalues()[k] * es.eigenvectors().col(k) * es.eigenvectors().col(k).transpose() +
-        es.eigenvalues()[k-1] * es.eigenvectors().col(k-1) * es.eigenvectors().col(k-1).transpose();
-      UDU.diagonal() = vb.diagonal();
-      vb = UDU*1.0;
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
+      es.compute(GC);
+      UDU = es.eigenvalues()[k] * es.eigenvectors().col(k) * es.eigenvectors().col(k).transpose();
+      for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i] * es.eigenvectors().col(k-i) * es.eigenvectors().col(k-i).transpose();
+      for(int i=0; i<k; i++){
+        for(int j=0; j<k; j++){
+          if(i!=j){ vb(i,j) =  UDU(i,j)*sqrt(vb(i,i)*vb(j,j));}}}
     }
     
     // Penalize Correlations
     if(PenCor>0.0){
-      for(int i=0; i<k; i++){
-        for(int j=0; j<k; j++){
-          GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
-      for(int i=0; i<k; i++){
-        for(int j=0; j<k; j++){
-          if(i!=j){ vb(i,j) = tanh(PenCor*abs(GC(i,j)))*GC(i,j)*sqrt(vb(i,i)*vb(j,j)); }}}
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
+      for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
+        if(i!=j){ vb(i,j) = tanh(PenCor*abs(GC(i,j)))*GC(i,j)*sqrt(vb(i,i)*vb(j,j)); }}}
     }
     
-    // Zeroing  Correlations
+    // Zero'ing  Correlations
     if(MinCor<1.0){
       for(int i=0; i<k; i++){
         for(int j=0; j<k; j++){
           GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));
           if(GC(i,j)<MinCor){ vb(i,j) *= 0.0; }}}}
     
-    // Bending
-    if(NoInv){
-      
-      if(TH){
-        A = vb*1.0;
-        for(int i=0; i<k; i++){ for(int j=0; j<k; j++){if(i!=j){A(i,j) *= deflate;}}}
-        while(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
-          Rcpp::Rcout << "Bend at "<< numit << "\n";
-          deflate = deflate - 0.01;
-          for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}}    
-        iG = A.inverse();}
+    // Single variance of beta
+    if(OneVarB){
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
+      tmp = TildeHat.diagonal().mean(); vb = GC * tmp;}
     
-    }else{
-      
+    // Bending
+    if( !NoInv || TH ){
       A = vb*1.0;
       for(int i=0; i<k; i++){ for(int j=0; j<k; j++){if(i!=j){A(i,j) *= deflate;}}}
-      while(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
-        Rcpp::Rcout << "Bend at "<< numit << "\n";
-        deflate = deflate - 0.01;
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}}    
+      if(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
+        deflate -= 0.005; if(verb) Rcpp::Rcout <<  deflate;
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}}
+      EVDofA.compute(A);
+      MinDVb = EVDofA.eigenvalues().minCoeff();
+      if( MinDVb < 0.0 ){ 
+        if(verb) Rcpp::Rcout << ".";
+        inflate = inflate - MinDVb*1.001;
+        A.diagonal().array() += inflate;}
       iG = A.inverse();
-    
     }
-
+    
     // Compute convergence and print status
     
     // Covariances
-    cnv = log10((beta0.array()-b.array()).square().sum());
-    CNV1(numit) = cnv; if( std::isnan(cnv) ){break;}
+    h2 = 1 - ve.array()/vy.array();
+    //cnv = log10((beta0.array()-b.array()).square().sum());
+    cnv = log10((beta0.array()-b.array()).square().colwise().sum().maxCoeff());
+    CNV1(numit) = cnv; if(std::isnan(cnv)){ if(verb){Rcpp::Rcout << "Numerical issue! Job aborted (it=" << numit << ")\n";} break;}
     CNV2(numit) = log10((h20.array()-h2.array()).square().sum());
     CNV3(numit) = log10((vb0.array()-vb.array()).square().sum());
     
     // Print
     ++numit;
-    if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
-    if( cnv<logtol ){break;}
+    if( verb && numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
+    if( cnv<logtol ){ if(verb){Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n";} break;}
+    if( numit == maxit && verb){ Rcpp::Rcout << "Model did not converge\n"; }
     
   }
   
@@ -694,11 +724,11 @@ SEXP MRR3(Eigen::MatrixXd Y,
                             Rcpp::Named("GC")=GC,
                             Rcpp::Named("vb")=vb,
                             Rcpp::Named("ve")=ve,
+                            Rcpp::Named("MSx")=MSx,
                             Rcpp::Named("bend")=deflate,
                             Rcpp::Named("cnvB")=CNV1b,
                             Rcpp::Named("cnvH2")=CNV2b,
                             Rcpp::Named("cnvV")=CNV3b,
                             Rcpp::Named("b_Weights")=W,
                             Rcpp::Named("Its")=numit);
-  
 }
