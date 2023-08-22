@@ -197,7 +197,7 @@ SEXP MvSimY(
 
 // [[Rcpp::export]]
 SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
-         int maxit = 500, double logtol = -8, int cores = 1){
+         int maxit = 500, double logtol = -8, int cores = 1, bool verb = false){
   
   // Basic info
   double df0 = 1.1; 
@@ -322,10 +322,12 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
     // Print status
     ++numit;
     cnv = log10((beta0.array()-b.array()).square().sum());
-    if( std::isnan(cnv) ){Rcpp::Rcout << "Numerical issue! Job aborted (it=" << numit << ")\n"; break;}
-    if( numit % 100 == 0 ){ Rcpp::Rcout << "Iter: "<< numit << " || log10 Conv: "<< cnv << "\n"; } 
-    if(  cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
-    if( numit == maxit ){ Rcpp::Rcout << "Model did not converge\n"; }
+    
+    if(verb){
+      if( std::isnan(cnv) ){Rcpp::Rcout << "Numerical issue! Job aborted (it=" << numit << ")\n"; break;}
+      if( numit % 100 == 0 ){ Rcpp::Rcout << "Iter: "<< numit << " || log10 Conv: "<< cnv << "\n"; } 
+      if(  cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
+      if( numit == maxit ){ Rcpp::Rcout << "Model did not converge\n";}}else if( std::isnan(cnv) ){ break;}
     
   }
   

@@ -17,8 +17,8 @@ MvSimY <- function(Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc = 20L, Seed = 123
     .Call('_bWGR_MvSimY', PACKAGE = 'bWGR', Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc, Seed)
 }
 
-MLM <- function(Y, X, Z, maxit = 500L, logtol = -8, cores = 1L) {
-    .Call('_bWGR_MLM', PACKAGE = 'bWGR', Y, X, Z, maxit, logtol, cores)
+MLM <- function(Y, X, Z, maxit = 500L, logtol = -8, cores = 1L, verb = FALSE) {
+    .Call('_bWGR_MLM', PACKAGE = 'bWGR', Y, X, Z, maxit, logtol, cores, verb)
 }
 
 EigenARC <- function(X, centralizeX = TRUE, cores = 1L) {

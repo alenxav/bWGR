@@ -69,8 +69,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // MLM
-SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z, int maxit, double logtol, int cores);
-RcppExport SEXP _bWGR_MLM(SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP coresSEXP) {
+SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z, int maxit, double logtol, int cores, bool verb);
+RcppExport SEXP _bWGR_MLM(SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP coresSEXP, SEXP verbSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -80,7 +80,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
     Rcpp::traits::input_parameter< double >::type logtol(logtolSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(MLM(Y, X, Z, maxit, logtol, cores));
+    Rcpp::traits::input_parameter< bool >::type verb(verbSEXP);
+    rcpp_result_gen = Rcpp::wrap(MLM(Y, X, Z, maxit, logtol, cores, verb));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -742,7 +743,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_EigenGauZ", (DL_FUNC) &_bWGR_EigenGauZ, 4},
     {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 2},
     {"_bWGR_MvSimY", (DL_FUNC) &_bWGR_MvSimY, 8},
-    {"_bWGR_MLM", (DL_FUNC) &_bWGR_MLM, 6},
+    {"_bWGR_MLM", (DL_FUNC) &_bWGR_MLM, 7},
     {"_bWGR_EigenARC", (DL_FUNC) &_bWGR_EigenARC, 3},
     {"_bWGR_EigenGAU", (DL_FUNC) &_bWGR_EigenGAU, 3},
     {"_bWGR_EigenGRM", (DL_FUNC) &_bWGR_EigenGRM, 3},
