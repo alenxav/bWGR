@@ -84,6 +84,10 @@ Complementary functions that may help with handling parameters and routine opera
 
 \code{GetEVD(X, num_eig=-1, eigenvalues_only=FALSE, tol=1.5e-8)} # Symmetric EVD
 
+\code{SEM(Y,Z,PCs=4,TOI=NULL,Beta0=NULL)} # Fit a dense structural equation model
+
+
+
 }
 \author{
 Alencar Xavier
