@@ -23,6 +23,7 @@
 \alias{SimY}
 \alias{MvSimY}
 \alias{MLM}
+\alias{GetEVD}
 
 \title{
 Additional tools
@@ -80,6 +81,8 @@ Complementary functions that may help with handling parameters and routine opera
 \code{MvSimY(Ufndr,Zfndr,Zsamp,GxY,GxL,H2plot,nLoc = 20,Seed = 123)} # Simulate traits given founders
 
 \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1)} # Multivariate model with fixed effects
+
+\code{GetEVD(X, num_eig=-1, eigenvalues_only=FALSE, tol=1.5e-8)} # Symmetric EVD
 
 }
 \author{
