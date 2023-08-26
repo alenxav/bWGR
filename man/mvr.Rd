@@ -4,6 +4,10 @@
 \alias{mkr2X}
 \alias{mrr2X}
 \alias{MRR3}
+\alias{MLM}
+\alias{SEM}
+\alias{mrr_svd}
+\alias{MLMX}
 
 \title{
   Multivariate Regression
@@ -50,6 +54,14 @@
     02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
 
     03) \code{MRR3(Y,X,...):}{ Similar to mrr, with a couple additional parameters.}
+
+    04) \code{mrr_svd(Y,W):}{ Solves mrr through the principal components of parameters.}
+
+    05) \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1):}{ Multivariate model with fixed effects.}
+
+    06) \code{MLMX(Y,X,Zlist):}{ Multivariate with fixed effects and multiple random terms.}
+
+    07) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):}{ Fits a XFA structural equation model.}
 
 }
 \value{

@@ -78,7 +78,7 @@ Complementary functions that may help with handling parameters and routine opera
 
 \code{SimY(Z,k=5,h2=0.5,GC=0.5,seed=123,unbalanced=FALSE)} # Simulate Y for multiple environments
 
-\code{MvSimY(Ufndr,Zfndr,Zsamp,GxY,GxL,H2plot,nLoc = 20,Seed = 123)} # Simulate traits given founders
+\code{MvSimY(Ufndr,Zfndr,Zsamp,GxY,GxL,H2plot,nLoc=20,Seed=123)} # Simulate traits given founders
 
 \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1)} # Multivariate model with fixed effects
 
