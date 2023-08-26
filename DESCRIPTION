@@ -4,6 +4,8 @@ Title: Bayesian Whole-Genome Regression
 Version: 2.2.2
 Date: 2023-08-25
 Authors@R: c(person("Alencar", "Xavier", role=c("aut", "cre"), email = "alenxav@gmail.com", comment = c(ORCID = "0000-0001-5034-9954")), person("William", "Muir", role=c("aut")), person("David", "Habier", role=c("aut")), person("Kyle", "Kocak", role=c("aut")),person("Shizhong", "Xu", role=c("aut")),person("Katy", "Rainey", role=c("aut")))
+Author: Alencar Xavier [aut, cre], William Muir [aut], David Habier [aut], Kyle Kocak [aut], Shizhong Xu [aut], Katy Rainey [aut]
+Maintainer: Alencar Xavier <alenxav@gmail.com>
 Description: Whole-genome regression methods on Bayesian framework fitted via EM
     or Gibbs sampling, single step (<doi:10.1534/g3.119.400728>), univariate and multivariate (<doi:10.1186/s12711-022-00730-w>),
     with optional kernel term and sampling techniques (<doi:10.1186/s12859-017-1582-3>).
