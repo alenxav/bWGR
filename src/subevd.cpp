@@ -1,8 +1,10 @@
 // [[Rcpp::plugins(openmp)]]
 // [[Rcpp::depends(RcppEigen)]]
+
 #include <RcppEigen.h>
 #include <R_ext/Lapack.h>
 #include <R_ext/BLAS.h>
+
 using Eigen::Map;
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -10,6 +12,7 @@ using Eigen::VectorXi;
 
 //[[Rcpp::export]]
 Rcpp::List GetEVD(Rcpp::NumericMatrix X, int num_eig = -1, bool eigenvalues_only = false, double tol = 1.5e-8){
+  //Sys.setenv("PKG_LIBS" = "$(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)")
   //http://chingchuan-chen.github.io/posts/201701/2017-01-01-Rcpp-call-F77-blas-lapack-continued.html
   MatrixXd A = MatrixXd::Map(X.begin(), X.nrow(), X.ncol());
   // settings
