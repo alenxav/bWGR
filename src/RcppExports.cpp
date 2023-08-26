@@ -85,57 +85,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// PrepInput
-List PrepInput(MatrixXd Z, MatrixXd y, MatrixXd W, MatrixXd X, MatrixXd iXX, VectorXd iN, VectorXd ve, int k, double df0);
-RcppExport SEXP _bWGR_PrepInput(SEXP ZSEXP, SEXP ySEXP, SEXP WSEXP, SEXP XSEXP, SEXP iXXSEXP, SEXP iNSEXP, SEXP veSEXP, SEXP kSEXP, SEXP df0SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< MatrixXd >::type Z(ZSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type y(ySEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type W(WSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type X(XSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type iXX(iXXSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type iN(iNSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type ve(veSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< double >::type df0(df0SEXP);
-    rcpp_result_gen = Rcpp::wrap(PrepInput(Z, y, W, X, iXX, iN, ve, k, df0));
-    return rcpp_result_gen;
-END_RCPP
-}
-// UpdateRE
-void UpdateRE(MatrixXd e, MatrixXd W, List LL, int which, int k, VectorXd iVe, VectorXd ve, VectorXd iN, double df0, double deflateMax, VectorXd CnvB);
-RcppExport SEXP _bWGR_UpdateRE(SEXP eSEXP, SEXP WSEXP, SEXP LLSEXP, SEXP whichSEXP, SEXP kSEXP, SEXP iVeSEXP, SEXP veSEXP, SEXP iNSEXP, SEXP df0SEXP, SEXP deflateMaxSEXP, SEXP CnvBSEXP) {
-BEGIN_RCPP
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< MatrixXd >::type e(eSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type W(WSEXP);
-    Rcpp::traits::input_parameter< List >::type LL(LLSEXP);
-    Rcpp::traits::input_parameter< int >::type which(whichSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type iVe(iVeSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type ve(veSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type iN(iNSEXP);
-    Rcpp::traits::input_parameter< double >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< double >::type deflateMax(deflateMaxSEXP);
-    Rcpp::traits::input_parameter< VectorXd >::type CnvB(CnvBSEXP);
-    UpdateRE(e, W, LL, which, k, iVe, ve, iN, df0, deflateMax, CnvB);
-    return R_NilValue;
-END_RCPP
-}
-// GetZb
-MatrixXd GetZb(List L, int WhichTerm);
-RcppExport SEXP _bWGR_GetZb(SEXP LSEXP, SEXP WhichTermSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< List >::type L(LSEXP);
-    Rcpp::traits::input_parameter< int >::type WhichTerm(WhichTermSEXP);
-    rcpp_result_gen = Rcpp::wrap(GetZb(L, WhichTerm));
-    return rcpp_result_gen;
-END_RCPP
-}
 // MLMX
 SEXP MLMX(MatrixXd Y, MatrixXd X, List Zlist, int maxit, double logtol, int cores, double df0, double deflateMax, bool CHECK1);
 RcppExport SEXP _bWGR_MLMX(SEXP YSEXP, SEXP XSEXP, SEXP ZlistSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP coresSEXP, SEXP df0SEXP, SEXP deflateMaxSEXP, SEXP CHECK1SEXP) {
@@ -858,9 +807,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 2},
     {"_bWGR_MvSimY", (DL_FUNC) &_bWGR_MvSimY, 8},
     {"_bWGR_MLM", (DL_FUNC) &_bWGR_MLM, 7},
-    {"_bWGR_PrepInput", (DL_FUNC) &_bWGR_PrepInput, 9},
-    {"_bWGR_UpdateRE", (DL_FUNC) &_bWGR_UpdateRE, 11},
-    {"_bWGR_GetZb", (DL_FUNC) &_bWGR_GetZb, 2},
     {"_bWGR_MLMX", (DL_FUNC) &_bWGR_MLMX, 9},
     {"_bWGR_EigenARC", (DL_FUNC) &_bWGR_EigenARC, 3},
     {"_bWGR_EigenGAU", (DL_FUNC) &_bWGR_EigenGAU, 3},

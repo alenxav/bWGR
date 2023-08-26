@@ -21,18 +21,6 @@ MLM <- function(Y, X, Z, maxit = 500L, logtol = -8, cores = 1L, verb = FALSE) {
     .Call('_bWGR_MLM', PACKAGE = 'bWGR', Y, X, Z, maxit, logtol, cores, verb)
 }
 
-PrepInput <- function(Z, y, W, X, iXX, iN, ve, k, df0) {
-    .Call('_bWGR_PrepInput', PACKAGE = 'bWGR', Z, y, W, X, iXX, iN, ve, k, df0)
-}
-
-UpdateRE <- function(e, W, LL, which, k, iVe, ve, iN, df0, deflateMax, CnvB) {
-    invisible(.Call('_bWGR_UpdateRE', PACKAGE = 'bWGR', e, W, LL, which, k, iVe, ve, iN, df0, deflateMax, CnvB))
-}
-
-GetZb <- function(L, WhichTerm) {
-    .Call('_bWGR_GetZb', PACKAGE = 'bWGR', L, WhichTerm)
-}
-
 MLMX <- function(Y, X, Zlist, maxit = 500L, logtol = -8, cores = 1L, df0 = 0.1, deflateMax = 0.9, CHECK1 = FALSE) {
     .Call('_bWGR_MLMX', PACKAGE = 'bWGR', Y, X, Zlist, maxit, logtol, cores, df0, deflateMax, CHECK1)
 }

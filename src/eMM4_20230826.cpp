@@ -112,7 +112,6 @@ void UpdateRE( MatrixXd e, MatrixXd W, List LL, int which, int k, VectorXd iVe,
   LL[which] = L;
 }
 
-// [[Rcpp::export]]
 MatrixXd GetZb( List L, int WhichTerm){
   List SubList = L(WhichTerm);
   MatrixXd Zb = SubList[0];//1];
