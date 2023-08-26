@@ -22,8 +22,6 @@
 \alias{K2X}
 \alias{SimY}
 \alias{MvSimY}
-\alias{MLM}
-\alias{SEM}
 
 \title{
 Additional tools
@@ -80,9 +78,6 @@ Complementary functions that may help with handling parameters and routine opera
 
 \code{MvSimY(Ufndr,Zfndr,Zsamp,GxY,GxL,H2plot,nLoc=20,Seed=123)} # Simulate traits given founders
 
-\code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1)} # Multivariate model with fixed effects
-
-\code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL)} # Fit a dense structural equation model
 
 
 }
