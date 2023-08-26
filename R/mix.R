@@ -1115,12 +1115,12 @@ predict_FLMSS = function(x, data=NULL, M=NULL){
 
 #############################################################################################################                   
 
-SEM = function(Y,Z,PCs=4,TOI=NULL,Beta0=NULL){
+SEM = function(Y,Z,PCs=3,TOI=NULL,Beta0=NULL){
   k = ncol(Y)
   Mu = colMeans(Y,na.rm=T)
   NamesY0 = colnames(Y)
   toinames = NamesY0[TOI]
-  cat('Step 1\n')
+  cat('Step 1 - UV\n')
   if(is.null(Beta0)){
     cat('  |')
     Beta0 = sapply(1:k,function(i){
@@ -1135,7 +1135,10 @@ SEM = function(Y,Z,PCs=4,TOI=NULL,Beta0=NULL){
   }else{ cat('Skip step1\n') }
   rownames(Beta0) = colnames(Z)
   colnames(Beta0) = NamesY0
-  cat('Step 2\n')
+  cat('Step 2 - SVD G\n')
+  G = Z %*% Beta0; 
+  E = (EigenBDCSVD( G )$V)[,1:min(PCs,ncol(Y))]
+  cat('Step 3 - SEM\n')
   k = ncol(Y)
   if(is.null(TOI)){ toi = 1:k  }else{ toi = TOI } 
   cat('  |')
@@ -1145,11 +1148,7 @@ SEM = function(Y,Z,PCs=4,TOI=NULL,Beta0=NULL){
     w = which(!is.na(y))
     yy = y[w]
     xx = Z[w,]
-    zz = xx %*% Beta0
-    E = GetEVD(crossprod(zz),min(PCs,ncol(Y)))
-    for(i in 1:ncol(E$vectors)) E$vectors[,i]=E$vectors[,i]*sqrt(PC$values[i])
-    E = E$vectors
-    X = cbind(1,zz %*% E)
+    X = cbind(1,G[w,] %*% E)
     beta = MLM(matrix(yy),X,xx,verb=F)
     betaf = c( Beta0 %*% E %*% beta$b[-1,] ) + c(beta$u)
     return(betaf)})

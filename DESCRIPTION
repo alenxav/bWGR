@@ -2,7 +2,7 @@ Package: bWGR
 Type: Package
 Title: Bayesian Whole-Genome Regression
 Version: 2.2.2
-Date: 2023-08-25
+Date: 2023-08-26
 Authors@R: c(person("Alencar", "Xavier", role=c("aut", "cre"), email = "alenxav@gmail.com", comment = c(ORCID = "0000-0001-5034-9954")), person("William", "Muir", role=c("aut")), person("David", "Habier", role=c("aut")), person("Kyle", "Kocak", role=c("aut")),person("Shizhong", "Xu", role=c("aut")),person("Katy", "Rainey", role=c("aut")))
 Author: Alencar Xavier [aut, cre], William Muir [aut], David Habier [aut], Kyle Kocak [aut], Shizhong Xu [aut], Katy Rainey [aut]
 Maintainer: Alencar Xavier <alenxav@gmail.com>

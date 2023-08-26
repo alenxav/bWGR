@@ -23,7 +23,7 @@
 \alias{SimY}
 \alias{MvSimY}
 \alias{MLM}
-\alias{GetEVD}
+\alias{SEM}
 
 \title{
 Additional tools
@@ -82,10 +82,7 @@ Complementary functions that may help with handling parameters and routine opera
 
 \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1)} # Multivariate model with fixed effects
 
-\code{GetEVD(X, num_eig=-1, eigenvalues_only=FALSE, tol=1.5e-8)} # Symmetric EVD
-
-\code{SEM(Y,Z,PCs=4,TOI=NULL,Beta0=NULL)} # Fit a dense structural equation model
-
+\code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL)} # Fit a dense structural equation model
 
 
 }

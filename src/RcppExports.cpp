@@ -309,20 +309,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// GetEVD
-Rcpp::List GetEVD(Rcpp::NumericMatrix X, int num_eig, bool eigenvalues_only, double tol);
-RcppExport SEXP _bWGR_GetEVD(SEXP XSEXP, SEXP num_eigSEXP, SEXP eigenvalues_onlySEXP, SEXP tolSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericMatrix >::type X(XSEXP);
-    Rcpp::traits::input_parameter< int >::type num_eig(num_eigSEXP);
-    Rcpp::traits::input_parameter< bool >::type eigenvalues_only(eigenvalues_onlySEXP);
-    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
-    rcpp_result_gen = Rcpp::wrap(GetEVD(X, num_eig, eigenvalues_only, tol));
-    return rcpp_result_gen;
-END_RCPP
-}
 // KMUP
 SEXP KMUP(NumericMatrix X, NumericVector b, NumericVector d, NumericVector xx, NumericVector e, NumericVector L, double Ve, double pi);
 RcppExport SEXP _bWGR_KMUP(SEXP XSEXP, SEXP bSEXP, SEXP dSEXP, SEXP xxSEXP, SEXP eSEXP, SEXP LSEXP, SEXP VeSEXP, SEXP piSEXP) {
@@ -805,7 +791,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
     {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},
     {"_bWGR_MRR3", (DL_FUNC) &_bWGR_MRR3, 22},
-    {"_bWGR_GetEVD", (DL_FUNC) &_bWGR_GetEVD, 4},
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
     {"_bWGR_KMUP2", (DL_FUNC) &_bWGR_KMUP2, 9},
     {"_bWGR_emBA", (DL_FUNC) &_bWGR_emBA, 4},

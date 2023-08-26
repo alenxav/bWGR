@@ -81,10 +81,6 @@ MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfact
     .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, HCS, XFA2, R2, gc0, df0, h20w, gc0w, PenCor, MinCor, InnerGS, NoInv, NumXFA, OneVarB, OneVarE, verb)
 }
 
-GetEVD <- function(X, num_eig = -1L, eigenvalues_only = FALSE, tol = 1.5e-8) {
-    .Call('_bWGR_GetEVD', PACKAGE = 'bWGR', X, num_eig, eigenvalues_only, tol)
-}
-
 KMUP <- function(X, b, d, xx, e, L, Ve, pi) {
     .Call('_bWGR_KMUP', PACKAGE = 'bWGR', X, b, d, xx, e, L, Ve, pi)
 }
