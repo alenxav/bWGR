@@ -552,7 +552,6 @@ SEXP mrr_svd(Eigen::MatrixXd Y, Eigen::MatrixXd W){
 }
 
 // [[Rcpp::export]]
-// [[Rcpp::export]]
 SEXP MRR3(Eigen::MatrixXd Y,
           Eigen::MatrixXd X,
           int maxit = 500,
@@ -565,7 +564,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
           bool HCS = false,
           bool XFA2 = false,
           int NumXFA = 2,
-          double prior_R2 = 0.5,
+          double R2 = 0.5,
           double gc0 = 0.5, 
           double df0 = 0.0, 
           double weight_prior_h2 = 0.0,
@@ -631,10 +630,10 @@ SEXP MRR3(Eigen::MatrixXd Y,
   iN = (n.array()-1).inverse();
   Eigen::VectorXd vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
   
-  Eigen::VectorXd ve = vy * (1-prior_R2);
+  Eigen::VectorXd ve = vy * (1-R2);
   Eigen::VectorXd iVe = ve.array().inverse();
   Eigen::MatrixXd vb(k,k), TildeHat(k,k);
-  Eigen::VectorXd vbInit = ((vy*prior_R2).array()/MSx.array());
+  Eigen::VectorXd vbInit = ((vy*R2).array()/MSx.array());
   Eigen::VectorXd veInit = ve*1.0;
   vb = vbInit.array().matrix().asDiagonal();
   Eigen::MatrixXd iG = vb.inverse();

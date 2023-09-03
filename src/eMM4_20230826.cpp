@@ -10,7 +10,8 @@ using Rcpp::List;
 using Rcpp::Named;
 using Rcpp::ListOf;
 using Rcpp::Rcout;
-  
+
+// [[Rcpp::export]]  
 List PrepInput( MatrixXd Z, MatrixXd y, MatrixXd W, MatrixXd X, MatrixXd iXX,
                 VectorXd iN, VectorXd ve, int k, double df0 ){
   int p = Z.cols();
@@ -44,6 +45,7 @@ List PrepInput( MatrixXd Z, MatrixXd y, MatrixXd W, MatrixXd X, MatrixXd iXX,
                       Named("Sb") = vb*df0,
                       Named("GC") = GC);}
 
+// [[Rcpp::export]]
 void UpdateRE( MatrixXd e, MatrixXd W, List LL, int which, int k, VectorXd iVe,
                VectorXd ve, VectorXd iN, double df0, double deflateMax, VectorXd CnvB){
   // Take stuff out of the list
@@ -112,6 +114,7 @@ void UpdateRE( MatrixXd e, MatrixXd W, List LL, int which, int k, VectorXd iVe,
   LL[which] = L;
 }
 
+// [[Rcpp::export]]
 MatrixXd GetZb( List L, int WhichTerm){
   List SubList = L(WhichTerm);
   MatrixXd Zb = SubList[0];//1];
