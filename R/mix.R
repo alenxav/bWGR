@@ -1143,7 +1143,7 @@ SEM = function(Y,Z,PCs=3,TOI=NULL,Beta0=NULL){
   if(is.null(TOI)){ toi = 1:k  }else{ toi = TOI } 
   cat('  |')
   MvBeta = sapply(toi,function(i){
-    if( round(100*which(toi==i)/length(toi))  %% 10  ==0 ) cat('===')
+    if( (100*which(toi==i)/length(toi))  %% 10  ==0 ) cat('===')
     y = Y[,i]
     w = which(!is.na(y))
     yy = y[w]

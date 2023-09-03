@@ -7,7 +7,6 @@
 \alias{MLM}
 \alias{SEM}
 \alias{mrr_svd}
-\alias{MLMX}
 
 \title{
   Multivariate Regression

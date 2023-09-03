@@ -21,10 +21,6 @@ MLM <- function(Y, X, Z, maxit = 500L, logtol = -8, cores = 1L, verb = FALSE) {
     .Call('_bWGR_MLM', PACKAGE = 'bWGR', Y, X, Z, maxit, logtol, cores, verb)
 }
 
-MLMX <- function(Y, X, Zlist, maxit = 500L, logtol = -8, cores = 1L, df0 = 0.1, deflateMax = 0.9, CHECK1 = FALSE) {
-    .Call('_bWGR_MLMX', PACKAGE = 'bWGR', Y, X, Zlist, maxit, logtol, cores, df0, deflateMax, CHECK1)
-}
-
 EigenARC <- function(X, centralizeX = TRUE, cores = 1L) {
     .Call('_bWGR_EigenARC', PACKAGE = 'bWGR', X, centralizeX, cores)
 }
@@ -81,12 +77,16 @@ mrr2X <- function(Y, X1, X2) {
     .Call('_bWGR_mrr2X', PACKAGE = 'bWGR', Y, X1, X2)
 }
 
-MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, HCS = FALSE, XFA2 = FALSE, R2 = 0.5, gc0 = 0.5, df0 = 0.0, h20w = 0.0, gc0w = 0.0, PenCor = 0.0, MinCor = 1.0, InnerGS = FALSE, NoInv = FALSE, NumXFA = 2L, OneVarB = FALSE, OneVarE = FALSE, verb = FALSE) {
-    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, HCS, XFA2, R2, gc0, df0, h20w, gc0w, PenCor, MinCor, InnerGS, NoInv, NumXFA, OneVarB, OneVarE, verb)
-}
-
 mrr_svd <- function(Y, W) {
     .Call('_bWGR_mrr_svd', PACKAGE = 'bWGR', Y, W)
+}
+
+MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA2 = FALSE, NumXFA = 2L, prior_R2 = 0.5, gc0 = 0.5, df0 = 0.0, weight_prior_h2 = 0.0, weight_prior_gc = 0.0, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.005, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
+    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA2, NumXFA, prior_R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
+}
+
+MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA2 = FALSE, NumXFA = 2L, prior_R2 = 0.5, gc0 = 0.5, df0 = 0.0, weight_prior_h2 = 0.0, weight_prior_gc = 0.0, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.005, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
+    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA2, NumXFA, prior_R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
 }
 
 KMUP <- function(X, b, d, xx, e, L, Ve, pi) {
