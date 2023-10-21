@@ -47,25 +47,25 @@
   
   where \eqn{Y} is a matrix of response variables, \eqn{Mu} represents the intercepts, \eqn{U} is the matrix of Eigenvector of K, \eqn{b} is a vector of regression coefficients and \eqn{E} is the residual matrix.
   
-   Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Since version 2.0, the solver of \code{mrr} is based on the Randomized Gauss-Seidel algorithm. Variance and covariance components are solved with an EM-REML like approach proposed by Schaeffer called Pseudo-Expectation. S
+   Algorithm: Residuals are assumed to be independent among traits. Regression coefficients are solved via a multivaraite adaptation of Gauss-Seidel Residual Update. Since version 2.0, the solver of \code{mrr} is based on the Randomized Gauss-Seidel algorithm. Variance and covariance components are solved with an EM-REML like approach proposed by Schaeffer called Pseudo-Expectation.
   
   Other related implementations:
     
-    01) \code{mkr2X(Y,K1,K2):}{ Solves multi-trait kernel regressions with two random effects.}
+    01) \code{mkr2X(Y,K1,K2):} Solves multi-trait kernel regressions with two random effects.
 
-    02) \code{mrr2X(Y,X1,X2):}{ Solves multi-trait ridge regressions with two random effects.}
+    02) \code{mrr2X(Y,X1,X2):} Solves multi-trait ridge regressions with two random effects.
 
-    03) \code{MRR3(Y,X,...):}{ Extension of mrr with additional parameters.}
+    03) \code{MRR3(Y,X,...):} Extension of mrr with additional parameters.
 
-    04) \code{mrr_svd(Y,W):}{ Solves mrr through the principal components of parameters.}
+    04) \code{mrr_svd(Y,W):} Solves mrr through the principal components of parameters.
 
-    05) \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1):}{ Multivariate model with fixed effects.}
+    05) \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1):} Multivariate model with fixed effects.
 
-    06) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):}{ Fits a XFA structural equation model.}
+    06) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):}{ Fits a XFA structural equation model.
 
-    07) \code{Autoencoder(Y,...):}{ Toy autoencoder. Check arguments with args(Autoencoder).}
+    07) \code{Autoencoder(Y,...):} Toy autoencoder. Check arguments with args(Autoencoder).
     
-    08) \code{MvLmm(Y,Z,rerun=0,...):}{ Toy MegaLMM. Args (...) pass to Autoencoder.}
+    08) \code{MvLmm(Y,Z,rerun=0,...):} Toy MegaLMM. Args (\code{...}) pass to Autoencoder.
     
     
     
@@ -82,24 +82,30 @@
 \examples{
     
     # Load genomic data
+    
     data(tpod)
     X = CNT(gen)
     
     # Simulate phenotyp
+    
     sim = SimY(X)
     Y = sim$Y
     TBV = sim$tbv
     
     # Fit regression model
+    
     test = mrr(Y,X)
     
     # Genetic correlation
+    
     test$GC
     
     # Heritabilies
+    
     test$h2
     
     # Accuracy
+    
     diag(cor(TBV,test$hat))
 
 }
