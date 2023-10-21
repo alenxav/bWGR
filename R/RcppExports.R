@@ -21,10 +21,6 @@ MLM <- function(Y, X, Z, maxit = 500L, logtol = -8, cores = 1L, verb = FALSE) {
     .Call('_bWGR_MLM', PACKAGE = 'bWGR', Y, X, Z, maxit, logtol, cores, verb)
 }
 
-MLMX <- function(Y, X, Zlist, maxit = 500L, logtol = -8, cores = 1L, df0 = 0.1, deflateMax = 0.9, CHECK1 = FALSE) {
-    .Call('_bWGR_MLMX', PACKAGE = 'bWGR', Y, X, Zlist, maxit, logtol, cores, df0, deflateMax, CHECK1)
-}
-
 EigenARC <- function(X, centralizeX = TRUE, cores = 1L) {
     .Call('_bWGR_EigenARC', PACKAGE = 'bWGR', X, centralizeX, cores)
 }

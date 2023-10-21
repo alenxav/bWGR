@@ -85,25 +85,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// MLMX
-SEXP MLMX(MatrixXd Y, MatrixXd X, List Zlist, int maxit, double logtol, int cores, double df0, double deflateMax, bool CHECK1);
-RcppExport SEXP _bWGR_MLMX(SEXP YSEXP, SEXP XSEXP, SEXP ZlistSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP coresSEXP, SEXP df0SEXP, SEXP deflateMaxSEXP, SEXP CHECK1SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< MatrixXd >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< MatrixXd >::type X(XSEXP);
-    Rcpp::traits::input_parameter< List >::type Zlist(ZlistSEXP);
-    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
-    Rcpp::traits::input_parameter< double >::type logtol(logtolSEXP);
-    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
-    Rcpp::traits::input_parameter< double >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< double >::type deflateMax(deflateMaxSEXP);
-    Rcpp::traits::input_parameter< bool >::type CHECK1(CHECK1SEXP);
-    rcpp_result_gen = Rcpp::wrap(MLMX(Y, X, Zlist, maxit, logtol, cores, df0, deflateMax, CHECK1));
-    return rcpp_result_gen;
-END_RCPP
-}
 // EigenARC
 Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeX, int cores);
 RcppExport SEXP _bWGR_EigenARC(SEXP XSEXP, SEXP centralizeXSEXP, SEXP coresSEXP) {
@@ -816,7 +797,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 2},
     {"_bWGR_MvSimY", (DL_FUNC) &_bWGR_MvSimY, 8},
     {"_bWGR_MLM", (DL_FUNC) &_bWGR_MLM, 7},
-    {"_bWGR_MLMX", (DL_FUNC) &_bWGR_MLMX, 9},
     {"_bWGR_EigenARC", (DL_FUNC) &_bWGR_EigenARC, 3},
     {"_bWGR_EigenGAU", (DL_FUNC) &_bWGR_EigenGAU, 3},
     {"_bWGR_EigenGRM", (DL_FUNC) &_bWGR_EigenGRM, 3},
