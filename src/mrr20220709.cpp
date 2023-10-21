@@ -562,7 +562,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
           bool InnerGS = false,
           bool NoInv = false,
           bool HCS = false,
-          bool XFA2 = false,
+          bool XFA = false,
           int NumXFA = 2,
           double R2 = 0.5,
           double gc0 = 0.5, 
@@ -813,13 +813,13 @@ SEXP MRR3(Eigen::MatrixXd Y,
           }
         }}}
     
-    // TO-DO COMPUTE CORR HERE, AND ONLY ONCE !!!
+    
     if(weight_prior_h2>0){ // Proportion-based prior H2
       for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
     if(weight_prior_gc>0){ // Proportion-based prior GC
       for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-        if(i!=j){GC(i,j)= (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}      
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){ vb(i,j) =  GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
+        if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
         // Once calculation of GC without prior
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
       
@@ -833,7 +833,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){ 
           if(i!=j){ GC(i,j) =  gs*1.0;}else{ GC(i,j) = 1.0; }}}
         // Extended Factor Analytics
-      }else if(XFA2){
+      }else if(XFA){
         es.compute(GC);
         UDU = es.eigenvalues()[k] * es.eigenvectors().col(k) * es.eigenvectors().col(k).transpose();
         for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i] * es.eigenvectors().col(k-i) * es.eigenvectors().col(k-i).transpose();
@@ -862,7 +862,8 @@ SEXP MRR3(Eigen::MatrixXd Y,
       // Single variance of beta
       if(OneVarB){tmp = TildeHat.diagonal().mean(); vb = GC * tmp;  }else{
         // Regular covariance reconstruction
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){ vb(i,j) =  GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){
+          if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}
       
       // Bending
       if( !NoInv || TH ){
@@ -924,4 +925,3 @@ SEXP MRR3(Eigen::MatrixXd Y,
                             Rcpp::Named("b_Weights")=W,
                             Rcpp::Named("Its")=numit);
 }
-

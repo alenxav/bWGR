@@ -85,8 +85,8 @@ mrr_svd <- function(Y, W) {
     .Call('_bWGR_mrr_svd', PACKAGE = 'bWGR', Y, W)
 }
 
-MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA2 = FALSE, NumXFA = 2L, R2 = 0.5, gc0 = 0.5, df0 = 0.0, weight_prior_h2 = 0.0, weight_prior_gc = 0.0, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.005, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
-    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA2, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
+MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, NumXFA = 2L, R2 = 0.5, gc0 = 0.5, df0 = 0.0, weight_prior_h2 = 0.0, weight_prior_gc = 0.0, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.005, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
+    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
 }
 
 KMUP <- function(X, b, d, xx, e, L, Ve, pi) {
