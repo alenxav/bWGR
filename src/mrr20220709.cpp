@@ -562,7 +562,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
           bool InnerGS = false,
           bool NoInv = false,
           bool HCS = false,
-          bool XFA = false,
+          bool XFA2 = false,
           int NumXFA = 2,
           double R2 = 0.5,
           double gc0 = 0.5, 
@@ -833,7 +833,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){ 
           if(i!=j){ GC(i,j) =  gs*1.0;}else{ GC(i,j) = 1.0; }}}
         // Extended Factor Analytics
-      }else if(XFA){
+      }else if(XFA2){
         es.compute(GC);
         UDU = es.eigenvalues()[k] * es.eigenvectors().col(k) * es.eigenvectors().col(k).transpose();
         for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i] * es.eigenvectors().col(k-i) * es.eigenvectors().col(k-i).transpose();
