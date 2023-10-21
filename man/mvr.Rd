@@ -61,7 +61,7 @@
 
     05) \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1):} Multivariate model with fixed effects.
 
-    06) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):}{ Fits a XFA structural equation model.
+    06) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):} Fits a XFA structural equation model.
 
     07) \code{Autoencoder(Y,...):} Toy autoencoder. Check arguments with args(Autoencoder).
     
