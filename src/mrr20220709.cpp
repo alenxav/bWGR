@@ -125,6 +125,7 @@ SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X){
     if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; }
     if( numit % 200 == 0){ deflate = deflate - 0.01; }
     if( cnv<logtol ){break;}
+    if(std::isnan(cnv)){ break;}
     
   }
   
@@ -271,6 +272,7 @@ SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X){
     // Print status
     cnv = log10((beta0.array()-b.array()).square().colwise().sum().maxCoeff());
     ++numit; if( cnv<logtol ){break;}
+    if(std::isnan(cnv)){ break;}
     
   }
   
@@ -474,6 +476,7 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
     ++numit;
     if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
     if( cnv<logtol ){break;}
+    if(std::isnan(cnv)){ break;}
     
   }
   
@@ -659,6 +662,7 @@ SEXP mrr_svd(Eigen::MatrixXd Y, Eigen::MatrixXd W){
     ++numit;
     if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
     if( cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
+    if(std::isnan(cnv)){ break;}
     
   }
   
@@ -1039,8 +1043,8 @@ SEXP MRR3(Eigen::MatrixXd Y,
       ++numit;
       if( verbose && numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
       if( cnv<logtol ){ if(verbose){Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n";} break;}
-      if( numit == maxit && verbose){ Rcpp::Rcout << "Model did not converge\n"; }
-      
+      if( numit == maxit && verbose){ Rcpp::Rcout << "Model did not converge\n"; }    
+    
   }
   
   // Fitting the model
