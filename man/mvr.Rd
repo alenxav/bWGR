@@ -1,9 +1,11 @@
 \name{WGR3 (MV)}
 \alias{mkr}
 \alias{mrr}
+\alias{mrr_float}
 \alias{mkr2X}
 \alias{mrr2X}
 \alias{MRR3}
+\alias{MRR3F}
 \alias{MLM}
 \alias{SEM}
 \alias{mrr_svd}
@@ -18,8 +20,9 @@
   Multivariate model to find breeding values.
 }
 \usage{
-  mrr(Y,X)
   mkr(Y,K)
+  mrr(Y,X)
+  mrr_float(Y,X)
 }
 \arguments{
   \item{Y}{
@@ -57,16 +60,17 @@
 
     03) \code{MRR3(Y,X,...):} Extension of mrr with additional parameters.
 
-    04) \code{mrr_svd(Y,W):} Solves mrr through the principal components of parameters.
+    04) \code{MRR3F(Y,X,...):} MRR3 running on float.
 
-    05) \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1):} Multivariate model with fixed effects.
+    05) \code{mrr_svd(Y,W):} Solves mrr through the principal components of parameters.
 
-    06) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):} Fits a XFA structural equation model.
+    06) \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1):} Multivariate model with fixed effects.
 
-    07) \code{Autoencoder(Y,...):} Toy autoencoder. Check arguments with args(Autoencoder).
-    
+    07) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):} Fits a XFA structural equation model.
+
     08) \code{MvLmm(Y,Z,rerun=0,...):} Toy MegaLMM. Args (\code{...}) pass to Autoencoder.
-    
+
+    09) \code{Autoencoder(Y,...):} Toy autoencoder. Check arguments with args(Autoencoder).
     
     
 }
