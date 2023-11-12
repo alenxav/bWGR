@@ -9,8 +9,7 @@
 \alias{MLM}
 \alias{SEM}
 \alias{mrr_svd}
-\alias{Autoencoder}
-\alias{MvLmm}
+\alias{MEGA}
 
 
 \title{
@@ -68,9 +67,8 @@
 
     07) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):} Fits a XFA structural equation model.
 
-    08) \code{MvLmm(Y,Z,rerun=0,...):} Toy MegaLMM. Args (\code{...}) pass to Autoencoder.
+    08) \code{MEGA(Y,X):} Toy MegaLMM implementation.
 
-    09) \code{Autoencoder(Y,...):} Toy autoencoder. Check arguments with args(Autoencoder).
     
     
 }

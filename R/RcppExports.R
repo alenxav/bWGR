@@ -69,6 +69,10 @@ GSRR <- function(y, e, gen, b, Lmb, xx, cxx, maxit = 50L) {
     .Call('_bWGR_GSRR', PACKAGE = 'bWGR', y, e, gen, b, Lmb, xx, cxx, maxit)
 }
 
+MEGA <- function(Y, X) {
+    .Call('_bWGR_MEGA', PACKAGE = 'bWGR', Y, X)
+}
+
 mrr <- function(Y, X) {
     .Call('_bWGR_mrr', PACKAGE = 'bWGR', Y, X)
 }
