@@ -10,6 +10,7 @@
 \alias{SEM}
 \alias{mrr_svd}
 \alias{MEGA}
+\alias{GSEM}
 
 
 \title{
@@ -68,6 +69,8 @@
     07) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):} Fits a XFA structural equation model.
 
     08) \code{MEGA(Y,X):} Toy MegaLMM implementation.
+
+    09) \code{GSEM(Y,X):} SEM with all components for G.
 
     
     
