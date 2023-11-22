@@ -253,14 +253,26 @@ BEGIN_RCPP
 END_RCPP
 }
 // MEGA
-SEXP MEGA(MatrixXf Y, MatrixXf X);
+SEXP MEGA(Eigen::MatrixXf Y, Eigen::MatrixXf X);
 RcppExport SEXP _bWGR_MEGA(SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< MatrixXf >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< MatrixXf >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(MEGA(Y, X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GSEM
+SEXP GSEM(Eigen::MatrixXf Y, Eigen::MatrixXf X);
+RcppExport SEXP _bWGR_GSEM(SEXP YSEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(GSEM(Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -875,6 +887,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_GSFLM", (DL_FUNC) &_bWGR_GSFLM, 8},
     {"_bWGR_GSRR", (DL_FUNC) &_bWGR_GSRR, 8},
     {"_bWGR_MEGA", (DL_FUNC) &_bWGR_MEGA, 2},
+    {"_bWGR_GSEM", (DL_FUNC) &_bWGR_GSEM, 2},
     {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
     {"_bWGR_mrr_float", (DL_FUNC) &_bWGR_mrr_float, 2},
     {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},

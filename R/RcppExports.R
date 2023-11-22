@@ -73,6 +73,10 @@ MEGA <- function(Y, X) {
     .Call('_bWGR_MEGA', PACKAGE = 'bWGR', Y, X)
 }
 
+GSEM <- function(Y, X) {
+    .Call('_bWGR_GSEM', PACKAGE = 'bWGR', Y, X)
+}
+
 mrr <- function(Y, X) {
     .Call('_bWGR_mrr', PACKAGE = 'bWGR', Y, X)
 }
