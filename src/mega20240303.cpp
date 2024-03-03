@@ -29,8 +29,11 @@ Eigen::VectorXd solver1x(Eigen::VectorXd Y, Eigen::MatrixXd X,
       b1 = (e.transpose()*X.col(J)+XX(J)*b0)/(XX[J]+lambda);
       e = e - X.col(J)*(b1-b0); b[J] = b1*1.0;}
     mu0 = e.array().mean(); mu+=mu0; e=e.array()-mu0;
-    ve = (e.transpose()*e+e.transpose()*y); ve=(ve+ve0)/(2*n-1+df0);
-    vb = b.transpose()*b+tilde.transpose()*b;
+    ve = e.transpose()*y;
+    ve += e.transpose()*e; 
+    ve = (ve+ve0)/(2*n-1+df0);
+    vb = b.transpose()*b;
+    vb += tilde.transpose()*b;
     vb = (vb+vb0)/(TrXSX+p+df0);  lambda = ve/vb;
     cnv = log10((beta0.array()-b.array()).square().sum());
     ++numit; if( cnv<logtol || numit == maxit || std::isnan(cnv) ) break;}
@@ -72,9 +75,12 @@ Eigen::VectorXd solver2x(Eigen::VectorXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd 
       b1 = (e.transpose()*X2.col(J)+XX2(J)*b0)/(XX2[J]+lambda2);
       e = e - X2.col(J)*(b1-b0); b_2[J] = b1*1.0;}
     mu0=e.array().mean(); mu+=mu0; e=e.array()-mu0;
-    ve = (e.transpose()*e+e.transpose()*y); ve=(ve+ve0)/(2*n-1+df0);
-    vb1=(b_1.transpose()*b_1 + b_1.transpose()*b_1 + vb01); vb1=vb1/(TrXSX1+q1+df0);
-    vb2=(b_2.transpose()*b_2 + b_2.transpose()*b_2 + vb02); vb2=vb2/(TrXSX2+q2+df0);
+    ve = e.transpose()*e;
+    ve += e.transpose()*y; 
+    ve = (ve+ve0)/(2*n-1+df0);
+    vb1 = tilde1.transpose()*b_1; vb1+=b_1.transpose()*b_1; vb1+=vb01;  
+    vb2 = tilde2.transpose()*b_2; vb2+=b_2.transpose()*b_2; vb2+=vb02;
+    vb1 = vb1/(TrXSX1+p1+df0); vb2 = vb2/(TrXSX2+p2+df0);
     lambda1 = ve/vb1; lambda2 = ve/vb2;
     cnv = log10((beta01.array()-b_1.array()).square().sum()+(beta02.array()-b_2.array()).square().sum());
     ++numit; if( cnv<logtol || numit == maxit || std::isnan(cnv) ) break;  }
@@ -126,10 +132,6 @@ Eigen::MatrixXd LatentSpaces(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::Matrix
   for(int i=0; i<k; i++){ Y2.col(i) /= SD(i);};
   Eigen::BDCSVD<Eigen::MatrixXd> svd(Y2, Eigen::ComputeThinU | Eigen::ComputeThinV );
   return svd.matrixU() * svd.singularValues().matrix().asDiagonal();
-  //Eigen::MatrixXd U = svd.matrixU();
-  //Eigen::MatrixXd D = svd.singularValues().matrix().asDiagonal();
-  //int HalfK = k/2;
-  //return U.block(0,0,n,HalfK) * D.block(0,0,HalfK,HalfK);
 }
 
 // [[Rcpp::export]]
@@ -196,7 +198,6 @@ SEXP GSEM(Eigen::MatrixXd Y, Eigen::MatrixXd X){
   // Fitted values
   Eigen::MatrixXd hat = LS*b1+X*b2;
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
-  //Eigen::MatrixXd end_beta = b1 * svd.matrixV().transpose() + b2;
   // Output
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
                             Rcpp::Named("b")=BETA*svd.matrixV()*b1+b2,
