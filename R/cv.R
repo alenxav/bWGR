@@ -18,8 +18,8 @@ emCV = function (y, gen, k=5, n=5,
     f6 = emBB(y[-w], gen[-w, ], Pi = Pi, R2 = R2, df = df)
     f7 = emBC(y[-w], gen[-w, ], Pi = Pi, R2 = R2, df = df)
     f8 = emML(y[-w], gen[-w, ])
-    f91 = emBCpi(y[-w], gen[-w, ])
-    f92 = lasso(y[-w], gen[-w, ])
+    f9 = emBCpi(y[-w], gen[-w, ])
+    f10 = lasso(y[-w], gen[-w, ])
     cat("DONE WITH CROSS-VALIDATION CYCLE", Seed, "\n")
     NamesMod = c("emRR", "emEN", "emBL", "emDE", "emBA", 
                  "emBB", "emBC", "emML", "emBCpi","lasso", 
@@ -53,8 +53,8 @@ emCV = function (y, gen, k=5, n=5,
     f6 = emBB(y[-w], gen[-w, ], Pi = Pi, R2 = R2, df = df)
     f7 = emBC(y[-w], gen[-w, ], Pi = Pi, R2 = R2, df = df)
     f8 = emML(y[-w], gen[-w, ])
-    f91 = emBCpi(y[-w], gen[-w, ])
-    f92 = lasso(y[-w], gen[-w, ])
+    f9 = emBCpi(y[-w], gen[-w, ])
+    f10 = lasso(y[-w], gen[-w, ])
     cat("DONE WITH CROSS-VALIDATION CYCLE", lev, "\n")
     NamesMod = c("emRR", "emEN", "emBL", "emDE", "emBA", 
                  "emBB", "emBC", "emML","emBCpi","lasso", 

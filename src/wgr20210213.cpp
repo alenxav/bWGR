@@ -1872,4 +1872,4 @@ SEXP emBCpi(NumericVector y, NumericMatrix gen, double df = 10, double R2 = 0.5,
                       Named("Vg") = va*MSx,
                       Named("Va") = va,
                       Named("Ve") = ve,
-                      Named("h2") = h2);
+                      Named("h2") = h2);}
