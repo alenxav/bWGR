@@ -3,20 +3,20 @@
 #include <iostream>
 #include <random>
 
-Eigen::VectorXf solver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X,
-                         int maxit = 100, float tol = 10e-7, float df0 = 20.0){
+Eigen::VectorXd solver1x(Eigen::VectorXd Y, Eigen::MatrixXd X,
+                         int maxit = 100, double tol = 10e-7, double df0 = 20.0){
   int n = X.rows(), p = X.cols(), numit = 0, J;
-  float mu = Y.mean(), mu0;
-  Eigen::VectorXf y = Y.array()-mu;
-  Eigen::VectorXf tilde = X.transpose() * y;
+  double mu = Y.mean(), mu0;
+  Eigen::VectorXd y = Y.array()-mu;
+  Eigen::VectorXd tilde = X.transpose() * y;
   for(int i=0; i<p; i++){ X.col(i) = X.col(i).array() - X.col(i).mean(); }
-  Eigen::VectorXf XX = X.colwise().squaredNorm().array();
-  float TrXSX = XX.sum();
-  float MSx = TrXSX/(n-1), vy = y.transpose()*Y; vy = vy/(n-1);
-  float ve = vy*0.5, vb=(vy*0.5)/(MSx);
-  Eigen::VectorXf b = Eigen::VectorXf::Zero(p), beta0(p);
-  Eigen::VectorXf e = y*1.0;
-  float b0, b1, lambda=ve/vb, vb0=vb*df0, ve0=ve*df0, cnv = 10.0, logtol = log10(tol);
+  Eigen::VectorXd XX = X.colwise().squaredNorm().array();
+  double TrXSX = XX.sum();
+  double MSx = TrXSX/(n-1), vy = y.transpose()*Y; vy = vy/(n-1);
+  double ve = vy*0.5, vb=(vy*0.5)/(MSx);
+  Eigen::VectorXd b = Eigen::VectorXd::Zero(p), beta0(p);
+  Eigen::VectorXd e = y*1.0;
+  double b0, b1, lambda=ve/vb, vb0=vb*df0, ve0=ve*df0, cnv = 10.0, logtol = log10(tol);
   std::vector<int> RGSvec(p);
   for(int j=0; j<p; j++){RGSvec[j]=j;}
   std::random_device rd;
@@ -37,23 +37,23 @@ Eigen::VectorXf solver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X,
   return b;
 }
 
-Eigen::VectorXf solver2xF(Eigen::VectorXf Y, Eigen::MatrixXf X1, Eigen::MatrixXf X2,
-                         int maxit = 100, float tol = 10e-7, float df0 = 20.0){
+Eigen::VectorXd solver2x(Eigen::VectorXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2,
+                         int maxit = 100, double tol = 10e-7, double df0 = 20.0){
   int n = X1.rows(), p1 = X1.cols(), p2 = X2.cols(), numit = 0, J;
-  float mu = Y.mean(), mu0;
-  Eigen::VectorXf y = Y.array()-mu;
-  Eigen::VectorXf tilde1 = X1.transpose() * y, tilde2 = X2.transpose() * y;
+  double mu = Y.mean(), mu0;
+  Eigen::VectorXd y = Y.array()-mu;
+  Eigen::VectorXd tilde1 = X1.transpose() * y, tilde2 = X2.transpose() * y;
   for(int i=0; i<p1; i++){ X1.col(i) = X1.col(i).array()-X1.col(i).mean();}
   for(int i=0; i<p2; i++){ X2.col(i) = X2.col(i).array()-X2.col(i).mean();}
-  Eigen::VectorXf XX1 = X1.colwise().squaredNorm().array(), XX2 = X2.colwise().squaredNorm().array();
-  float TrXSX1 = XX1.sum(), TrXSX2 = XX2.sum();
-  float MSx1 = TrXSX1/(n-1), MSx2 = TrXSX2/(n-1),  vy=y.transpose()*Y; vy = vy/(n-1);
-  float ve = vy*0.5, vb1=(vy*0.5)/(MSx1), vb2=(vy*0.5)/(MSx2), h2=0.5;
-  Eigen::VectorXf b_1 = Eigen::VectorXf::Zero(p1), beta01(p1);
-  Eigen::VectorXf b_2 = Eigen::VectorXf::Zero(p2), beta02(p2);
-  Eigen::VectorXf e = y*1.0;
-  float b0, b1, lambda1=ve/vb1, lambda2=ve/vb2, cnv=10.0, logtol=log10(tol);
-  float vb01 = vb1*df0, vb02 = vb2*df0, ve0 = ve*df0;
+  Eigen::VectorXd XX1 = X1.colwise().squaredNorm().array(), XX2 = X2.colwise().squaredNorm().array();
+  double TrXSX1 = XX1.sum(), TrXSX2 = XX2.sum();
+  double MSx1 = TrXSX1/(n-1), MSx2 = TrXSX2/(n-1),  vy=y.transpose()*Y; vy = vy/(n-1);
+  double ve = vy*0.5, vb1=(vy*0.5)/(MSx1), vb2=(vy*0.5)/(MSx2), h2=0.5;
+  Eigen::VectorXd b_1 = Eigen::VectorXd::Zero(p1), beta01(p1);
+  Eigen::VectorXd b_2 = Eigen::VectorXd::Zero(p2), beta02(p2);
+  Eigen::VectorXd e = y*1.0;
+  double b0, b1, lambda1=ve/vb1, lambda2=ve/vb2, cnv=10.0, logtol=log10(tol);
+  double vb01 = vb1*df0, vb02 = vb2*df0, ve0 = ve*df0;
   std::vector<int> RGSvec1(p1), RGSvec2(p2);
   for(int j=0; j<p1; j++){RGSvec1[j]=j;}
   for(int j=0; j<p2; j++){RGSvec2[j]=j;}
@@ -78,37 +78,37 @@ Eigen::VectorXf solver2xF(Eigen::VectorXf Y, Eigen::MatrixXf X1, Eigen::MatrixXf
     lambda1 = ve/vb1; lambda2 = ve/vb2;
     cnv = log10((beta01.array()-b_1.array()).square().sum()+(beta02.array()-b_2.array()).square().sum());
     ++numit; if( cnv<logtol || numit == maxit || std::isnan(cnv) ) break;  }
-  Eigen::VectorXf xxx(1+p1+p2);
+  Eigen::VectorXd xxx(1+p1+p2);
   xxx(0) = mu;
   for(int j=0; j<p1 ; j++){xxx(1+j)=b_1(j);}
   for(int j=0; j<p2 ; j++){xxx(1+p1+j)=b_2(j);}
   return xxx;
 }
 
-Eigen::MatrixXf submat_fF(Eigen::MatrixXf X, Eigen::VectorXi w){
-  int n=w.sum(), N=X.rows(), p=X.cols(), n0=0; Eigen::MatrixXf XX(n,p);
+Eigen::MatrixXd submat_f(Eigen::MatrixXd X, Eigen::VectorXi w){
+  int n=w.sum(), N=X.rows(), p=X.cols(), n0=0; Eigen::MatrixXd XX(n,p);
   for(int i=0; i<N; i++){ if(w[i]==1){ XX.row(n0) = X.row(i).array(); n0+=1;}}
   return XX;}
 
-Eigen::VectorXf subvec_fF(Eigen::VectorXf X, Eigen::VectorXi w){
-  int n=w.sum(), N=X.size(), n0=0; Eigen::VectorXf XX(n);
+Eigen::VectorXd subvec_f(Eigen::VectorXd X, Eigen::VectorXi w){
+  int n=w.sum(), N=X.size(), n0=0; Eigen::VectorXd XX(n);
   for(int i=0; i<N; i++){ if(w[i]==1){ XX[n0] = X[i]; n0+=1;}}
   return XX;}
 
-Eigen::MatrixXf UVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
-  int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXf BETA(p,k); Eigen::MatrixXi W(n0,k);
+Eigen::MatrixXd UVBETA(Eigen::MatrixXd Y, Eigen::MatrixXd X){
+  int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXd BETA(p,k); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   for(int i=0;i<k;i++){
     if(W.col(i).array().sum()>0){
-      BETA.col(i) = solver1xF(
-        subvec_fF( Y.col(i).array(), W.col(i).array()),
-        submat_fF( X, W.col(i).array())).array();}else{
-          BETA.col(i) = Eigen::VectorXf::Zero(p);}}
+      BETA.col(i) = solver1x(
+        subvec_f( Y.col(i).array(), W.col(i).array()),
+        submat_f( X, W.col(i).array())).array();}else{
+          BETA.col(i) = Eigen::VectorXd::Zero(p);}}
   return BETA;}
 
-Eigen::MatrixXf GetImputedYF(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::MatrixXf BETA){
+Eigen::MatrixXd GetImputedY(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd BETA){
   int n0=Y.rows(),k=Y.cols();
-  Eigen::VectorXf Mu = Eigen::VectorXf::Zero(k), N = Eigen::VectorXf::Zero(k);
+  Eigen::VectorXd Mu = Eigen::VectorXd::Zero(k), N = Eigen::VectorXd::Zero(k);
   for(int j=0;j<k;j++){for(int i=0;i<n0;i++){
     if(!std::isnan(Y(i,j))){N(j)+=1.0;Mu(j)+=Y(i,j);}}}
   Mu = Mu.array() / N.array();
@@ -119,44 +119,44 @@ Eigen::MatrixXf GetImputedYF(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::Matrix
           Y(i,j) = X.row(i)*BETA.col(j);}}}
   return Y;}
 
-Eigen::MatrixXf LatentSpaces(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::MatrixXf BETA){
+Eigen::MatrixXd LatentSpaces(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd BETA){
   int n=Y.rows(),k=Y.cols();
-  Eigen::MatrixXf Y2 = GetImputedYF(Y,X,BETA);
-  Eigen::VectorXf SD = Y2.colwise().squaredNorm().array(); SD = (SD.array()/(n-1)).sqrt();
+  Eigen::MatrixXd Y2 = GetImputedY(Y,X,BETA);
+  Eigen::VectorXd SD = Y2.colwise().squaredNorm().array(); SD = (SD.array()/(n-1)).sqrt();
   for(int i=0; i<k; i++){ Y2.col(i) /= SD(i);};
-  Eigen::BDCSVD<Eigen::MatrixXf> svd(Y2, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  Eigen::BDCSVD<Eigen::MatrixXd> svd(Y2, Eigen::ComputeThinU | Eigen::ComputeThinV );
   return svd.matrixU() * svd.singularValues().matrix().asDiagonal();
-  //Eigen::MatrixXf U = svd.matrixU();
-  //Eigen::MatrixXf D = svd.singularValues().matrix().asDiagonal();
+  //Eigen::MatrixXd U = svd.matrixU();
+  //Eigen::MatrixXd D = svd.singularValues().matrix().asDiagonal();
   //int HalfK = k/2;
   //return U.block(0,0,n,HalfK) * D.block(0,0,HalfK,HalfK);
 }
 
 // [[Rcpp::export]]
-SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+SEXP MEGA(Eigen::MatrixXd Y, Eigen::MatrixXd X){
   int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
-  Eigen::MatrixXf BETA = UVBETA(Y,X);
-  Eigen::MatrixXf LS = LatentSpaces(Y,X,BETA);
-  Eigen::MatrixXf LS_BETA = UVBETA(LS,X);
+  Eigen::MatrixXd BETA = UVBETA(Y,X);
+  Eigen::MatrixXd LS = LatentSpaces(Y,X,BETA);
+  Eigen::MatrixXd LS_BETA = UVBETA(LS,X);
   int p2 = LS.cols();
-  Eigen::VectorXf xxx(1+p1+p2);
+  Eigen::VectorXd xxx(1+p1+p2);
   // store outputs
-  Eigen::VectorXf mu(k), h2(k);
-  Eigen::MatrixXf b1(p2,k), b2(p1,k);
+  Eigen::VectorXd mu(k), h2(k);
+  Eigen::MatrixXd b1(p2,k), b2(p1,k);
   for(int i=0; i<k; i++){
-    xxx = solver2xF(
-      subvec_fF( Y.col(i).array(), W.col(i).array()),
-      submat_fF( LS, W.col(i).array()),
-      submat_fF( X, W.col(i).array())).array();
+    xxx = solver2x(
+      subvec_f( Y.col(i).array(), W.col(i).array()),
+      submat_f( LS, W.col(i).array()),
+      submat_f( X, W.col(i).array())).array();
     mu(i) = xxx(0);
     for(int j=0; j<p2 ; j++){b1(j,i) = xxx(1+j);}
     for(int j=0; j<p1 ; j++){b2(j,i) = xxx(1+p2+j);}
   }
   // Fitted values
-  Eigen::MatrixXf end_beta = LS_BETA * b1 + b2;
-  Eigen::MatrixXf hat = LS*b1+X*b2;
-  Eigen::MatrixXf gebv = X*end_beta;
+  Eigen::MatrixXd end_beta = LS_BETA * b1 + b2;
+  Eigen::MatrixXd hat = LS*b1+X*b2;
+  Eigen::MatrixXd gebv = X*end_beta;
   for(int i=0; i<k; i++){
     hat.col(i) = hat.col(i).array() + mu(i);
     gebv.col(i) = gebv.col(i).array() + mu(i);
@@ -173,30 +173,30 @@ SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
 }
 
 // [[Rcpp::export]]
-SEXP GSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+SEXP GSEM(Eigen::MatrixXd Y, Eigen::MatrixXd X){
   int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
-  Eigen::MatrixXf BETA = UVBETA(Y,X);
-  Eigen::BDCSVD<Eigen::MatrixXf> svd(X*BETA, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  Eigen::MatrixXf LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
+  Eigen::MatrixXd BETA = UVBETA(Y,X);
+  Eigen::BDCSVD<Eigen::MatrixXd> svd(X*BETA, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  Eigen::MatrixXd LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
   int p2 = LS.cols();
-  Eigen::VectorXf xxx(1+p1+p2);
+  Eigen::VectorXd xxx(1+p1+p2);
   // store outputs
-  Eigen::VectorXf mu(k), h2(k);
-  Eigen::MatrixXf b1(p2,k), b2(p1,k);
+  Eigen::VectorXd mu(k), h2(k);
+  Eigen::MatrixXd b1(p2,k), b2(p1,k);
   for(int i=0; i<k; i++){
-    xxx = solver2xF(
-      subvec_fF( Y.col(i).array(), W.col(i).array()),
-      submat_fF( LS, W.col(i).array()),
-      submat_fF( X, W.col(i).array())).array();
+    xxx = solver2x(
+      subvec_f( Y.col(i).array(), W.col(i).array()),
+      submat_f( LS, W.col(i).array()),
+      submat_f( X, W.col(i).array())).array();
     mu(i) = xxx(0);
     for(int j=0; j<p2 ; j++){b1(j,i) = xxx(1+j);}
     for(int j=0; j<p1 ; j++){b2(j,i) = xxx(1+p2+j);}
   }
   // Fitted values
-  Eigen::MatrixXf hat = LS*b1+X*b2;
+  Eigen::MatrixXd hat = LS*b1+X*b2;
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
-  //Eigen::MatrixXf end_beta = b1 * svd.matrixV().transpose() + b2;
+  //Eigen::MatrixXd end_beta = b1 * svd.matrixV().transpose() + b2;
   // Output
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
                             Rcpp::Named("b")=BETA*svd.matrixV()*b1+b2,

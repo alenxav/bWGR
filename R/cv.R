@@ -18,9 +18,12 @@ emCV = function (y, gen, k=5, n=5,
     f6 = emBB(y[-w], gen[-w, ], Pi = Pi, R2 = R2, df = df)
     f7 = emBC(y[-w], gen[-w, ], Pi = Pi, R2 = R2, df = df)
     f8 = emML(y[-w], gen[-w, ])
+    f91 = emBCpi(y[-w], gen[-w, ])
+    f92 = lasso(y[-w], gen[-w, ])
     cat("DONE WITH CROSS-VALIDATION CYCLE", Seed, "\n")
     NamesMod = c("emRR", "emEN", "emBL", "emDE", "emBA", 
-                 "emBB", "emBC", "emML", "OBSERVATION")
+                 "emBB", "emBC", "emML", "emBCpi","lasso", 
+                 "OBSERVATION")
     M = matrix(NA, Nk, length(NamesMod))
     B = matrix(NA, ncol(gen), length(NamesMod)-1)
     colnames(M) = NamesMod
@@ -50,9 +53,12 @@ emCV = function (y, gen, k=5, n=5,
     f6 = emBB(y[-w], gen[-w, ], Pi = Pi, R2 = R2, df = df)
     f7 = emBC(y[-w], gen[-w, ], Pi = Pi, R2 = R2, df = df)
     f8 = emML(y[-w], gen[-w, ])
+    f91 = emBCpi(y[-w], gen[-w, ])
+    f92 = lasso(y[-w], gen[-w, ])
     cat("DONE WITH CROSS-VALIDATION CYCLE", lev, "\n")
     NamesMod = c("emRR", "emEN", "emBL", "emDE", "emBA", 
-                 "emBB", "emBC", "emML", "OBSERVATION")
+                 "emBB", "emBC", "emML","emBCpi","lasso", 
+		 "OBSERVATION")
     M = matrix(NA, Nk, length(NamesMod))
     B = matrix(NA, ncol(gen), length(NamesMod)-1)
     colnames(M) = NamesMod
@@ -155,7 +161,8 @@ mcmcCV = function (y, gen, k = 5, n = 5,
     f7 = BayesDpi(y[-w], gen[-w, ], R2 = R2, df = df, it=it, bi=bi)
     cat("DONE WITH CROSS-VALIDATION CYCLE", lev, "\n")
     NamesMod = c("BayesA", "BayesB", "BayesC", "BayesL",
-                 "BayesCpi", "BayesDpi", "BayesRR", "OBSERVATION")
+                 "BayesCpi", "BayesDpi", "BayesRR",
+		 "OBSERVATION")
     M = matrix(NA, Nk, length(NamesMod))
     B = matrix(NA, ncol(gen), length(NamesMod)-1)
     colnames(M) = NamesMod
@@ -207,3 +214,15 @@ mcmcCV = function (y, gen, k = 5, n = 5,
   }
   return(OUT)
 }
+
+AccByC = function(X1,X2,h2=0.5){
+  alpha = 1/sqrt(mean(apply(X1,1,crossprod)))
+  V = svd(crossprod(X1),T)$v *alpha
+  Z1 = X1 %*% V 
+  Z2 = X2 %*% V 
+  D = apply(Z1,2,crossprod)
+  ve = ((1-h2)/h2)
+  VarBhat = 1-1/(D/ve+1)
+  sqrtVarBhat = sqrt(VarBhat)
+  Acc = apply(Z2,1,function(z) sqrt( crossprod(z*sqrtVarBhat)/(crossprod(z)) )  )
+  return(Acc)}

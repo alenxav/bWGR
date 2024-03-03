@@ -14,8 +14,8 @@ Whole-genome regression methods on Bayesian framework fitted via EM
 \tabular{ll}{
 Package: \tab bWGR\cr
 Type: \tab Package\cr
-Version: \tab 2.2.5 \cr
-Date: \tab 2023-11-21\cr
+Version: \tab 2.2.6 \cr
+Date: \tab 2024-03-03\cr
 License: \tab GPL-3 \cr
 }
 }

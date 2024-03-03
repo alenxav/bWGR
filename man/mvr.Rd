@@ -11,6 +11,8 @@
 \alias{mrr_svd}
 \alias{MEGA}
 \alias{GSEM}
+\alias{MEGAF}
+\alias{GSEMF}
 
 
 \title{
@@ -71,6 +73,10 @@
     08) \code{MEGA(Y,X):} Toy MegaLMM implementation.
 
     09) \code{GSEM(Y,X):} SEM with all components for G.
+
+    10) \code{MEGAF(Y,X):} Float MEGA.
+
+    11) \code{GSEMF(Y,X):} Float GSEM.
 
     
     

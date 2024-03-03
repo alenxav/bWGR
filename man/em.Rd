@@ -9,6 +9,9 @@
 \alias{emML}
 \alias{emML2}
 \alias{emCV}
+\alias{emBCpi}
+\alias{lasso}
+
 \title{
 Expectation-Maximization WGR
 }
@@ -20,10 +23,13 @@ emRR(y, gen, df = 10, R2 = 0.5)
 emBA(y, gen, df = 10, R2 = 0.5)
 emBB(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
 emBC(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
+emBCpi(y, gen, df = 10, R2 = 0.5, Pi = 0.75)
 emBL(y, gen, R2 = 0.5, alpha = 0.02)
 emEN(y, gen, R2 = 0.5, alpha = 0.02)
 emDE(y, gen, R2 = 0.5)
-emML(y, gen, D = NULL)  
+emML(y, gen, D = NULL)
+lasso(y, gen)
+
 emCV(y, gen, k = 5, n = 5, Pi = 0.75, alpha = 0.02,
      df = 10, R2 = 0.5, avg=TRUE, llo=NULL, tbv=NULL, ReturnGebv = FALSE)
 }

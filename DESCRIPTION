@@ -1,8 +1,8 @@
 Package: bWGR
 Type: Package
 Title: Bayesian Whole-Genome Regression
-Version: 2.2.5
-Date: 2023-11-21
+Version: 2.2.6
+Date: 2024-03-03
 Maintainer: Alencar Xavier <alenxav@gmail.com>
 Authors@R: c(person("Alencar", "Xavier", role=c("aut", "cre"), email = "alenxav@gmail.com", comment = c(ORCID = "0000-0001-5034-9954")), person("William", "Muir", role=c("aut")), person("David", "Habier", role=c("aut")), person("Kyle", "Kocak", role=c("aut")),person("Shizhong", "Xu", role=c("aut")),person("Katy", "Rainey", role=c("aut")))
 Description: Whole-genome regression methods on Bayesian framework fitted via EM

@@ -252,26 +252,50 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// MEGA
-SEXP MEGA(Eigen::MatrixXf Y, Eigen::MatrixXf X);
-RcppExport SEXP _bWGR_MEGA(SEXP YSEXP, SEXP XSEXP) {
+// MEGAF
+SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X);
+RcppExport SEXP _bWGR_MEGAF(SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(MEGAF(Y, X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GSEMF
+SEXP GSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X);
+RcppExport SEXP _bWGR_GSEMF(SEXP YSEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    rcpp_result_gen = Rcpp::wrap(GSEMF(Y, X));
+    return rcpp_result_gen;
+END_RCPP
+}
+// MEGA
+SEXP MEGA(Eigen::MatrixXd Y, Eigen::MatrixXd X);
+RcppExport SEXP _bWGR_MEGA(SEXP YSEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(MEGA(Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
 // GSEM
-SEXP GSEM(Eigen::MatrixXf Y, Eigen::MatrixXf X);
+SEXP GSEM(Eigen::MatrixXd Y, Eigen::MatrixXd X);
 RcppExport SEXP _bWGR_GSEM(SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
     rcpp_result_gen = Rcpp::wrap(GSEM(Y, X));
     return rcpp_result_gen;
 END_RCPP
@@ -867,6 +891,33 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// lasso
+SEXP lasso(NumericVector y, NumericMatrix gen);
+RcppExport SEXP _bWGR_lasso(SEXP ySEXP, SEXP genSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
+    rcpp_result_gen = Rcpp::wrap(lasso(y, gen));
+    return rcpp_result_gen;
+END_RCPP
+}
+// emBCpi
+SEXP emBCpi(NumericVector y, NumericMatrix gen, double df, double R2, double Pi);
+RcppExport SEXP _bWGR_emBCpi(SEXP ySEXP, SEXP genSEXP, SEXP dfSEXP, SEXP R2SEXP, SEXP PiSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
+    Rcpp::traits::input_parameter< double >::type df(dfSEXP);
+    Rcpp::traits::input_parameter< double >::type R2(R2SEXP);
+    Rcpp::traits::input_parameter< double >::type Pi(PiSEXP);
+    rcpp_result_gen = Rcpp::wrap(emBCpi(y, gen, df, R2, Pi));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_EigenArcZ", (DL_FUNC) &_bWGR_EigenArcZ, 3},
@@ -886,6 +937,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_NNSEARCH", (DL_FUNC) &_bWGR_NNSEARCH, 5},
     {"_bWGR_GSFLM", (DL_FUNC) &_bWGR_GSFLM, 8},
     {"_bWGR_GSRR", (DL_FUNC) &_bWGR_GSRR, 8},
+    {"_bWGR_MEGAF", (DL_FUNC) &_bWGR_MEGAF, 2},
+    {"_bWGR_GSEMF", (DL_FUNC) &_bWGR_GSEMF, 2},
     {"_bWGR_MEGA", (DL_FUNC) &_bWGR_MEGA, 2},
     {"_bWGR_GSEM", (DL_FUNC) &_bWGR_GSEM, 2},
     {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
@@ -925,6 +978,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_mtgsru", (DL_FUNC) &_bWGR_mtgsru, 7},
     {"_bWGR_mkr", (DL_FUNC) &_bWGR_mkr, 2},
     {"_bWGR_mkr2X", (DL_FUNC) &_bWGR_mkr2X, 3},
+    {"_bWGR_lasso", (DL_FUNC) &_bWGR_lasso, 2},
+    {"_bWGR_emBCpi", (DL_FUNC) &_bWGR_emBCpi, 5},
     {NULL, NULL, 0}
 };
 

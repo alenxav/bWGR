@@ -69,6 +69,14 @@ GSRR <- function(y, e, gen, b, Lmb, xx, cxx, maxit = 50L) {
     .Call('_bWGR_GSRR', PACKAGE = 'bWGR', y, e, gen, b, Lmb, xx, cxx, maxit)
 }
 
+MEGAF <- function(Y, X) {
+    .Call('_bWGR_MEGAF', PACKAGE = 'bWGR', Y, X)
+}
+
+GSEMF <- function(Y, X) {
+    .Call('_bWGR_GSEMF', PACKAGE = 'bWGR', Y, X)
+}
+
 MEGA <- function(Y, X) {
     .Call('_bWGR_MEGA', PACKAGE = 'bWGR', Y, X)
 }
@@ -223,5 +231,13 @@ mkr <- function(Y, K) {
 
 mkr2X <- function(Y, K1, K2) {
     .Call('_bWGR_mkr2X', PACKAGE = 'bWGR', Y, K1, K2)
+}
+
+lasso <- function(y, gen) {
+    .Call('_bWGR_lasso', PACKAGE = 'bWGR', y, gen)
+}
+
+emBCpi <- function(y, gen, df = 10, R2 = 0.5, Pi = 0.75) {
+    .Call('_bWGR_emBCpi', PACKAGE = 'bWGR', y, gen, df, R2, Pi)
 }
 
