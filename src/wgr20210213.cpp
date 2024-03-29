@@ -7,7 +7,7 @@ SEXP KMUP(NumericMatrix X, NumericVector b, NumericVector d, NumericVector xx, N
   NumericVector e1 = e+0;
   NumericVector e2 = e+0;
   double b0,b1,b2,cj,dj,pj;
-  double C = -0.5/Ve;
+  double C = -0.5/sqrt(Ve);
   //
   for(int j=0; j<p; j++){
     b0 = b[j];
@@ -48,7 +48,7 @@ SEXP KMUP2(NumericMatrix X, NumericVector Use, NumericVector b,  NumericVector d
   NumericVector e1 = E+0;
   NumericVector e2 = E+0;
   double b0,b1,b2,cj,dj,pj;
-  double C = -0.5/Ve;
+  double C = -0.5/sqrt(Ve);
   //
   double bg = n0/n;
   NumericVector e0(n);
@@ -170,7 +170,7 @@ SEXP emBB(NumericVector y, NumericMatrix gen, double df = 10, double R2 = 0.5, d
   double b0,b1,LR,eM,h2,C;
   double Pi0 = (1-Pi)/Pi;
   for(int i=0; i<it; i++){
-    C = -0.5/ve;
+    C = -0.5/sqrt(ve);
     for(int j=0; j<p; j++){
       b0 = b[j];
       b1 = (sum(gen(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb[j]);
@@ -225,7 +225,7 @@ SEXP emBC(NumericVector y, NumericMatrix gen, double df = 10, double R2 = 0.5, d
   double b0,b1,LR,eM,h2,C;
   double Pi0 = (1-Pi)/Pi;
   for(int i=0; i<it; i++){
-    C = -0.5/ve;
+    C = -0.5/sqrt(ve);
     for(int j=0; j<p; j++){
       b0 = b[j];
       b1 = (sum(gen(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb);
@@ -709,7 +709,7 @@ SEXP BayesB(NumericVector y, NumericMatrix X,
   //
   for(int i=0; i<it; i++){
     //
-    C = -0.5/ve;
+    C = -0.5/sqrt(ve);
     for(int j=0; j<p; j++){
       b0 = b[j];
       b1 = R::rnorm( (sum(X(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb[j]),
@@ -792,7 +792,7 @@ SEXP BayesC(NumericVector y, NumericMatrix X,
   double Lmb=ve/vb;
   // MCMC loop
   for(int i=0; i<it; i++){
-    C = -0.5/ve;
+    C = -0.5/sqrt(ve);
     // Update marker effects
     for(int j=0; j<p; j++){
       b0 = b[j];
@@ -970,7 +970,7 @@ SEXP BayesCpi(NumericVector y, NumericMatrix X,
   double Lmb=ve/vb;
   // MCMC loop
   for(int i=0; i<it; i++){
-    C = -0.5/ve;
+    C = -0.5/sqrt(ve);
     // Update marker effects
     for(int j=0; j<p; j++){
       b0 = b[j];
@@ -1043,7 +1043,7 @@ SEXP BayesDpi(NumericVector y, NumericMatrix X,
   NumericVector vb=b+Sb,Lmb=ve/vb,e=y-mu,e1(n),e2(n);
   // MCMC loop
   for(int i=0; i<it; i++){
-    C = -0.5/ve;
+    C = -0.5/sqrt(ve);
     // Update marker effects
     for(int j=0; j<p; j++){
       b0 = b[j];
@@ -1205,7 +1205,7 @@ SEXP BayesB2(NumericVector y, NumericMatrix X1, NumericMatrix X2,
   NumericVector vb1=b1+Sb1,vb2=b2+Sb2,Lmb1=ve/vb1,Lmb2=ve/vb2,e=y-mu,e1(n),e2(n);
   // MCMC loop
   for(int i=0; i<it; i++){
-    C = -0.5/ve;
+    C = -0.5/sqrt(ve);
     // Update marker effects 1
     for(int j=0; j<p1; j++){
       b_t0 = b1[j];
@@ -1835,7 +1835,7 @@ SEXP emBCpi(NumericVector y, NumericMatrix gen, double df = 10, double R2 = 0.5,
   double b0,b1,LR,eM,h2,C;
   double Pi0 = (1-Pi)/Pi;
   for(int i=0; i<it; i++){
-    C = -0.5/ve;
+    C = -0.5/sqrt(ve);
     for(int j=0; j<p; j++){
       b0 = b[j];
       b1 = (sum(gen(_,j)*e)+xx[j]*b0)/(xx[j]+Lmb);
