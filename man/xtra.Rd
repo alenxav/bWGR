@@ -22,6 +22,7 @@
 \alias{EigenGauZ}
 \alias{K2X}
 \alias{SimY}
+\alias{SimZ}
 \alias{MvSimY}
 
 \title{
@@ -78,6 +79,8 @@ Complementary functions that may help with handling parameters and routine opera
 \code{K2X(K)} # Reparametrize kernel to PCs to run regression models 
 
 \code{SimY(Z,k=5,h2=0.5,GC=0.5,seed=123,unbalanced=FALSE)} # Simulate Y for multiple environments
+
+\code{SimZ(ind=1000,snp=500,rec=0.01)} # Simulate haplotypes to create a Z matrix
 
 \code{MvSimY(Ufndr,Zfndr,Zsamp,GxY,GxL,H2plot,nLoc=20,Seed=123)} # Simulate traits given founders
 
