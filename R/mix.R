@@ -467,6 +467,15 @@ SimY = function(Z, k=5, h2=0.5,GC=0.5,  seed=123, unbalanced=FALSE){
 
 #############################################################################################################                   
 
+SimZ = function(ind = 1000, snp = 500, rec = 0.01){
+  Z = sapply(1:ind,function(a){
+    z = c(F,sample(c(T,F),snp-1,T,c(rec,1-rec))); recs = which(z);
+    for(i in recs){z[i:snp]=(!z[i-1])};
+    z = z*sample(c(T,F),1); if(runif(1)>0.5){ z = !z};
+    return(z)}); return(t(Z))}
+             
+#############################################################################################################                   
+
 
 # Main function
 mm = function(y,random=NULL,fixed=NULL,data=NULL,
