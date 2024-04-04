@@ -14,6 +14,14 @@
 \alias{MEGAF}
 \alias{GSEMF}
 
+\alias{UVBETA}
+\alias{solver1x}
+\alias{solver2x}
+\alias{FUVBETA}
+\alias{solver1xF}
+\alias{solver2xF}
+\alias{XFUVBETA}
+\alias{XSEMF}
 
 \title{
   Multivariate Regression
@@ -70,15 +78,18 @@
 
     07) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):} Fits a XFA structural equation model.
 
-    08) \code{MEGA(Y,X):} Toy MegaLMM implementation.
+    08) \code{MEGA(Y,X,npc=-1):} Toy MegaLMM implementation.
 
-    09) \code{GSEM(Y,X):} SEM with all components for G.
+    09) \code{GSEM(Y,X,npc=-1):} SEM with all components for G.
 
-    10) \code{MEGAF(Y,X):} Float MEGA.
+    10) \code{MEGAF(Y,X,npc=-1):} Float MEGA.
 
-    11) \code{GSEMF(Y,X):} Float GSEM.
+    11) \code{GSEMF(Y,X,npc=-1):} Float GSEM.
 
+    12) \code{XSEMF(Y,X,npc=0):} GSEMF using PCs only.
     
+In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{sqrt(ncol(Y))}.
+
     
 }
 \value{

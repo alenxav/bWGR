@@ -69,20 +69,52 @@ GSRR <- function(y, e, gen, b, Lmb, xx, cxx, maxit = 50L) {
     .Call('_bWGR_GSRR', PACKAGE = 'bWGR', y, e, gen, b, Lmb, xx, cxx, maxit)
 }
 
-MEGAF <- function(Y, X) {
-    .Call('_bWGR_MEGAF', PACKAGE = 'bWGR', Y, X)
+solver1xF <- function(Y, X, maxit = 100L, tol = 10e-7, df0 = 20.0) {
+    .Call('_bWGR_solver1xF', PACKAGE = 'bWGR', Y, X, maxit, tol, df0)
 }
 
-GSEMF <- function(Y, X) {
-    .Call('_bWGR_GSEMF', PACKAGE = 'bWGR', Y, X)
+solver2xF <- function(Y, X1, X2, maxit = 100L, tol = 10e-7, df0 = 20.0) {
+    .Call('_bWGR_solver2xF', PACKAGE = 'bWGR', Y, X1, X2, maxit, tol, df0)
 }
 
-MEGA <- function(Y, X) {
-    .Call('_bWGR_MEGA', PACKAGE = 'bWGR', Y, X)
+UVBETA <- function(Y, X) {
+    .Call('_bWGR_UVBETA', PACKAGE = 'bWGR', Y, X)
 }
 
-GSEM <- function(Y, X) {
-    .Call('_bWGR_GSEM', PACKAGE = 'bWGR', Y, X)
+MEGAF <- function(Y, X, npc = -1L) {
+    .Call('_bWGR_MEGAF', PACKAGE = 'bWGR', Y, X, npc)
+}
+
+GSEMF <- function(Y, X, npc = -1L) {
+    .Call('_bWGR_GSEMF', PACKAGE = 'bWGR', Y, X, npc)
+}
+
+XUVBETA <- function(Y, X) {
+    .Call('_bWGR_XUVBETA', PACKAGE = 'bWGR', Y, X)
+}
+
+XSEMF <- function(Y, X, npc = 0L) {
+    .Call('_bWGR_XSEMF', PACKAGE = 'bWGR', Y, X, npc)
+}
+
+solver1x <- function(Y, X, maxit = 100L, tol = 10e-7, df0 = 20.0) {
+    .Call('_bWGR_solver1x', PACKAGE = 'bWGR', Y, X, maxit, tol, df0)
+}
+
+solver2x <- function(Y, X1, X2, maxit = 100L, tol = 10e-7, df0 = 20.0) {
+    .Call('_bWGR_solver2x', PACKAGE = 'bWGR', Y, X1, X2, maxit, tol, df0)
+}
+
+UVBETA <- function(Y, X) {
+    .Call('_bWGR_UVBETA', PACKAGE = 'bWGR', Y, X)
+}
+
+MEGA <- function(Y, X, npc = -1L) {
+    .Call('_bWGR_MEGA', PACKAGE = 'bWGR', Y, X, npc)
+}
+
+GSEM <- function(Y, X, npc = -1L) {
+    .Call('_bWGR_GSEM', PACKAGE = 'bWGR', Y, X, npc)
 }
 
 mrr <- function(Y, X) {

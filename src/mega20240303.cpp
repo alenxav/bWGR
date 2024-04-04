@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 
+// [[Rcpp::export]]
 Eigen::VectorXd solver1x(Eigen::VectorXd Y, Eigen::MatrixXd X,
                          int maxit = 100, double tol = 10e-7, double df0 = 20.0){
   int n = X.rows(), p = X.cols(), numit = 0, J;
@@ -40,6 +41,7 @@ Eigen::VectorXd solver1x(Eigen::VectorXd Y, Eigen::MatrixXd X,
   return b;
 }
 
+// [[Rcpp::export]]
 Eigen::VectorXd solver2x(Eigen::VectorXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2,
                          int maxit = 100, double tol = 10e-7, double df0 = 20.0){
   int n = X1.rows(), p1 = X1.cols(), p2 = X2.cols(), numit = 0, J;
@@ -101,6 +103,7 @@ Eigen::VectorXd subvec_f(Eigen::VectorXd X, Eigen::VectorXi w){
   for(int i=0; i<N; i++){ if(w[i]==1){ XX[n0] = X[i]; n0+=1;}}
   return XX;}
 
+// [[Rcpp::export]]
 Eigen::MatrixXd UVBETA(Eigen::MatrixXd Y, Eigen::MatrixXd X){
   int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXd BETA(p,k); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
@@ -125,21 +128,23 @@ Eigen::MatrixXd GetImputedY(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixX
           Y(i,j) = X.row(i)*BETA.col(j);}}}
   return Y;}
 
-Eigen::MatrixXd LatentSpaces(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd BETA){
+Eigen::MatrixXd LatentSpaces(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd BETA, int NPC = 0){
   int n=Y.rows(),k=Y.cols();
   Eigen::MatrixXd Y2 = GetImputedY(Y,X,BETA);
   Eigen::VectorXd SD = Y2.colwise().squaredNorm().array(); SD = (SD.array()/(n-1)).sqrt();
   for(int i=0; i<k; i++){ Y2.col(i) /= SD(i);};
   Eigen::BDCSVD<Eigen::MatrixXd> svd(Y2, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  return svd.matrixU() * svd.singularValues().matrix().asDiagonal();
-}
+  Eigen::MatrixXd LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
+  if(NPC<0) NPC = round(sqrt(svd.matrixU().cols()));
+  if(NPC==0) NPC += svd.matrixU().cols();
+  return LS.leftCols(NPC);}
 
 // [[Rcpp::export]]
-SEXP MEGA(Eigen::MatrixXd Y, Eigen::MatrixXd X){
+SEXP MEGA(Eigen::MatrixXd Y, Eigen::MatrixXd X, int npc = -1){
   int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   Eigen::MatrixXd BETA = UVBETA(Y,X);
-  Eigen::MatrixXd LS = LatentSpaces(Y,X,BETA);
+  Eigen::MatrixXd LS = LatentSpaces(Y,X,BETA,npc);
   Eigen::MatrixXd LS_BETA = UVBETA(LS,X);
   int p2 = LS.cols();
   Eigen::VectorXd xxx(1+p1+p2);
@@ -175,12 +180,14 @@ SEXP MEGA(Eigen::MatrixXd Y, Eigen::MatrixXd X){
 }
 
 // [[Rcpp::export]]
-SEXP GSEM(Eigen::MatrixXd Y, Eigen::MatrixXd X){
+SEXP GSEM(Eigen::MatrixXd Y, Eigen::MatrixXd X, int npc = -1){
   int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   Eigen::MatrixXd BETA = UVBETA(Y,X);
   Eigen::BDCSVD<Eigen::MatrixXd> svd(X*BETA, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  Eigen::MatrixXd LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
+  if(npc<0) npc = round(sqrt(svd.matrixU().cols()));
+  if(npc==0) npc += svd.matrixU().cols();
+  Eigen::MatrixXd LS = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
   int p2 = LS.cols();
   Eigen::VectorXd xxx(1+p1+p2);
   // store outputs

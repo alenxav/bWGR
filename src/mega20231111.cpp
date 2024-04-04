@@ -3,6 +3,7 @@
 #include <iostream>
 #include <random>
 
+// [[Rcpp::export]]
 Eigen::VectorXf solver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X,
                          int maxit = 100, float tol = 10e-7, float df0 = 20.0){
   int n = X.rows(), p = X.cols(), numit = 0, J;
@@ -40,6 +41,7 @@ Eigen::VectorXf solver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X,
   return b;
 }
 
+// [[Rcpp::export]]
 Eigen::VectorXf solver2xF(Eigen::VectorXf Y, Eigen::MatrixXf X1, Eigen::MatrixXf X2,
                          int maxit = 100, float tol = 10e-7, float df0 = 20.0){
   int n = X1.rows(), p1 = X1.cols(), p2 = X2.cols(), numit = 0, J;
@@ -101,6 +103,7 @@ Eigen::VectorXf subvec_fF(Eigen::VectorXf X, Eigen::VectorXi w){
   for(int i=0; i<N; i++){ if(w[i]==1){ XX[n0] = X[i]; n0+=1;}}
   return XX;}
 
+// [[Rcpp::export]]
 Eigen::MatrixXf UVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXf BETA(p,k); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
@@ -125,21 +128,23 @@ Eigen::MatrixXf GetImputedYF(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::Matrix
           Y(i,j) = X.row(i)*BETA.col(j);}}}
   return Y;}
 
-Eigen::MatrixXf LatentSpaces(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::MatrixXf BETA){
+Eigen::MatrixXf LatentSpaces(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::MatrixXf BETA, int NPC = 0){
   int n=Y.rows(),k=Y.cols();
   Eigen::MatrixXf Y2 = GetImputedYF(Y,X,BETA);
   Eigen::VectorXf SD = Y2.colwise().squaredNorm().array(); SD = (SD.array()/(n-1)).sqrt();
   for(int i=0; i<k; i++){ Y2.col(i) /= SD(i);};
   Eigen::BDCSVD<Eigen::MatrixXf> svd(Y2, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  return svd.matrixU() * svd.singularValues().matrix().asDiagonal();
-}
+  Eigen::MatrixXf LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
+  if(NPC<0) NPC = round(sqrt(svd.matrixU().cols()));
+  if(NPC==0) NPC += svd.matrixU().cols();
+  return LS.leftCols(NPC);}
 
 // [[Rcpp::export]]
-SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
   int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   Eigen::MatrixXf BETA = UVBETA(Y,X);
-  Eigen::MatrixXf LS = LatentSpaces(Y,X,BETA);
+  Eigen::MatrixXf LS = LatentSpaces(Y,X,BETA,npc);
   Eigen::MatrixXf LS_BETA = UVBETA(LS,X);
   int p2 = LS.cols();
   Eigen::VectorXf xxx(1+p1+p2);
@@ -175,12 +180,14 @@ SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
 }
 
 // [[Rcpp::export]]
-SEXP GSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+SEXP GSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
   int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   Eigen::MatrixXf BETA = UVBETA(Y,X);
   Eigen::BDCSVD<Eigen::MatrixXf> svd(X*BETA, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  Eigen::MatrixXf LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
+  if(npc<0) npc = round(sqrt(svd.matrixU().cols()));
+  if(npc==0) npc += svd.matrixU().cols();
+  Eigen::MatrixXf LS = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
   int p2 = LS.cols();
   Eigen::VectorXf xxx(1+p1+p2);
   // store outputs
@@ -200,6 +207,57 @@ SEXP GSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
   // Output
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
-                            Rcpp::Named("b")=BETA*svd.matrixV()*b1+b2,
+                            Rcpp::Named("b")=BETA*svd.matrixV().leftCols(npc)*b1+b2,
                             Rcpp::Named("hat")=hat);
 }
+
+//// SIMPLIFIED
+Eigen::VectorXf xsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
+  int maxit = 100, n = X.rows(), p = X.cols(), numit = 0, J;
+  float mu = Y.mean(), mu0, tol = 10e-7;
+  Eigen::VectorXf y = Y.array()-mu;
+  Eigen::VectorXf tilde = X.transpose() * y;
+  for(int i=0; i<p; i++){ X.col(i) = X.col(i).array() - X.col(i).mean(); }
+  Eigen::VectorXf XX = X.colwise().squaredNorm().array();
+  Eigen::VectorXf b = Eigen::VectorXf::Zero(p), beta0(p);
+  Eigen::VectorXf e = y*1.0;
+  float b0, b1, lambda= XX.mean(), cnv = 10.0, logtol = log10(tol);
+  std::vector<int> RGSvec(p);
+  for(int j=0; j<p; j++){RGSvec[j]=j;}
+  std::random_device rd;
+  std::mt19937 g(rd());
+  while(numit<maxit){  beta0 = b*1.0;
+    std::shuffle(RGSvec.begin(),RGSvec.end(), g);
+    for(int j=0; j<p; j++){
+      J = RGSvec[j]; b0 = b[J]*1.0;
+      b1 = (e.transpose()*X.col(J)+XX(J)*b0)/(XX[J]+lambda);
+      e = e - X.col(J)*(b1-b0); b[J] = b1*1.0;}
+    mu0 = e.array().mean(); mu+=mu0; e=e.array()-mu0;
+    cnv = log10((beta0.array()-b.array()).square().sum());
+    ++numit; if( cnv<logtol || numit == maxit || std::isnan(cnv) ) break;}
+  return b;
+}
+
+// [[Rcpp::export]]
+Eigen::MatrixXf XUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+  int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXf BETA(p,k); Eigen::MatrixXi W(n0,k);
+  for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
+  for(int i=0;i<k;i++){
+    if(W.col(i).array().sum()>0){
+      BETA.col(i) = xsolver1xF(
+        subvec_fF( Y.col(i).array(), W.col(i).array()),
+        submat_fF( X, W.col(i).array())).array();}else{
+          BETA.col(i) = Eigen::VectorXf::Zero(p);}}
+  return BETA;}
+
+// [[Rcpp::export]]
+SEXP XSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = 0){
+  Eigen::MatrixXf BETA = XUVBETA(Y,X);
+  Eigen::MatrixXf G = X*BETA;
+  Eigen::BDCSVD<Eigen::MatrixXf> svd(G, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  if(npc<0) npc = round(sqrt(svd.matrixU().cols()));
+  if(npc==0) npc += svd.matrixU().cols();
+  Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
+  Eigen::MatrixXf ALPHA = XUVBETA(Y,Z);  G = Z*ALPHA;
+  Eigen::MatrixXf b = BETA * svd.matrixV().leftCols(npc) * ALPHA;
+  return Rcpp::List::create(Rcpp::Named("b")=b,Rcpp::Named("hat")=G);}
