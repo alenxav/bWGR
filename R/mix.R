@@ -415,27 +415,36 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=10, init
 
 #############################################################################################################                   
 
-SimY = function(Z, k=5, h2=0.5,GC=0.5,  seed=123, unbalanced=FALSE){
+SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, unbalanced=FALSE, PercMiss=0){
   
   # Store inputs
-  trueVal = c(h2=h2,GC=GC,seed=seed)
+  trueVal = list(h2=h2,GC=GC,seed=seed)
   n = nrow(Z)
   p = ncol(Z)
   
   # Pick a dataset
   set.seed(seed)
   
-  # Genetic parameters
-  h20 = h2
-  h2 = rep(h20,k)
-  
   # GC
-  numGC = (k*(k-1))/2
-  GC = rep(GC,numGC)
-  G0 = diag(k)
-  G0[lower.tri(G0)] = GC
-  G0[upper.tri(G0)] = t(G0)[upper.tri(t(G0))]
-  GC = mean(GC)
+  if(is.matrix(GC)){
+    k = ncol(GC)
+    G0 = GC
+  }else{
+    numGC = (k*(k-1))/2
+    GC = rep(GC,numGC)
+    G0 = diag(k)
+    G0[lower.tri(G0)] = GC
+    G0[upper.tri(G0)] = t(G0)[upper.tri(t(G0))]
+    GC = mean(GC)
+  }
+  
+  # Genetic parameters
+  if(length(h2)==k){
+    h20 = h2
+  }else{
+    h20 = h2
+    h2 = rep(h20,k)
+  }
   
   # Sample effects
   alpha = 1/sum(apply(Z,2,var))
@@ -461,6 +470,12 @@ SimY = function(Z, k=5, h2=0.5,GC=0.5,  seed=123, unbalanced=FALSE){
     for(i in 1:k) Y[which(Miss!=i),i] = NA
   }
   
+  # Percentage missing
+  if(PercMiss>0){
+    Y[sample(length(Y),length(Y)*PercMiss)] = NA
+  }
+  
+  # Output
   return(list(Y=Y,tbv=tbv,settings=trueVal))
   
 }
