@@ -104,7 +104,7 @@ Eigen::VectorXf subvec_fF(Eigen::VectorXf X, Eigen::VectorXi w){
   return XX;}
 
 // [[Rcpp::export]]
-Eigen::MatrixXf UVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+Eigen::MatrixXf FUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXf BETA(p,k); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   for(int i=0;i<k;i++){
@@ -135,7 +135,7 @@ Eigen::MatrixXf LatentSpaces(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::Matrix
   for(int i=0; i<k; i++){ Y2.col(i) /= SD(i);};
   Eigen::BDCSVD<Eigen::MatrixXf> svd(Y2, Eigen::ComputeThinU | Eigen::ComputeThinV );
   Eigen::MatrixXf LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
-  if(NPC<0) NPC = round(sqrt(svd.matrixU().cols()));
+  if(NPC<0) NPC = round(2*sqrt(svd.matrixU().cols()));
   if(NPC==0) NPC += svd.matrixU().cols();
   return LS.leftCols(NPC);}
 
@@ -143,9 +143,9 @@ Eigen::MatrixXf LatentSpaces(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::Matrix
 SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
   int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
-  Eigen::MatrixXf BETA = UVBETA(Y,X);
+  Eigen::MatrixXf BETA = FUVBETA(Y,X);
   Eigen::MatrixXf LS = LatentSpaces(Y,X,BETA,npc);
-  Eigen::MatrixXf LS_BETA = UVBETA(LS,X);
+  Eigen::MatrixXf LS_BETA = FUVBETA(LS,X);
   int p2 = LS.cols();
   Eigen::VectorXf xxx(1+p1+p2);
   // store outputs
@@ -183,9 +183,9 @@ SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
 SEXP GSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
   int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
-  Eigen::MatrixXf BETA = UVBETA(Y,X);
+  Eigen::MatrixXf BETA = FUVBETA(Y,X);
   Eigen::BDCSVD<Eigen::MatrixXf> svd(X*BETA, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  if(npc<0) npc = round(sqrt(svd.matrixU().cols()));
+  if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
   if(npc==0) npc += svd.matrixU().cols();
   Eigen::MatrixXf LS = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
   int p2 = LS.cols();
@@ -239,7 +239,7 @@ Eigen::VectorXf xsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
 }
 
 // [[Rcpp::export]]
-Eigen::MatrixXf XUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+Eigen::MatrixXf XFUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXf BETA(p,k); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   for(int i=0;i<k;i++){
@@ -252,12 +252,12 @@ Eigen::MatrixXf XUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
 
 // [[Rcpp::export]]
 SEXP XSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = 0){
-  Eigen::MatrixXf BETA = XUVBETA(Y,X);
+  Eigen::MatrixXf BETA = XFUVBETA(Y,X);
   Eigen::MatrixXf G = X*BETA;
   Eigen::BDCSVD<Eigen::MatrixXf> svd(G, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  if(npc<0) npc = round(sqrt(svd.matrixU().cols()));
+  if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
   if(npc==0) npc += svd.matrixU().cols();
   Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
-  Eigen::MatrixXf ALPHA = XUVBETA(Y,Z);  G = Z*ALPHA;
+  Eigen::MatrixXf ALPHA = XFUVBETA(Y,Z);  G = Z*ALPHA;
   Eigen::MatrixXf b = BETA * svd.matrixV().leftCols(npc) * ALPHA;
   return Rcpp::List::create(Rcpp::Named("b")=b,Rcpp::Named("hat")=G);}

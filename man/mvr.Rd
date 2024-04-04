@@ -88,7 +88,7 @@
 
     12) \code{XSEMF(Y,X,npc=0):} GSEMF using PCs only.
     
-In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{sqrt(ncol(Y))}.
+In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
 
     
 }

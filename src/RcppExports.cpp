@@ -283,15 +283,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// UVBETA
-Eigen::MatrixXf UVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X);
-RcppExport SEXP _bWGR_UVBETA(SEXP YSEXP, SEXP XSEXP) {
+// FUVBETA
+Eigen::MatrixXf FUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X);
+RcppExport SEXP _bWGR_FUVBETA(SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(UVBETA(Y, X));
+    rcpp_result_gen = Rcpp::wrap(FUVBETA(Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -321,15 +321,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// XUVBETA
-Eigen::MatrixXf XUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X);
-RcppExport SEXP _bWGR_XUVBETA(SEXP YSEXP, SEXP XSEXP) {
+// XFUVBETA
+Eigen::MatrixXf XFUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X);
+RcppExport SEXP _bWGR_XFUVBETA(SEXP YSEXP, SEXP XSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(XUVBETA(Y, X));
+    rcpp_result_gen = Rcpp::wrap(XFUVBETA(Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1054,10 +1054,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_GSRR", (DL_FUNC) &_bWGR_GSRR, 8},
     {"_bWGR_solver1xF", (DL_FUNC) &_bWGR_solver1xF, 5},
     {"_bWGR_solver2xF", (DL_FUNC) &_bWGR_solver2xF, 6},
-    {"_bWGR_UVBETA", (DL_FUNC) &_bWGR_UVBETA, 2},
+    {"_bWGR_FUVBETA", (DL_FUNC) &_bWGR_FUVBETA, 2},
     {"_bWGR_MEGAF", (DL_FUNC) &_bWGR_MEGAF, 3},
     {"_bWGR_GSEMF", (DL_FUNC) &_bWGR_GSEMF, 3},
-    {"_bWGR_XUVBETA", (DL_FUNC) &_bWGR_XUVBETA, 2},
+    {"_bWGR_XFUVBETA", (DL_FUNC) &_bWGR_XFUVBETA, 2},
     {"_bWGR_XSEMF", (DL_FUNC) &_bWGR_XSEMF, 3},
     {"_bWGR_solver1x", (DL_FUNC) &_bWGR_solver1x, 5},
     {"_bWGR_solver2x", (DL_FUNC) &_bWGR_solver2x, 6},

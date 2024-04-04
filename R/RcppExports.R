@@ -77,8 +77,8 @@ solver2xF <- function(Y, X1, X2, maxit = 100L, tol = 10e-7, df0 = 20.0) {
     .Call('_bWGR_solver2xF', PACKAGE = 'bWGR', Y, X1, X2, maxit, tol, df0)
 }
 
-UVBETA <- function(Y, X) {
-    .Call('_bWGR_UVBETA', PACKAGE = 'bWGR', Y, X)
+FUVBETA <- function(Y, X) {
+    .Call('_bWGR_FUVBETA', PACKAGE = 'bWGR', Y, X)
 }
 
 MEGAF <- function(Y, X, npc = -1L) {
@@ -89,8 +89,8 @@ GSEMF <- function(Y, X, npc = -1L) {
     .Call('_bWGR_GSEMF', PACKAGE = 'bWGR', Y, X, npc)
 }
 
-XUVBETA <- function(Y, X) {
-    .Call('_bWGR_XUVBETA', PACKAGE = 'bWGR', Y, X)
+XFUVBETA <- function(Y, X) {
+    .Call('_bWGR_XFUVBETA', PACKAGE = 'bWGR', Y, X)
 }
 
 XSEMF <- function(Y, X, npc = 0L) {

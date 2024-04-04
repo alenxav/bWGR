@@ -135,7 +135,7 @@ Eigen::MatrixXd LatentSpaces(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::Matrix
   for(int i=0; i<k; i++){ Y2.col(i) /= SD(i);};
   Eigen::BDCSVD<Eigen::MatrixXd> svd(Y2, Eigen::ComputeThinU | Eigen::ComputeThinV );
   Eigen::MatrixXd LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
-  if(NPC<0) NPC = round(sqrt(svd.matrixU().cols()));
+  if(NPC<0) NPC = round(2*sqrt(svd.matrixU().cols()));
   if(NPC==0) NPC += svd.matrixU().cols();
   return LS.leftCols(NPC);}
 
@@ -185,7 +185,7 @@ SEXP GSEM(Eigen::MatrixXd Y, Eigen::MatrixXd X, int npc = -1){
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   Eigen::MatrixXd BETA = UVBETA(Y,X);
   Eigen::BDCSVD<Eigen::MatrixXd> svd(X*BETA, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  if(npc<0) npc = round(sqrt(svd.matrixU().cols()));
+  if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
   if(npc==0) npc += svd.matrixU().cols();
   Eigen::MatrixXd LS = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
   int p2 = LS.cols();
