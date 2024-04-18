@@ -243,11 +243,9 @@ Eigen::MatrixXf XFUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXf BETA(p,k); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
   for(int i=0;i<k;i++){
-    if(W.col(i).array().sum()>0){
       BETA.col(i) = xsolver1xF(
         subvec_fF( Y.col(i).array(), W.col(i).array()),
-        submat_fF( X, W.col(i).array())).array();}else{
-          BETA.col(i) = Eigen::VectorXf::Zero(p);}}
+        submat_fF( X, W.col(i).array())).array();}
   return BETA;}
 
 // [[Rcpp::export]]
