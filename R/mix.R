@@ -502,7 +502,6 @@ SimGC = function(k=50, MIX=TRUE,
                  BLK_UNS=FALSE,BLK=FALSE,
                  GRAD_UNS=FALSE,GRAD=FALSE,
                  BLK_GRAD=FALSE){
-  set.seed(seed)
   kk = round(sqrt(k))
   k0 = ceiling(sqrt(k))
   k00 = floor(sqrt(k))
