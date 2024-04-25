@@ -415,7 +415,8 @@ mtmixed = function(resp, random=NULL, fixed=NULL, data, X=list(), maxit=10, init
 
 #############################################################################################################                   
 
-SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, unbalanced=FALSE, PercMiss=0, BlkMiss=FALSE){
+SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, 
+                unbalanced=FALSE, PercMiss=0, BlkMiss=FALSE){
   
   # Store inputs
   trueVal = list(h2=h2,GC=GC,seed=seed)
@@ -451,6 +452,7 @@ SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123, unbalanced=FALSE, PercMiss=0,
   trueVal['scaleG'] = alpha
   Vb = G0*alpha
   ev = eigen(Vb, symmetric = TRUE)
+  ev$values = ifelse(ev$values<0.0001,0.0001,ev$values)
   UD = ev$vectors %*% diag(sqrt(ev$values))
   beta = matrix(rnorm(p * k), nrow = p)
   trueBeta = UD %*% t(beta)
