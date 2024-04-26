@@ -498,6 +498,57 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// NNSEARCH
+NumericMatrix NNSEARCH(NumericVector blk, NumericVector row, NumericVector col, int rN, int cN);
+RcppExport SEXP _bWGR_NNSEARCH(SEXP blkSEXP, SEXP rowSEXP, SEXP colSEXP, SEXP rNSEXP, SEXP cNSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type blk(blkSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type row(rowSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type col(colSEXP);
+    Rcpp::traits::input_parameter< int >::type rN(rNSEXP);
+    Rcpp::traits::input_parameter< int >::type cN(cNSEXP);
+    rcpp_result_gen = Rcpp::wrap(NNSEARCH(blk, row, col, rN, cN));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GSFLM
+SEXP GSFLM(NumericVector y, NumericVector e, NumericMatrix gen, NumericVector b, NumericVector Lmb, NumericVector xx, double cxx, int maxit);
+RcppExport SEXP _bWGR_GSFLM(SEXP ySEXP, SEXP eSEXP, SEXP genSEXP, SEXP bSEXP, SEXP LmbSEXP, SEXP xxSEXP, SEXP cxxSEXP, SEXP maxitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type e(eSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Lmb(LmbSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type xx(xxSEXP);
+    Rcpp::traits::input_parameter< double >::type cxx(cxxSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(GSFLM(y, e, gen, b, Lmb, xx, cxx, maxit));
+    return rcpp_result_gen;
+END_RCPP
+}
+// GSRR
+SEXP GSRR(NumericVector y, NumericVector e, NumericMatrix gen, NumericVector b, NumericVector Lmb, NumericVector xx, double cxx, int maxit);
+RcppExport SEXP _bWGR_GSRR(SEXP ySEXP, SEXP eSEXP, SEXP genSEXP, SEXP bSEXP, SEXP LmbSEXP, SEXP xxSEXP, SEXP cxxSEXP, SEXP maxitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type e(eSEXP);
+    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type Lmb(LmbSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type xx(xxSEXP);
+    Rcpp::traits::input_parameter< double >::type cxx(cxxSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(GSRR(y, e, gen, b, Lmb, xx, cxx, maxit));
+    return rcpp_result_gen;
+END_RCPP
+}
 // EigenARC
 Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeX, int cores);
 RcppExport SEXP _bWGR_EigenARC(SEXP XSEXP, SEXP centralizeXSEXP, SEXP coresSEXP) {
@@ -611,57 +662,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MappedSparseMatrix<double> >::type XX(XXSEXP);
     Rcpp::traits::input_parameter< double >::type Lmb(LmbSEXP);
     rcpp_result_gen = Rcpp::wrap(GS2EIGEN(e, X, b, XX, Lmb));
-    return rcpp_result_gen;
-END_RCPP
-}
-// NNSEARCH
-NumericMatrix NNSEARCH(NumericVector blk, NumericVector row, NumericVector col, int rN, int cN);
-RcppExport SEXP _bWGR_NNSEARCH(SEXP blkSEXP, SEXP rowSEXP, SEXP colSEXP, SEXP rNSEXP, SEXP cNSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type blk(blkSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type row(rowSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type col(colSEXP);
-    Rcpp::traits::input_parameter< int >::type rN(rNSEXP);
-    Rcpp::traits::input_parameter< int >::type cN(cNSEXP);
-    rcpp_result_gen = Rcpp::wrap(NNSEARCH(blk, row, col, rN, cN));
-    return rcpp_result_gen;
-END_RCPP
-}
-// GSFLM
-SEXP GSFLM(NumericVector y, NumericVector e, NumericMatrix gen, NumericVector b, NumericVector Lmb, NumericVector xx, double cxx, int maxit);
-RcppExport SEXP _bWGR_GSFLM(SEXP ySEXP, SEXP eSEXP, SEXP genSEXP, SEXP bSEXP, SEXP LmbSEXP, SEXP xxSEXP, SEXP cxxSEXP, SEXP maxitSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type e(eSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type Lmb(LmbSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type xx(xxSEXP);
-    Rcpp::traits::input_parameter< double >::type cxx(cxxSEXP);
-    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
-    rcpp_result_gen = Rcpp::wrap(GSFLM(y, e, gen, b, Lmb, xx, cxx, maxit));
-    return rcpp_result_gen;
-END_RCPP
-}
-// GSRR
-SEXP GSRR(NumericVector y, NumericVector e, NumericMatrix gen, NumericVector b, NumericVector Lmb, NumericVector xx, double cxx, int maxit);
-RcppExport SEXP _bWGR_GSRR(SEXP ySEXP, SEXP eSEXP, SEXP genSEXP, SEXP bSEXP, SEXP LmbSEXP, SEXP xxSEXP, SEXP cxxSEXP, SEXP maxitSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type y(ySEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type e(eSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type gen(genSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type b(bSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type Lmb(LmbSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type xx(xxSEXP);
-    Rcpp::traits::input_parameter< double >::type cxx(cxxSEXP);
-    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
-    rcpp_result_gen = Rcpp::wrap(GSRR(y, e, gen, b, Lmb, xx, cxx, maxit));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1068,6 +1068,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_mkr2X", (DL_FUNC) &_bWGR_mkr2X, 3},
     {"_bWGR_lasso", (DL_FUNC) &_bWGR_lasso, 2},
     {"_bWGR_emBCpi", (DL_FUNC) &_bWGR_emBCpi, 5},
+    {"_bWGR_NNSEARCH", (DL_FUNC) &_bWGR_NNSEARCH, 5},
+    {"_bWGR_GSFLM", (DL_FUNC) &_bWGR_GSFLM, 8},
+    {"_bWGR_GSRR", (DL_FUNC) &_bWGR_GSRR, 8},
     {"_bWGR_EigenARC", (DL_FUNC) &_bWGR_EigenARC, 3},
     {"_bWGR_EigenGAU", (DL_FUNC) &_bWGR_EigenGAU, 3},
     {"_bWGR_EigenGRM", (DL_FUNC) &_bWGR_EigenGRM, 3},
@@ -1077,9 +1080,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_EigenJacobiSVD", (DL_FUNC) &_bWGR_EigenJacobiSVD, 2},
     {"_bWGR_EigenAcc", (DL_FUNC) &_bWGR_EigenAcc, 4},
     {"_bWGR_GS2EIGEN", (DL_FUNC) &_bWGR_GS2EIGEN, 5},
-    {"_bWGR_NNSEARCH", (DL_FUNC) &_bWGR_NNSEARCH, 5},
-    {"_bWGR_GSFLM", (DL_FUNC) &_bWGR_GSFLM, 8},
-    {"_bWGR_GSRR", (DL_FUNC) &_bWGR_GSRR, 8},
     {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
     {"_bWGR_mrr_float", (DL_FUNC) &_bWGR_mrr_float, 2},
     {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},

@@ -180,9 +180,10 @@ SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X){
   int J;
   
   // Convergence control
-  double deflate = 1.0, deflateMax = 0.75;
-  Eigen::MatrixXd beta0(p,k), A(k,k);
-  double cnv = 10.0, logtol = -10.0;
+  Eigen::MatrixXd A = vb*1.0; double MinDVb, inflate;
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EVDofA(A);
+  Eigen::MatrixXd beta0(p,k);
+  double cnv = 10.0, logtol = -8.0;
   int numit = 0;
   
   // Loop
@@ -219,19 +220,14 @@ SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X){
     
     // Bending
     A = vb*1.0;
-    for(int i=0; i<k; i++){
-      for(int j=0; j<k; j++){
-        if(i!=j){A(i,j) *= deflate;}}}
-    while(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
-      Rcpp::Rcout << "Bend at "<< numit << "\n";  deflate = deflate - 0.01;
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}
-    }
-    iG = A.inverse();
+    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+      A.diagonal().array()+=inflate; vb=A*1.0;}
+    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
     
     // Print status
     cnv = log10((beta0.array()-b.array()).square().sum());  ++numit;
     if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; }
-    if( numit % 200 == 0){ deflate = deflate - 0.01; }
     if( cnv<logtol ){break;}
     if(std::isnan(cnv)){ break;}
     
@@ -255,7 +251,6 @@ SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X){
                             Rcpp::Named("Vb")=vb,
                             Rcpp::Named("Ve")=ve,
                             Rcpp::Named("MSx")=MSx,
-                            Rcpp::Named("bend")=deflate,
                             Rcpp::Named("cnv")=cnv);
   
 }
@@ -309,6 +304,11 @@ SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   vb = (ve.array()/MSx.array()).matrix().asDiagonal();
   Eigen::VectorXf h2 = 1 - ve.array()/vy.array();
   
+  // Bending
+  Eigen::MatrixXf A = vb*1.0;
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> EVDofA(A); float MinDVb, inflate;
+  Eigen::MatrixXf iG = vb.completeOrthogonalDecomposition().pseudoInverse();
+  
   // Beta tilde;
   Eigen::MatrixXf tilde = X.transpose() * y;
   
@@ -349,13 +349,13 @@ SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X){
     std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), g2);
     
     for(int j=0; j<p; j++){
+      
       J = RGSvec[j];
+      // Update coefficient
       b0 = b.row(J)*1.0;
-      // Stranden and Garrick 2009
-      LHS = vb * (XX.row(J).transpose().array() * iVe.array()).matrix().asDiagonal(); 
-      for(int i=0; i<k; i++){ LHS(i,i) += 1.0; }
+      LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVe.array()).matrix();
       RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
-      RHS = (vb * (RHS.array() * iVe.array()).matrix()).array();
+      RHS = RHS.array() *iVe.array();
       // Inner GS
       b1 = b.row(J)*1.0;
       for(int i=0; i<k; i++){
@@ -376,6 +376,13 @@ SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X){
     for(int i=0; i<k; i++){for(int j=0; j<k; j++){
       if(i==j){ vb(i,i) = TildeHat(i,i)/TrXSX(i); }else{
         vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrXSX(i)+TrXSX(j));}}}
+    
+    // Bending and inverse of vb
+    A = vb*1.0;
+    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+      A.diagonal().array()+=inflate; vb=A*1.0;}
+    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
     
     // Print status
     cnv = log10((beta0.array()-b.array()).square().colwise().sum().maxCoeff());
@@ -497,10 +504,9 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
   int J;
   
   // Convergence control
-  double deflate1 = 1.0, deflate2 = 1.0, deflateMax = 0.75;
   Eigen::MatrixXd beta01(p1,k), beta02(p2,k), A(k,k);
-  double cnv = 10.0, logtol = -10.0;
-  int numit = 0;
+  double cnv = 10.0, logtol = -10.0, MinDVb, inflate; int numit = 0;
+  A = vb1*1.0; Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EVDofA(A);
   
   // Loop
   while(numit<maxit){
@@ -553,31 +559,22 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
         vb1(i,j) = (TildeHat1(i,j)+TildeHat1(j,i))/(TrXSX1(i)+TrXSX1(j));}}}
     // Bending 1
     A = vb1*1.0;
-    for(int i=0; i<k; i++){
-      for(int j=0; j<k; j++){
-        if(i!=j){A(i,j) *= deflate1;}}}
-    while(A.llt().info()==Eigen::NumericalIssue && deflate1>deflateMax){
-      Rcpp::Rcout << "Bend V1 at "<< numit << "\n";
-      deflate1 = deflate1 - 0.01;
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){ A(i,j) = vb1(i,j)*deflate1; }}}}
-    iG1 = A.inverse();
+    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+      A.diagonal().array()+=inflate; vb1=A*1.0;}
+    iG1 = vb1.completeOrthogonalDecomposition().pseudoInverse();
     
     // Genetic variance 1
     TildeHat2 = bB.transpose()*tilde2;
     for(int i=0; i<k; i++){for(int j=0; j<k; j++){
       if(i==j){ vb2(i,i) = TildeHat2(i,i)/TrXSX2(i); }else{
         vb2(i,j) = (TildeHat2(i,j)+TildeHat2(j,i))/(TrXSX2(i)+TrXSX2(j));}}}
-    // Bending 1
+    // Bending 2
     A = vb2*1.0;
-    for(int i=0; i<k; i++){
-      for(int j=0; j<k; j++){
-        if(i!=j){A(i,j) *= deflate2;}}}
-    while(A.llt().info()==Eigen::NumericalIssue && deflate2>deflateMax){
-      Rcpp::Rcout << "Bend V2 at "<< numit << "\n";
-      deflate2 = deflate2 - 0.01;
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){ A(i,j) = vb2(i,j)*deflate2; }}}}
-    iG2 = A.inverse();
-    
+    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+      A.diagonal().array()+=inflate; vb2=A*1.0;}
+    iG2 = vb2.completeOrthogonalDecomposition().pseudoInverse();
     
     // Print status
     cnv = log10((beta01.array()-bA.array()).square().sum()) + log10((beta02.array()-bB.array()).square().sum());
@@ -618,7 +615,6 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
                             Rcpp::Named("VE")=ve,
                             Rcpp::Named("VB1")=vb1,Rcpp::Named("VB2")=vb2,
                             Rcpp::Named("VA1")=va1, Rcpp::Named("VA2")=va2,
-                            Rcpp::Named("bend1")=deflate1,Rcpp::Named("bend2")=deflate2,
                             Rcpp::Named("cnv")=cnv);}
 
 // [[Rcpp::export]]
@@ -675,7 +671,6 @@ SEXP mrr_svd(Eigen::MatrixXd Y, Eigen::MatrixXd W){
   Eigen::VectorXd MSx = XSX.colwise().sum();
   Eigen::VectorXd TrXSX = n.array()*MSx.array();
   
-  
   Rcpp::Rcout << "Set starting values for coefficients and variances\n";
   // Variances
   iN = (n.array()-1).inverse();
@@ -699,10 +694,10 @@ SEXP mrr_svd(Eigen::MatrixXd Y, Eigen::MatrixXd W){
   Eigen::MatrixXd e(n0,k); e = y*1.0;
   // Bending and convergence control
   Eigen::MatrixXd A = vb*1.0, GC(k,k);
-  double deflate = 1.0, deflateMax = 0.75;
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EVDofA(A);
   Eigen::MatrixXd beta0(p,k), vb0(k,k);
   Eigen::VectorXd CNV1(maxit),CNV2(maxit),CNV3(maxit), ve0(k), h20(k);
-  double cnv = 10.0;
+  double cnv = 10.0, MinDVb, inflate;
   int numit = 0;
   double logtol = log10(tol);
   
@@ -751,15 +746,10 @@ SEXP mrr_svd(Eigen::MatrixXd Y, Eigen::MatrixXd W){
     
     // Bending
     A = vb*1.0;
-    for(int i=0; i<k; i++){
-      for(int j=0; j<k; j++){
-        if(i!=j){A(i,j) *= deflate;}}}
-    while(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
-      Rcpp::Rcout << "Bend at iteration "<< numit << "\n";
-      deflate = deflate - 0.01;
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}
-    }    
-    iG = A.inverse();
+    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+      A.diagonal().array()+=inflate; vb=A*1.0;}
+    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
     
     // Covariances
     cnv = log10((beta0.array()-b.array()).square().sum());  CNV1(numit) = cnv;
@@ -799,7 +789,6 @@ SEXP mrr_svd(Eigen::MatrixXd Y, Eigen::MatrixXd W){
                                                   Rcpp::Named("WCorrelations")=GC,
                                                   Rcpp::Named("VarBeta")=vb,
                                                   Rcpp::Named("VarResiduals")=ve,
-                                                  Rcpp::Named("CovarianceBending")=deflate,
                                                   Rcpp::Named("ConvergenceBeta")=CNV1b,
                                                   Rcpp::Named("ConvergenceH2")=CNV2b,
                                                   Rcpp::Named("ConvergenceVar")=CNV3b,
@@ -824,9 +813,9 @@ SEXP MRR3(Eigen::MatrixXd Y,
           int NumXFA = 2,
           double R2 = 0.5,
           double gc0 = 0.5, 
-          double df0 = 0.0, 
-          double weight_prior_h2 = 0.0,
-          double weight_prior_gc = 0.0,
+          double df0 = 1.0, 
+          double weight_prior_h2 = 0.01,
+          double weight_prior_gc = 0.01,
           double PenCor = 0.0,
           double MinCor = 1.0,
           double uncorH2below = 0.0,
@@ -837,7 +826,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
           double bucketGCfrom = 1.0,
           double bucketGCto = 1.0,
           double DeflateMax = 0.9,
-          double DeflateBy = 0.005,
+          double DeflateBy = 0.0,
           bool OneVarB = false,
           bool OneVarE = false,
           bool verbose = false){
@@ -1116,28 +1105,27 @@ SEXP MRR3(Eigen::MatrixXd Y,
             if(uncorH2below>0.0){ if(h2(i)<uncorH2below || h2(j)<uncorH2below  ){ GC(i,j) = 0.0; }}
           }}}
       
-      // RECONSTRUCT COVARIANCE HERE AND ONLY ONCE
-      // Single variance of beta
-      if(OneVarB){tmp = TildeHat.diagonal().mean(); vb = GC * tmp;  }else{
-        // Regular covariance reconstruction
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-          if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}
-      
-      // Bending
-      if( !NoInv || TH ){
-        A = vb*1.0;
-        for(int i=0; i<k; i++){ for(int j=0; j<k; j++){if(i!=j){A(i,j) *= Deflate;}}}
-        if(A.llt().info()==Eigen::NumericalIssue && Deflate>DeflateMax){
-          Deflate -= DeflateBy; if(verbose) Rcpp::Rcout <<  Deflate;
-          for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*Deflate;}}}}
-        EVDofA.compute(A);
-        MinDVb = EVDofA.eigenvalues().minCoeff();
-        if( MinDVb < 0.0 ){ 
-          if(verbose) Rcpp::Rcout << ".";
-          inflate = inflate - MinDVb*1.001;
-          A.diagonal().array() += inflate;}
-        iG = A.inverse();
-      }
+      // BEND AND RECONSTRUCT COVARIANCE HERE AND ONLY ONCE
+      if(!NoInv||TH){ 
+        A = GC*1.0;
+        // Deflate
+        if(DeflateBy>0){
+          A = GC*Deflate; for(int i=0; i<k; i++){ A(i,i)=1.0; }
+          if(A.llt().info()==Eigen::NumericalIssue && Deflate>DeflateMax){
+            Deflate -= DeflateBy; 
+            if(verbose){Rcpp::Rcout << "Deflate GC " <<  Deflate << '\n';}
+            A = GC*Deflate; for(int i=0; i<k; i++){ A(i,i)=1.0;}}}
+        // Bend
+        EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+        if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+          if(verbose) Rcpp::Rcout << "Inflate " << inflate << "\n";
+          A.diagonal().array()+=inflate; A/=(1.0+inflate); GC=A*1.0;}}
+      // Cor to Cov
+      if(OneVarB){tmp = TildeHat.diagonal().mean(); vb=GC*tmp; }else{
+        for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
+          vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}
+      if(!NoInv||TH){ 
+        iG=vb.completeOrthogonalDecomposition().pseudoInverse();}
       
       // Compute convergence and print status
       
@@ -1176,7 +1164,6 @@ SEXP MRR3(Eigen::MatrixXd Y,
                             Rcpp::Named("vb")=vb,
                             Rcpp::Named("ve")=ve,
                             Rcpp::Named("MSx")=MSx,
-                            Rcpp::Named("bend")=Deflate,
                             Rcpp::Named("cnvB")=CNV1b,
                             Rcpp::Named("cnvH2")=CNV2b,
                             Rcpp::Named("cnvV")=CNV3b,
@@ -1199,9 +1186,9 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           int NumXFA = 2,
           float prior_R2 = 0.5,
           float gc_prior_df = 0.5, 
-          float var_prior_df = 0.0, 
-          float weight_prior_h2 = 0.0,
-          float weight_prior_gc = 0.0,
+          float var_prior_df = 1.0, 
+          float weight_prior_h2 = 0.01,
+          float weight_prior_gc = 0.01,
           float PenCor = 0.0,
           float MinCor = 1.0,
           float uncorH2below = 0.0,
@@ -1212,7 +1199,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           float bucketGCfrom = 1.0,
           float bucketGCto = 1.0,
           float DeflateMax = 0.9,
-          float DeflateBy = 0.005,
+          float DeflateBy = 0.0,
           bool OneVarB = false,
           bool OneVarE = false,
           bool verbose = false){
@@ -1486,28 +1473,27 @@ SEXP MRR3F(Eigen::MatrixXf Y,
             if(uncorH2below>0.0){ if(h2(i)<uncorH2below || h2(j)<uncorH2below  ){ GC(i,j) = 0.0; }}
           }}}
       
-      // RECONSTRUCT COVARIANCE HERE AND ONLY ONCE
-      // Single variance of beta
-      if(OneVarB){tmp = TildeHat.diagonal().mean(); vb = GC * tmp;  }else{
-        // Regular covariance reconstruction
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-          if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}
-      
-      // Bending
-      if( !NoInversion || TH ){
-        A = vb*1.0;
-        for(int i=0; i<k; i++){ for(int j=0; j<k; j++){if(i!=j){A(i,j) *= Deflate;}}}
-        if(A.llt().info()==Eigen::NumericalIssue && Deflate>DeflateMax){
-          Deflate -= DeflateBy; if(verbose) Rcpp::Rcout <<  Deflate;
-          for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*Deflate;}}}}
-        EVDofA.compute(A);
-        MinDVb = EVDofA.eigenvalues().minCoeff();
-        if( MinDVb < 0.0 ){ 
-          if(verbose) Rcpp::Rcout << ".";
-          inflate = inflate - MinDVb*1.001;
-          A.diagonal().array() += inflate;}
-        iG = A.inverse();
-      }
+      // BEND AND RECONSTRUCT COVARIANCE HERE AND ONLY ONCE
+      if(!NoInversion||TH){ 
+        A = GC*1.0;
+        // Deflate
+        if(DeflateBy>0){
+          A = GC*Deflate; for(int i=0; i<k; i++){ A(i,i)=1.0; }
+          if(A.llt().info()==Eigen::NumericalIssue && Deflate>DeflateMax){
+            Deflate -= DeflateBy; 
+            if(verbose){Rcpp::Rcout << "Deflate GC " <<  Deflate << '\n';}
+            A = GC*Deflate; for(int i=0; i<k; i++){ A(i,i)=1.0;}}}
+        // Bend
+        EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+        if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+          if(verbose) Rcpp::Rcout << "Inflate " << inflate << "\n";
+          A.diagonal().array()+=inflate; A/=(1.0+inflate); GC=A*1.0;}}
+      // Cor to Cov
+      if(OneVarB){tmp = TildeHat.diagonal().mean(); vb=GC*tmp; }else{
+        for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
+          vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}
+      if(!NoInversion||TH){ 
+        iG=vb.completeOrthogonalDecomposition().pseudoInverse();}
       
       // Compute convergence and print status
       
@@ -1546,7 +1532,6 @@ SEXP MRR3F(Eigen::MatrixXf Y,
                             Rcpp::Named("vb")=vb,
                             Rcpp::Named("ve")=ve,
                             Rcpp::Named("MSx")=MSx,
-                            Rcpp::Named("bend")=Deflate,
                             Rcpp::Named("cnvB")=CNV1b,
                             Rcpp::Named("cnvH2")=CNV2b,
                             Rcpp::Named("cnvV")=CNV3b,
@@ -2265,7 +2250,6 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
   Eigen::MatrixXd tilde = Z.transpose() * y;
   
   // Bending
-  double deflate = 1.0, deflateMax = 0.9;
   Eigen::MatrixXd A = vb*1.0;
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EVDofA(A);
   double MinDVb, inflate = 0.0;
@@ -2311,7 +2295,6 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
     
     // Residual variance
     ve = (e.cwiseProduct(y)).colwise().sum();
-    //ve = ve.array() * iN.array();
     ve = (ve.array()+Se.array()) * iNp.array();
     iVe = ve.array().inverse();
     
@@ -2324,17 +2307,10 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
     
     // Bending
     A = vb*1.0;
-    for(int i=0; i<k; i++){ for(int j=0; j<k; j++){if(i!=j){A(i,j) *= deflate;}}}
-    if(A.llt().info()==Eigen::NumericalIssue && deflate>deflateMax){
-      deflate -= 0.005; Rcpp::Rcout <<  deflate;
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){if(i!=j){A(i,j) = vb(i,j)*deflate;}}}}
-    EVDofA.compute(A);
-    MinDVb = EVDofA.eigenvalues().minCoeff();
-    if( MinDVb < 0.0 ){ 
-      Rcpp::Rcout << ".";
-      inflate = inflate - MinDVb*1.001;
-      A.diagonal().array() += inflate;}
-    iG = A.inverse();
+    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+      A.diagonal().array()+=inflate; vb=A*1.0;}
+    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
     
     // Print status
     ++numit;
@@ -2358,11 +2334,15 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
   for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
   
   // Name and create outputs
-  Rcpp::List OutputList = Rcpp::List::create(Rcpp::Named("b")=MU,Rcpp::Named("u")=b,
-                                             Rcpp::Named("hat")=hat,Rcpp::Named("h2")=h2,
-                                             Rcpp::Named("GC")=GC,Rcpp::Named("bend")=deflate,
-                                             Rcpp::Named("vb")=vb,Rcpp::Named("ve")=ve,
-                                             Rcpp::Named("cnv")=cnv,Rcpp::Named("its")=numit);
+  Rcpp::List OutputList = Rcpp::List::create(Rcpp::Named("b")=MU,
+                                             Rcpp::Named("u")=b,
+                                             Rcpp::Named("hat")=hat,
+                                             Rcpp::Named("h2")=h2,
+                                             Rcpp::Named("GC")=GC,
+                                             Rcpp::Named("vb")=vb,
+                                             Rcpp::Named("ve")=ve,
+                                             Rcpp::Named("cnv")=cnv,
+                                             Rcpp::Named("its")=numit);
   
   // Output
   OutputList.attr("class") = "PEGSmodel";
