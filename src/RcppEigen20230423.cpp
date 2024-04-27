@@ -117,7 +117,7 @@ SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X){
   
   // Basic info
   int k = Y.cols(), n0 = Y.rows(), p = X.cols();
-  int maxit = 1000;
+  int maxit = 200;
   
   // Incidence matrix Z
   Eigen::MatrixXd Z(n0,k);
@@ -260,7 +260,7 @@ SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   
   // Basic info
   int k = Y.cols(), n0 = Y.rows(), p = X.cols();
-  int maxit = 500;
+  int maxit = 200;
   
   // Incidence matrix Z
   Eigen::MatrixXf Z(n0,k);
@@ -809,8 +809,8 @@ SEXP MRR3(Eigen::MatrixXd Y,
           bool InnerGS = false,
           bool NoInv = false,
           bool HCS = false,
-          bool XFA2 = false,
-          int NumXFA = 2,
+          bool XFA = false,
+          int NumXFA = 3,
           double R2 = 0.5,
           double gc0 = 0.5, 
           double df0 = 1.0, 
@@ -1080,7 +1080,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){ 
           if(i!=j){ GC(i,j) =  gs*1.0;}else{ GC(i,j) = 1.0; }}}
         // Extended Factor Analytics
-      }else if(XFA2){
+      }else if(XFA){
         es.compute(GC);
         UDU = es.eigenvalues()[k] * es.eigenvectors().col(k) * es.eigenvectors().col(k).transpose();
         for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i] * es.eigenvectors().col(k-i) * es.eigenvectors().col(k-i).transpose();
@@ -1180,13 +1180,13 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           bool TH = false,
           float NonLinearFactor = 0.0,
           bool InnerGS = false,
-          bool NoInversion = false,
+          bool NoInv = false,
           bool HCS = false,
           bool XFA = false,
-          int NumXFA = 2,
-          float prior_R2 = 0.5,
-          float gc_prior_df = 0.5, 
-          float var_prior_df = 1.0, 
+          int NumXFA = 3,
+          float R2 = 0.5,
+          float gc0 = 0.5, 
+          float df0 = 1.0, 
           float weight_prior_h2 = 0.01,
           float weight_prior_gc = 0.01,
           float PenCor = 0.0,
@@ -1250,10 +1250,10 @@ SEXP MRR3F(Eigen::MatrixXf Y,
   iN = (n.array()-1).inverse();
   Eigen::VectorXf vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
   
-  Eigen::VectorXf ve = vy * (1-prior_R2);
+  Eigen::VectorXf ve = vy * (1-R2);
   Eigen::VectorXf iVe = ve.array().inverse();
   Eigen::MatrixXf vb(k,k), TildeHat(k,k);
-  Eigen::VectorXf vbInit = ((vy*prior_R2).array()/MSx.array());
+  Eigen::VectorXf vbInit = ((vy*R2).array()/MSx.array());
   Eigen::VectorXf veInit = ve*1.0;
   vb = vbInit.array().matrix().asDiagonal();
   Eigen::MatrixXf iG = vb.inverse();
@@ -1264,7 +1264,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
   for(int i=0; i<k; i++){
     for(int j=0; j<k; j++){
       if(i>j){
-        tmp = gc_prior_df * sqrt(vb(i,i)*vb(j,j));
+        tmp = gc0 * sqrt(vb(i,i)*vb(j,j));
         vb(i,j) = tmp;
         vb(j,i) = tmp;
       }
@@ -1282,9 +1282,9 @@ SEXP MRR3F(Eigen::MatrixXf Y,
   }
   
   // Prior shape
-  Eigen::MatrixXf Sb = vb*var_prior_df;
-  Eigen::VectorXf Se = ve*var_prior_df;
-  Eigen::VectorXf iNp = (n.array()+var_prior_df-1).inverse();
+  Eigen::MatrixXf Sb = vb*df0;
+  Eigen::VectorXf Se = ve*df0;
+  Eigen::VectorXf iNp = (n.array()+df0-1).inverse();
   
   // Initialize coefficient matrices
   Eigen::MatrixXf LHS(k,k);
@@ -1350,7 +1350,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
       b0 = b.row(J)*1.0;
       
       // System of equations - Traditional vs Stranden and Garrick 2009
-      if(NoInversion){
+      if(NoInv){
         LHS = vb * (XX.row(J).transpose().array() * iVeWj.array()).matrix().asDiagonal(); 
         for(int i=0; i<k; i++){ LHS(i,i) += 1.0; }
         RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
@@ -1416,15 +1416,15 @@ SEXP MRR3F(Eigen::MatrixXf Y,
       for(int j=0; j<k; j++){
         if(i==j){ // Variances
           if(TH){
-            vb(i,i) = (TildeHat(i,i)+Sb(i,i))/(TrDinvXSX(i)+var_prior_df);
+            vb(i,i) = (TildeHat(i,i)+Sb(i,i))/(TrDinvXSX(i)+df0);
           }else{
-            vb(i,i) = (TildeHat(i,i)+Sb(i,i))/(TrXSX(i)+var_prior_df);
+            vb(i,i) = (TildeHat(i,i)+Sb(i,i))/(TrXSX(i)+df0);
           }
         }else{ // Covariances
           if(TH){
-            vb(i,j) = (TildeHat(i,j)+TildeHat(j,i)+Sb(i,j))/(TrDinvXSX(i)+TrDinvXSX(j)+var_prior_df);
+            vb(i,j) = (TildeHat(i,j)+TildeHat(j,i)+Sb(i,j))/(TrDinvXSX(i)+TrDinvXSX(j)+df0);
           }else{
-            vb(i,j) = (TildeHat(i,j)+TildeHat(j,i)+Sb(i,j))/(TrXSX(i)+TrXSX(j)+var_prior_df);
+            vb(i,j) = (TildeHat(i,j)+TildeHat(j,i)+Sb(i,j))/(TrXSX(i)+TrXSX(j)+df0);
           }
         }}}
     
@@ -1433,7 +1433,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
       for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
     if(weight_prior_gc>0){ // Proportion-based prior GC
       for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-        if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc_prior_df*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
+        if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
       for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
         // Once calculation of GC without prior
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
@@ -1474,7 +1474,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           }}}
       
       // BEND AND RECONSTRUCT COVARIANCE HERE AND ONLY ONCE
-      if(!NoInversion||TH){ 
+      if(!NoInv||TH){ 
         A = GC*1.0;
         // Deflate
         if(DeflateBy>0){
@@ -1492,7 +1492,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
       if(OneVarB){tmp = TildeHat.diagonal().mean(); vb=GC*tmp; }else{
         for(int i=0; i<k; i++){ for(int j=0; j<k; j++){
           vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}
-      if(!NoInversion||TH){ 
+      if(!NoInv||TH){ 
         iG=vb.completeOrthogonalDecomposition().pseudoInverse();}
       
       // Compute convergence and print status
@@ -2001,9 +2001,89 @@ SEXP XSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = 0){
   if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
   if(npc==0) npc += svd.matrixU().cols();
   Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
-  Eigen::MatrixXf ALPHA = XFUVBETA(Y,Z);  G = Z*ALPHA;
-  Eigen::MatrixXf b = BETA * svd.matrixV().leftCols(npc) * ALPHA;
-  return Rcpp::List::create(Rcpp::Named("b")=b,Rcpp::Named("hat")=G);}
+  Eigen::MatrixXf ALPHA = XFUVBETA(Y,Z);  
+  Eigen::MatrixXf b = BETA * svd.matrixV().leftCols(npc) * ALPHA;  G = X*b;
+  for(int i=0; i<k; i++){ G.col(i) = G.col(i).array() - G.col(i).mean(); }
+  Eigen::VectorXf vg=G.colwise().squaredNorm(); vg/=(Y.rows()); vg=vg.array().sqrt();
+  for(int i=0; i<k; i++){ G.col(i) = G.col(i).array()/vg(i); }
+  Eigen::MatrixXf GC = (G.transpose()*G)/(Y.rows());
+  return Rcpp::List::create(Rcpp::Named("b")=b,Rcpp::Named("GC")=GC,Rcpp::Named("hat")=G);}
+
+Eigen::VectorXf zsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
+  int maxit = 100; float tol = 10e-7; float df0 = 20.0;
+  int n = X.rows(), p = X.cols(), numit = 0, J;
+  float mu = Y.mean(), mu0;
+  Eigen::VectorXf y = Y.array()-mu;
+  Eigen::VectorXf tilde = X.transpose() * y;
+  for(int i=0; i<p; i++){ X.col(i) = X.col(i).array() - X.col(i).mean(); }
+  Eigen::VectorXf XX = X.colwise().squaredNorm().array();
+  float TrXSX = XX.sum();
+  float MSx = TrXSX/(n-1), vy = y.transpose()*Y; vy = vy/(n-1);
+  float ve = vy*0.5, vb=(vy*0.5)/(MSx);
+  Eigen::VectorXf b = Eigen::VectorXf::Zero(p), beta0(p);
+  Eigen::VectorXf e = y*1.0;
+  float b0, b1, lambda=ve/vb, vb0=vb*df0, ve0=ve*df0, cnv = 10.0, logtol = log10(tol);
+  std::vector<int> RGSvec(p);
+  for(int j=0; j<p; j++){RGSvec[j]=j;}
+  std::random_device rd;
+  std::mt19937 g(rd());
+  while(numit<maxit){
+    beta0 = b*1.0;
+    std::shuffle(RGSvec.begin(),RGSvec.end(), g);
+    for(int j=0; j<p; j++){
+      J = RGSvec[j]; b0 = b[J]*1.0;
+      b1 = (e.transpose()*X.col(J)+XX(J)*b0)/(XX[J]+lambda);
+      e = e - X.col(J)*(b1-b0); b[J] = b1*1.0;}
+    mu0 = e.array().mean(); mu+=mu0; e=e.array()-mu0;
+    ve = e.transpose()*y;
+    ve = (ve+ve0)/(n+df0);
+    vb = tilde.transpose()*b;
+    vb = (vb+vb0)/(TrXSX+df0);
+    lambda = ve/vb;
+    cnv = log10((beta0.array()-b.array()).square().sum());
+    ++numit; if( cnv<logtol || numit == maxit || std::isnan(cnv) ) break;}
+  Eigen::VectorXf xxx(p+2); xxx(0)=1-ve/vy; xxx(1) = mu;
+  for(int j=0; j<p ; j++){xxx(2+j)=b(j);}
+  return xxx;}
+
+Eigen::MatrixXf ZFUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+  int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXf BETA(p+2,k); Eigen::MatrixXi W(n0,k);
+  for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
+  for(int i=0;i<k;i++){
+    if(W.col(i).array().sum()>0){
+      BETA.col(i) = zsolver1xF(
+        subvec_fF( Y.col(i).array(), W.col(i).array()),
+        submat_fF( X, W.col(i).array())).array();}else{
+          BETA.col(i) = Eigen::VectorXf::Zero(p+2);}}
+  return BETA;}
+
+// [[Rcpp::export]]
+SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+  int k = Y.cols(), N = Y.rows();
+  Eigen::MatrixXf BETA = ZFUVBETA(Y,X);
+  Eigen::MatrixXf G = X*BETA.bottomRows(X.cols());
+  Eigen::VectorXf h2 = BETA.row(0).array();
+  Eigen::BDCSVD<Eigen::MatrixXf> svd(G, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal());
+  Eigen::MatrixXf Coef = ZFUVBETA(Y,Z);
+  // Hat and H2
+  Eigen::MatrixXf beta_final = BETA.bottomRows(X.cols())*Coef.bottomRows( Z.cols())*svd.matrixV();
+  G = X*beta_final; Eigen::MatrixXf hat = G * 1.0;
+  Eigen::VectorXf mu = Coef.row(1).array();
+  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i); }
+  h2 = Coef.row(0).array();
+  // GC
+  for(int i=0; i<k; i++){ G.col(i) = G.col(i).array() - G.col(i).mean(); }
+  Eigen::VectorXf vg = G.colwise().squaredNorm(); vg /= N; vg = vg.array().sqrt();
+  for(int i=0; i<k; i++){ G.col(i) = G.col(i).array() / vg(i); }
+  Eigen::MatrixXf GC = (G.transpose()*G)/N;
+  // Output
+  return Rcpp::List::create(Rcpp::Named("mu")=mu,
+                            Rcpp::Named("b")=beta_final,
+                            Rcpp::Named("hat")=hat,
+                            Rcpp::Named("h2")=h2,
+                            Rcpp::Named("GC")=GC);}
+
 
 
 // [[Rcpp::export]]

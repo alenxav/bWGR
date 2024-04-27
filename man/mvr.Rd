@@ -22,6 +22,8 @@
 \alias{solver2xF}
 \alias{XFUVBETA}
 \alias{XSEMF}
+\alias{ZFUVBETA}
+\alias{ZSEMF}
 
 \title{
   Multivariate Regression
@@ -86,7 +88,9 @@
 
     11) \code{GSEMF(Y,X,npc=-1):} Float GSEM.
 
-    12) \code{XSEMF(Y,X,npc=0):} GSEMF using PCs only.
+    12) \code{XSEMF(Y,X,npc=0):} GSEMF using PCs only - h2 fixed at 0.5.
+    
+    13) \code{ZSEMF(Y,X):} GSEMF using PCs only - h2 is estimated.
     
 In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
 

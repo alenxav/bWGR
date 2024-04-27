@@ -197,12 +197,12 @@ mrr_svd <- function(Y, W) {
     .Call('_bWGR_mrr_svd', PACKAGE = 'bWGR', Y, W)
 }
 
-MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA2 = FALSE, NumXFA = 2L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
-    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA2, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
+MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, NumXFA = 3L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
+    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
 }
 
-MRR3F <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NonLinearFactor = 0.0, InnerGS = FALSE, NoInversion = FALSE, HCS = FALSE, XFA = FALSE, NumXFA = 2L, prior_R2 = 0.5, gc_prior_df = 0.5, var_prior_df = 1.0, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
-    .Call('_bWGR_MRR3F', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NonLinearFactor, InnerGS, NoInversion, HCS, XFA, NumXFA, prior_R2, gc_prior_df, var_prior_df, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
+MRR3F <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NonLinearFactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, NumXFA = 3L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
+    .Call('_bWGR_MRR3F', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NonLinearFactor, InnerGS, NoInv, HCS, XFA, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
 }
 
 solver1x <- function(Y, X, maxit = 100L, tol = 10e-7, df0 = 20.0) {
@@ -251,6 +251,10 @@ XFUVBETA <- function(Y, X) {
 
 XSEMF <- function(Y, X, npc = 0L) {
     .Call('_bWGR_XSEMF', PACKAGE = 'bWGR', Y, X, npc)
+}
+
+ZSEMF <- function(Y, X) {
+    .Call('_bWGR_ZSEMF', PACKAGE = 'bWGR', Y, X)
 }
 
 EigenArcZ <- function(Zfndr, Zsamp, cores = 1L) {
