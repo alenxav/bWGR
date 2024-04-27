@@ -2003,9 +2003,9 @@ SEXP XSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = 0){
   Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
   Eigen::MatrixXf ALPHA = XFUVBETA(Y,Z);  
   Eigen::MatrixXf b = BETA * svd.matrixV().leftCols(npc) * ALPHA;  G = X*b;
-  for(int i=0; i<k; i++){ G.col(i) = G.col(i).array() - G.col(i).mean(); }
+  for(int i=0; i<(Y.cols()); i++){ G.col(i) = G.col(i).array() - G.col(i).mean(); }
   Eigen::VectorXf vg=G.colwise().squaredNorm(); vg/=(Y.rows()); vg=vg.array().sqrt();
-  for(int i=0; i<k; i++){ G.col(i) = G.col(i).array()/vg(i); }
+  for(int i=0; i<(Y.cols()); i++){ G.col(i) = G.col(i).array()/vg(i); }
   Eigen::MatrixXf GC = (G.transpose()*G)/(Y.rows());
   return Rcpp::List::create(Rcpp::Named("b")=b,Rcpp::Named("GC")=GC,Rcpp::Named("hat")=G);}
 
