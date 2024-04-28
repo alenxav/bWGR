@@ -1878,7 +1878,7 @@ SEXP emBCpi(NumericVector y, NumericMatrix gen, double df = 10, double R2 = 0.5,
 NumericMatrix NNSEARCH(NumericVector blk, NumericVector row, NumericVector col, int rN, int cN){
   int n = blk.size(); NumericMatrix X(n,(rN*2+1)*(cN*2+1)); NumericVector Obs(n);
   for(int i=0; i<n; i++){ for(int j=0; j<n; j++){
-    if( (i>j) && (blk[i]==blk[j]) && (abs(1.0*(row[i]-row[j]))<=rN) && (abs(1.0*(col[i]-col[j]))<=cN) ){
+    if( (i>j) && (blk[i]==blk[j]) && (fabs(row[i]-row[j])<=rN) && (fabs(col[i]-col[j])<=cN) ){
       X(i,Obs[i]) = j+1;  X(j,Obs[j]) = i+1; Obs[i] = Obs[i]+1; Obs[j] = Obs[j]+1; }}}
   return X;}
 
