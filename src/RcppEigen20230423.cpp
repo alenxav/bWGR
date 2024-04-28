@@ -2067,7 +2067,7 @@ SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal());
   Eigen::MatrixXf Coef = ZFUVBETA(Y,Z);
   // Hat and H2
-  Eigen::MatrixXf beta_final = BETA.bottomRows(X.cols())*Coef.bottomRows( Z.cols())*svd.matrixV();
+  Eigen::MatrixXf beta_final = BETA.bottomRows(X.cols()) *svd.matrixV()* Coef.bottomRows( Z.cols());
   G = X*beta_final; Eigen::MatrixXf hat = G * 1.0;
   Eigen::VectorXf mu = Coef.row(1).array();
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i); }
