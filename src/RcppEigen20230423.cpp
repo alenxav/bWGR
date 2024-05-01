@@ -73,6 +73,21 @@ SEXP EigenBDCSVD(Eigen::MatrixXd X, int cores = 1){
                             Rcpp::Named("V")=svd.matrixV());}
 
 // [[Rcpp::export]]
+SEXP EigenEVD_F(Eigen::MatrixXf A, int cores = 1){
+  if(cores!=1) Eigen::setNbThreads(cores); 
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(A);
+  return Rcpp::List::create(Rcpp::Named("U")=es.eigenvectors(),
+                            Rcpp::Named("D")=es.eigenvalues());}
+
+// [[Rcpp::export]]
+SEXP EigenBDCSVD_F(Eigen::MatrixXf X, int cores = 1){
+  if(cores!=1) Eigen::setNbThreads(cores);
+  Eigen::BDCSVD<Eigen::MatrixXf> svd(X, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  return Rcpp::List::create(Rcpp::Named("U")=svd.matrixU(),
+                            Rcpp::Named("D")=svd.singularValues(),
+                            Rcpp::Named("V")=svd.matrixV());}
+
+// [[Rcpp::export]]
 SEXP EigenJacobiSVD(Eigen::MatrixXd X, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores);
   Eigen::JacobiSVD<Eigen::MatrixXd> svd(X, Eigen::ComputeThinU | Eigen::ComputeThinV );
@@ -173,11 +188,8 @@ SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X){
   Eigen::MatrixXd e(n0,k); e = y*1.0;
   
   // RGS
-  std::vector<int> RGSvec(p);
+  std::vector<int> RGSvec(p); int J;
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
-  int J;
   
   // Convergence control
   Eigen::MatrixXd A = vb*1.0; double MinDVb, inflate;
@@ -193,7 +205,8 @@ SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X){
     beta0 = b*1.0;
     
     // Randomized Gauss-Seidel loop
-    std::shuffle(RGSvec.begin(), RGSvec.end(), g);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
+    
     for(int j=0; j<p; j++){
       J = RGSvec[j];
       // Update coefficient
@@ -320,18 +333,12 @@ SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   Eigen::MatrixXf e(n0,k); e = y*1.0;
   
   // RGS
-  std::vector<int> RGSvec(p);
+  std::vector<int> RGSvec(p); int J;
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
-  int J;
   
   // Inner RGS
-  std::vector<int> InnerRGSvec(k);
+  std::vector<int> InnerRGSvec(k); int ri;
   for(int j=0; j<k; j++){InnerRGSvec[j]=j;}
-  std::random_device rd2;
-  std::mt19937 g2(rd2());
-  int ri;
   
   // Convergence control
   Eigen::MatrixXf beta0(p,k);
@@ -345,8 +352,8 @@ SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X){
     beta0 = b*1.0;
     
     // Randomized Gauss-Seidel loop
-    std::shuffle(RGSvec.begin(), RGSvec.end(), g);
-    std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), g2);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
+    std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), std::mt19937(numit));
     
     for(int j=0; j<p; j++){
       
@@ -499,8 +506,6 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
   std::vector<int> RGSvec2(p2);
   for(int j=0; j<p1; j++){RGSvec1[j]=j;}
   for(int j=0; j<p2; j++){RGSvec2[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
   int J;
   
   // Convergence control
@@ -516,7 +521,7 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
     beta02 = bB*1.0;
     
     // Randomized Gauss-Seidel loop 1
-    std::shuffle(RGSvec1.begin(), RGSvec1.end(), g);
+    std::shuffle(RGSvec1.begin(), RGSvec1.end(), std::mt19937(numit));
     for(int j=0; j<p1; j++){
       J = RGSvec1[j];
       // Update coefficient
@@ -532,7 +537,7 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
     }
     
     // Randomized Gauss-Seidel loop 2
-    std::shuffle(RGSvec2.begin(), RGSvec2.end(), g);
+    std::shuffle(RGSvec2.begin(), RGSvec2.end(), std::mt19937(numit));
     for(int j=0; j<p2; j++){
       J = RGSvec2[j];
       // Update coefficient
@@ -932,18 +937,12 @@ SEXP MRR3(Eigen::MatrixXd Y,
   double logtol = log10(tol);
   
   // RGS
-  std::vector<int> RGSvec(p);
+  std::vector<int> RGSvec(p); int J;
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
-  int J;
   
   // Inner RGS
-  std::vector<int> InnerRGSvec(k);
+  std::vector<int> InnerRGSvec(k); int ri;
   for(int j=0; j<k; j++){InnerRGSvec[j]=j;}
-  std::random_device rd2;
-  std::mt19937 g2(rd2());
-  int ri;
   
   // Non-Linear weights for marker effects
   bool NonLinear = NLfactor!=0.0;
@@ -968,8 +967,8 @@ SEXP MRR3(Eigen::MatrixXd Y,
     h20 = h2*1.0;
     
     // Randomized Gauss-Seidel loop
-    std::shuffle(RGSvec.begin(), RGSvec.end(), g);
-    std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), g2);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
+    std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), std::mt19937(numit));
     
     for(int j=0; j<p; j++){
       J = RGSvec[j];
@@ -1305,18 +1304,12 @@ SEXP MRR3F(Eigen::MatrixXf Y,
   float logtol = log10(tol);
   
   // RGS
-  std::vector<int> RGSvec(p);
+  std::vector<int> RGSvec(p); int J;
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
-  int J;
   
   // Inner RGS
-  std::vector<int> InnerRGSvec(k);
+  std::vector<int> InnerRGSvec(k); int ri;
   for(int j=0; j<k; j++){InnerRGSvec[j]=j;}
-  std::random_device rd2;
-  std::mt19937 g2(rd2());
-  int ri;
   
   // Non-Linear weights for marker effects
   bool NonLinear = NonLinearFactor!=0.0;
@@ -1341,8 +1334,8 @@ SEXP MRR3F(Eigen::MatrixXf Y,
     h20 = h2*1.0;
     
     // Randomized Gauss-Seidel loop
-    std::shuffle(RGSvec.begin(), RGSvec.end(), g);
-    std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), g2);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
+    std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), std::mt19937(numit));
     
     for(int j=0; j<p; j++){
       
@@ -1557,11 +1550,9 @@ Eigen::VectorXd solver1x(Eigen::VectorXd Y, Eigen::MatrixXd X,
   double b0, b1, lambda=ve/vb, vb0=vb*df0, ve0=ve*df0, cnv = 10.0, logtol = log10(tol);
   std::vector<int> RGSvec(p);
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
   while(numit<maxit){
     beta0 = b*1.0;
-    std::shuffle(RGSvec.begin(),RGSvec.end(), g);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
     for(int j=0; j<p; j++){
       J = RGSvec[j]; b0 = b[J]*1.0;
       b1 = (e.transpose()*X.col(J)+XX(J)*b0)/(XX[J]+lambda);
@@ -1599,12 +1590,10 @@ Eigen::VectorXd solver2x(Eigen::VectorXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd 
   std::vector<int> RGSvec1(p1), RGSvec2(p2);
   for(int j=0; j<p1; j++){RGSvec1[j]=j;}
   for(int j=0; j<p2; j++){RGSvec2[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
   while(numit<maxit){
     beta01 = b_1*1.0; beta02 = b_2*1.0;
-    std::shuffle(RGSvec1.begin(),RGSvec1.end(), g);
-    std::shuffle(RGSvec2.begin(),RGSvec2.end(), g);
+    std::shuffle(RGSvec1.begin(), RGSvec1.end(), std::mt19937(numit));
+    std::shuffle(RGSvec2.begin(), RGSvec2.end(), std::mt19937(numit));
     for(int j=0; j<p1; j++){
       J = RGSvec1[j]; b0 = b_1[J]*1.0;
       b1 = (e.transpose()*X1.col(J)+XX1(J)*b0)/(XX1[J]+lambda1);
@@ -1765,11 +1754,9 @@ Eigen::VectorXf solver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X,
   float b0, b1, lambda=ve/vb, vb0=vb*df0, ve0=ve*df0, cnv = 10.0, logtol = log10(tol);
   std::vector<int> RGSvec(p);
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
   while(numit<maxit){
     beta0 = b*1.0;
-    std::shuffle(RGSvec.begin(),RGSvec.end(), g);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
     for(int j=0; j<p; j++){
       J = RGSvec[j]; b0 = b[J]*1.0;
       b1 = (e.transpose()*X.col(J)+XX(J)*b0)/(XX[J]+lambda);
@@ -1807,12 +1794,10 @@ Eigen::VectorXf solver2xF(Eigen::VectorXf Y, Eigen::MatrixXf X1, Eigen::MatrixXf
   std::vector<int> RGSvec1(p1), RGSvec2(p2);
   for(int j=0; j<p1; j++){RGSvec1[j]=j;}
   for(int j=0; j<p2; j++){RGSvec2[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
   while(numit<maxit){
     beta01 = b_1*1.0; beta02 = b_2*1.0;
-    std::shuffle(RGSvec1.begin(),RGSvec1.end(), g);
-    std::shuffle(RGSvec2.begin(),RGSvec2.end(), g);
+    std::shuffle(RGSvec1.begin(), RGSvec2.end(), std::mt19937(numit));
+    std::shuffle(RGSvec1.begin(), RGSvec2.end(), std::mt19937(numit));
     for(int j=0; j<p1; j++){
       J = RGSvec1[j]; b0 = b_1[J]*1.0;
       b1 = (e.transpose()*X1.col(J)+XX1(J)*b0)/(XX1[J]+lambda1);
@@ -1969,10 +1954,8 @@ Eigen::VectorXf xsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
   float b0, b1, lambda= XX.mean(), cnv = 10.0, logtol = log10(tol);
   std::vector<int> RGSvec(p);
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
   while(numit<maxit){  beta0 = b*1.0;
-    std::shuffle(RGSvec.begin(),RGSvec.end(), g);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
     for(int j=0; j<p; j++){
       J = RGSvec[j]; b0 = b[J]*1.0;
       b1 = (e.transpose()*X.col(J)+XX(J)*b0)/(XX[J]+lambda);
@@ -2025,11 +2008,9 @@ Eigen::VectorXf zsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
   float b0, b1, lambda=ve/vb, vb0=vb*df0, ve0=ve*df0, cnv = 10.0, logtol = log10(tol);
   std::vector<int> RGSvec(p);
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
   while(numit<maxit){
     beta0 = b*1.0;
-    std::shuffle(RGSvec.begin(),RGSvec.end(), g);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
     for(int j=0; j<p; j++){
       J = RGSvec[j]; b0 = b[J]*1.0;
       b1 = (e.transpose()*X.col(J)+XX(J)*b0)/(XX[J]+lambda);
@@ -2340,11 +2321,8 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
   Eigen::VectorXd iNp = (n.array()+df0-f).inverse();
   
   // RGS
-  std::vector<int> RGSvec(p);
+  std::vector<int> RGSvec(p); int J;
   for(int j=0; j<p; j++){RGSvec[j]=j;}
-  std::random_device rd;
-  std::mt19937 g(rd());
-  int J;
   
   // Convergence control
   Eigen::MatrixXd beta0(p,k);
@@ -2358,7 +2336,7 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
     beta0 = b*1.0;
     
     // Randomized Gauss-Seidel loop
-    std::shuffle(RGSvec.begin(), RGSvec.end(), g);
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
     for(int j=0; j<p; j++){
       J = RGSvec[j];
       

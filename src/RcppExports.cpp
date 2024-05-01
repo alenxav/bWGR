@@ -624,6 +624,30 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// EigenEVD_F
+SEXP EigenEVD_F(Eigen::MatrixXf A, int cores);
+RcppExport SEXP _bWGR_EigenEVD_F(SEXP ASEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type A(ASEXP);
+    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(EigenEVD_F(A, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// EigenBDCSVD_F
+SEXP EigenBDCSVD_F(Eigen::MatrixXf X, int cores);
+RcppExport SEXP _bWGR_EigenBDCSVD_F(SEXP XSEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(EigenBDCSVD_F(X, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
 // EigenJacobiSVD
 SEXP EigenJacobiSVD(Eigen::MatrixXd X, int cores);
 RcppExport SEXP _bWGR_EigenJacobiSVD(SEXP XSEXP, SEXP coresSEXP) {
@@ -1089,6 +1113,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_EigenCNT", (DL_FUNC) &_bWGR_EigenCNT, 2},
     {"_bWGR_EigenEVD", (DL_FUNC) &_bWGR_EigenEVD, 2},
     {"_bWGR_EigenBDCSVD", (DL_FUNC) &_bWGR_EigenBDCSVD, 2},
+    {"_bWGR_EigenEVD_F", (DL_FUNC) &_bWGR_EigenEVD_F, 2},
+    {"_bWGR_EigenBDCSVD_F", (DL_FUNC) &_bWGR_EigenBDCSVD_F, 2},
     {"_bWGR_EigenJacobiSVD", (DL_FUNC) &_bWGR_EigenJacobiSVD, 2},
     {"_bWGR_EigenAcc", (DL_FUNC) &_bWGR_EigenAcc, 4},
     {"_bWGR_GS2EIGEN", (DL_FUNC) &_bWGR_GS2EIGEN, 5},

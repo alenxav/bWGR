@@ -13,7 +13,6 @@
 \alias{GSEM}
 \alias{MEGAF}
 \alias{GSEMF}
-
 \alias{UVBETA}
 \alias{solver1x}
 \alias{solver2x}

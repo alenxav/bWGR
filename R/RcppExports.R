@@ -169,6 +169,14 @@ EigenBDCSVD <- function(X, cores = 1L) {
     .Call('_bWGR_EigenBDCSVD', PACKAGE = 'bWGR', X, cores)
 }
 
+EigenEVD_F <- function(A, cores = 1L) {
+    .Call('_bWGR_EigenEVD_F', PACKAGE = 'bWGR', A, cores)
+}
+
+EigenBDCSVD_F <- function(X, cores = 1L) {
+    .Call('_bWGR_EigenBDCSVD_F', PACKAGE = 'bWGR', X, cores)
+}
+
 EigenJacobiSVD <- function(X, cores = 1L) {
     .Call('_bWGR_EigenJacobiSVD', PACKAGE = 'bWGR', X, cores)
 }

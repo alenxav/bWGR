@@ -15,6 +15,8 @@
 \alias{EigenARC}
 \alias{EigenEVD}
 \alias{EigenBDCSVD}
+\alias{EigenEVD_F}
+\alias{EigenBDCSVD_F}
 \alias{EigenJacobiSVD}
 \alias{EigenAcc}
 \alias{AccByC}
@@ -66,6 +68,10 @@ Complementary functions that may help with handling parameters and routine opera
 \code{EigenEVD(A, cores = 2)} # Eigendecomposition from Eigen library
 
 \code{EigenBDCSVD(X, cores = 2)} # BDC single value composition from Eigen
+
+\code{EigenEVD_F(A, cores = 2)} # Eigendecomposition - float
+
+\code{EigenBDCSVD_F(X, cores = 2)} # Single value composition - float
 
 \code{EigenJacobiSVD(X, cores = 2)} # Jacobi single value composition from Eigen
 
