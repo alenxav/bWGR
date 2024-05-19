@@ -169,14 +169,6 @@ EigenBDCSVD <- function(X, cores = 1L) {
     .Call('_bWGR_EigenBDCSVD', PACKAGE = 'bWGR', X, cores)
 }
 
-EigenEVD_F <- function(A, cores = 1L) {
-    .Call('_bWGR_EigenEVD_F', PACKAGE = 'bWGR', A, cores)
-}
-
-EigenBDCSVD_F <- function(X, cores = 1L) {
-    .Call('_bWGR_EigenBDCSVD_F', PACKAGE = 'bWGR', X, cores)
-}
-
 EigenJacobiSVD <- function(X, cores = 1L) {
     .Call('_bWGR_EigenJacobiSVD', PACKAGE = 'bWGR', X, cores)
 }
@@ -187,14 +179,6 @@ EigenAcc <- function(X1, X2, h2 = 0.5, cores = 1L) {
 
 GS2EIGEN <- function(e, X, b, XX, Lmb) {
     .Call('_bWGR_GS2EIGEN', PACKAGE = 'bWGR', e, X, b, XX, Lmb)
-}
-
-mrr <- function(Y, X) {
-    .Call('_bWGR_mrr', PACKAGE = 'bWGR', Y, X)
-}
-
-mrr_float <- function(Y, X) {
-    .Call('_bWGR_mrr_float', PACKAGE = 'bWGR', Y, X)
 }
 
 mrr2X <- function(Y, X1, X2) {

@@ -15,8 +15,6 @@
 \alias{EigenARC}
 \alias{EigenEVD}
 \alias{EigenBDCSVD}
-\alias{EigenEVD_F}
-\alias{EigenBDCSVD_F}
 \alias{EigenJacobiSVD}
 \alias{EigenAcc}
 \alias{AccByC}

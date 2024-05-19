@@ -1265,3 +1265,9 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,Rn
   out = list(Univ=Beta0,SEM=MvBeta,Mu=Mu)
   out = list(mu=Mu,b=MvBeta,GC=GC,hat=G,h2=h2)
   return(out)}
+
+#############################################################################################################                   
+
+mrr = function(Y,X) MRR(Y,X)
+
+mrr_float = function(Y,X) MRRF(Y,X)

@@ -550,12 +550,12 @@ BEGIN_RCPP
 END_RCPP
 }
 // EigenARC
-Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeX, int cores);
+Eigen::MatrixXf EigenARC(Eigen::MatrixXf X, bool centralizeX, int cores);
 RcppExport SEXP _bWGR_EigenARC(SEXP XSEXP, SEXP centralizeXSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
     Rcpp::traits::input_parameter< bool >::type centralizeX(centralizeXSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(EigenARC(X, centralizeX, cores));
@@ -563,25 +563,25 @@ BEGIN_RCPP
 END_RCPP
 }
 // EigenGAU
-Eigen::MatrixXd EigenGAU(Eigen::MatrixXd X, double phi, int cores);
+Eigen::MatrixXf EigenGAU(Eigen::MatrixXf X, float phi, int cores);
 RcppExport SEXP _bWGR_EigenGAU(SEXP XSEXP, SEXP phiSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
-    Rcpp::traits::input_parameter< double >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    Rcpp::traits::input_parameter< float >::type phi(phiSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(EigenGAU(X, phi, cores));
     return rcpp_result_gen;
 END_RCPP
 }
 // EigenGRM
-Eigen::MatrixXd EigenGRM(Eigen::MatrixXd X, bool centralizeZ, int cores);
+Eigen::MatrixXf EigenGRM(Eigen::MatrixXf X, bool centralizeZ, int cores);
 RcppExport SEXP _bWGR_EigenGRM(SEXP XSEXP, SEXP centralizeZSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
     Rcpp::traits::input_parameter< bool >::type centralizeZ(centralizeZSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(EigenGRM(X, centralizeZ, cores));
@@ -601,50 +601,26 @@ BEGIN_RCPP
 END_RCPP
 }
 // EigenEVD
-SEXP EigenEVD(Eigen::MatrixXd A, int cores);
+SEXP EigenEVD(Eigen::MatrixXf A, int cores);
 RcppExport SEXP _bWGR_EigenEVD(SEXP ASEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type A(ASEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type A(ASEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(EigenEVD(A, cores));
     return rcpp_result_gen;
 END_RCPP
 }
 // EigenBDCSVD
-SEXP EigenBDCSVD(Eigen::MatrixXd X, int cores);
+SEXP EigenBDCSVD(Eigen::MatrixXf X, int cores);
 RcppExport SEXP _bWGR_EigenBDCSVD(SEXP XSEXP, SEXP coresSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
-    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(EigenBDCSVD(X, cores));
-    return rcpp_result_gen;
-END_RCPP
-}
-// EigenEVD_F
-SEXP EigenEVD_F(Eigen::MatrixXf A, int cores);
-RcppExport SEXP _bWGR_EigenEVD_F(SEXP ASEXP, SEXP coresSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type A(ASEXP);
-    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(EigenEVD_F(A, cores));
-    return rcpp_result_gen;
-END_RCPP
-}
-// EigenBDCSVD_F
-SEXP EigenBDCSVD_F(Eigen::MatrixXf X, int cores);
-RcppExport SEXP _bWGR_EigenBDCSVD_F(SEXP XSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(EigenBDCSVD_F(X, cores));
+    rcpp_result_gen = Rcpp::wrap(EigenBDCSVD(X, cores));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -686,30 +662,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MappedSparseMatrix<double> >::type XX(XXSEXP);
     Rcpp::traits::input_parameter< double >::type Lmb(LmbSEXP);
     rcpp_result_gen = Rcpp::wrap(GS2EIGEN(e, X, b, XX, Lmb));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mrr
-SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X);
-RcppExport SEXP _bWGR_mrr(SEXP YSEXP, SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(mrr(Y, X));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mrr_float
-SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X);
-RcppExport SEXP _bWGR_mrr_float(SEXP YSEXP, SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(mrr_float(Y, X));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -996,39 +948,39 @@ BEGIN_RCPP
 END_RCPP
 }
 // EigenArcZ
-Eigen::MatrixXd EigenArcZ(Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, int cores);
+Eigen::MatrixXf EigenArcZ(Eigen::MatrixXf Zfndr, Eigen::MatrixXf Zsamp, int cores);
 RcppExport SEXP _bWGR_EigenArcZ(SEXP ZfndrSEXP, SEXP ZsampSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zfndr(ZfndrSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zsamp(ZsampSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Zfndr(ZfndrSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Zsamp(ZsampSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(EigenArcZ(Zfndr, Zsamp, cores));
     return rcpp_result_gen;
 END_RCPP
 }
 // EigenGauZ
-Eigen::MatrixXd EigenGauZ(Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, double phi, int cores);
+Eigen::MatrixXf EigenGauZ(Eigen::MatrixXf Zfndr, Eigen::MatrixXf Zsamp, float phi, int cores);
 RcppExport SEXP _bWGR_EigenGauZ(SEXP ZfndrSEXP, SEXP ZsampSEXP, SEXP phiSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zfndr(ZfndrSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type Zsamp(ZsampSEXP);
-    Rcpp::traits::input_parameter< double >::type phi(phiSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Zfndr(ZfndrSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Zsamp(ZsampSEXP);
+    Rcpp::traits::input_parameter< float >::type phi(phiSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(EigenGauZ(Zfndr, Zsamp, phi, cores));
     return rcpp_result_gen;
 END_RCPP
 }
 // K2X
-Eigen::MatrixXd K2X(Eigen::MatrixXd K, int cores);
+Eigen::MatrixXf K2X(Eigen::MatrixXf K, int cores);
 RcppExport SEXP _bWGR_K2X(SEXP KSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::MatrixXd >::type K(KSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type K(KSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(K2X(K, cores));
     return rcpp_result_gen;
@@ -1113,13 +1065,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_EigenCNT", (DL_FUNC) &_bWGR_EigenCNT, 2},
     {"_bWGR_EigenEVD", (DL_FUNC) &_bWGR_EigenEVD, 2},
     {"_bWGR_EigenBDCSVD", (DL_FUNC) &_bWGR_EigenBDCSVD, 2},
-    {"_bWGR_EigenEVD_F", (DL_FUNC) &_bWGR_EigenEVD_F, 2},
-    {"_bWGR_EigenBDCSVD_F", (DL_FUNC) &_bWGR_EigenBDCSVD_F, 2},
     {"_bWGR_EigenJacobiSVD", (DL_FUNC) &_bWGR_EigenJacobiSVD, 2},
     {"_bWGR_EigenAcc", (DL_FUNC) &_bWGR_EigenAcc, 4},
     {"_bWGR_GS2EIGEN", (DL_FUNC) &_bWGR_GS2EIGEN, 5},
-    {"_bWGR_mrr", (DL_FUNC) &_bWGR_mrr, 2},
-    {"_bWGR_mrr_float", (DL_FUNC) &_bWGR_mrr_float, 2},
     {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},
     {"_bWGR_mrr_svd", (DL_FUNC) &_bWGR_mrr_svd, 2},
     {"_bWGR_MRR3", (DL_FUNC) &_bWGR_MRR3, 31},

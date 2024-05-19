@@ -79,7 +79,7 @@
 
     07) \code{SEM(Y,Z,PCs=3,TOI=NULL,Beta0=NULL):} Fits a XFA structural equation model.
 
-    08) \code{MEGA(Y,X,npc=-1):} Toy MegaLMM implementation.
+    08) \code{MEGA(Y,X,npc=-1):} Toy implementation of MegaLMM.
 
     09) \code{GSEM(Y,X,npc=-1):} SEM with all components for G.
 

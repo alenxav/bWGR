@@ -5,18 +5,18 @@
 #include <random>
 
 // [[Rcpp::export]]
-Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeX = true, int cores = 1){
+Eigen::MatrixXf EigenARC(Eigen::MatrixXf X, bool centralizeX = true, int cores = 1){
   // cseweb.ucsd.edu/~saul/papers/nips09_kernel.pdf
   if(cores!=1) Eigen::setNbThreads(cores);
   int p = X.cols(), n = X.rows(); 
-  double tmp, Npi=3.1416, theta, J1, Kij, Norm;
+  float tmp, Npi=3.1416, theta, J1, Kij, Norm;
   if(centralizeX){
     for(int i=0; i<p; i++){
       tmp = (X.col(i).array()).mean();
       X.col(i) = X.col(i).array()-tmp;}}
-  Eigen::MatrixXd XXp = X*X.transpose();
+  Eigen::MatrixXf XXp = X*X.transpose();
   tmp = 1/(XXp.diagonal().mean()); XXp *= tmp;
-  Eigen::VectorXd DiagXXp = XXp.diagonal().array();
+  Eigen::VectorXf DiagXXp = XXp.diagonal().array();
   for(int i=0; i<n; i++){ for(int j=i; j<n; j++){ 
     Norm = sqrt(DiagXXp(i)*DiagXXp(j)*1.001);
     theta = acos( XXp(i,j)/Norm);
@@ -26,10 +26,10 @@ Eigen::MatrixXd EigenARC(Eigen::MatrixXd X, bool centralizeX = true, int cores =
   return XXp;}
 
 // [[Rcpp::export]]
-Eigen::MatrixXd EigenGAU(Eigen::MatrixXd X, double phi = 1.0, int cores = 1){
+Eigen::MatrixXf EigenGAU(Eigen::MatrixXf X, float phi = 1.0, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores);
-  int n = X.rows(); double tmp;
-  Eigen::MatrixXd XXp = X*X.transpose();
+  int n = X.rows(); float tmp;
+  Eigen::MatrixXf XXp = X*X.transpose();
   for(int i=0; i<n; i++){ for(int j=0; j<n; j++){ if(i>j){
     tmp = sqrt(XXp(i,i) + XXp(j,j) - 2*XXp(i,j));
     XXp(i,j) = tmp*1.0; XXp(j,i) = tmp*1.0;}}};
@@ -38,14 +38,15 @@ Eigen::MatrixXd EigenGAU(Eigen::MatrixXd X, double phi = 1.0, int cores = 1){
   XXp *= tmp; return exp(XXp.array());}
 
 // [[Rcpp::export]]
-Eigen::MatrixXd EigenGRM(Eigen::MatrixXd X, bool centralizeZ = true, int cores = 1){
+Eigen::MatrixXf EigenGRM(Eigen::MatrixXf X, bool centralizeZ = true, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores); 
-  int p = X.cols(); double tmp;
+  int p = X.cols(); float tmp;
   if(centralizeZ){
     for(int i=0; i<p; i++){
       tmp = (X.col(i).array()).mean();
       X.col(i) = X.col(i).array()-tmp;}}
-  Eigen::MatrixXd XXp = X*X.transpose();
+  Eigen::MatrixXf XXp = X*X.transpose();
+  XXp.diagonal() = XXp.diagonal().array() + 1.0;
   tmp = 1/(XXp.diagonal().mean());
   XXp *= tmp; return XXp;}
 
@@ -58,29 +59,14 @@ Eigen::MatrixXd EigenCNT(Eigen::MatrixXd X, int cores = 1){
   return X;}
 
 // [[Rcpp::export]]
-SEXP EigenEVD(Eigen::MatrixXd A, int cores = 1){
-  if(cores!=1) Eigen::setNbThreads(cores); 
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(A);
-  return Rcpp::List::create(Rcpp::Named("U")=es.eigenvectors(),
-                            Rcpp::Named("D")=es.eigenvalues());}
-
-// [[Rcpp::export]]
-SEXP EigenBDCSVD(Eigen::MatrixXd X, int cores = 1){
-  if(cores!=1) Eigen::setNbThreads(cores);
-  Eigen::BDCSVD<Eigen::MatrixXd> svd(X, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  return Rcpp::List::create(Rcpp::Named("U")=svd.matrixU(),
-                            Rcpp::Named("D")=svd.singularValues(),
-                            Rcpp::Named("V")=svd.matrixV());}
-
-// [[Rcpp::export]]
-SEXP EigenEVD_F(Eigen::MatrixXf A, int cores = 1){
+SEXP EigenEVD(Eigen::MatrixXf A, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores); 
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(A);
   return Rcpp::List::create(Rcpp::Named("U")=es.eigenvectors(),
                             Rcpp::Named("D")=es.eigenvalues());}
 
 // [[Rcpp::export]]
-SEXP EigenBDCSVD_F(Eigen::MatrixXf X, int cores = 1){
+SEXP EigenBDCSVD(Eigen::MatrixXf X, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores);
   Eigen::BDCSVD<Eigen::MatrixXf> svd(X, Eigen::ComputeThinU | Eigen::ComputeThinV );
   return Rcpp::List::create(Rcpp::Named("U")=svd.matrixU(),
@@ -126,300 +112,6 @@ SEXP GS2EIGEN(Eigen::Map<Eigen::VectorXd> e,
   e = Y - X * b;
   return Rcpp::List::create(Rcpp::Named("b")=b,Rcpp::Named("e")=e);
 }
-
-// [[Rcpp::export]]
-SEXP mrr(Eigen::MatrixXd Y, Eigen::MatrixXd X){
-  
-  // Basic info
-  int k = Y.cols(), n0 = Y.rows(), p = X.cols();
-  int maxit = 200;
-  
-  // Incidence matrix Z
-  Eigen::MatrixXd Z(n0,k);
-  for(int i=0; i<n0; i++){
-    for(int j=0; j<k; j++){
-      if(std::isnan(Y(i,j))){
-        Z(i,j) = 0.0;
-        Y(i,j) = 0.0;
-      }else{ Z(i,j) = 1.0;}}}
-  
-  // Count observations per trait
-  Eigen::VectorXd n = Z.colwise().sum();
-  Eigen::VectorXd iN = n.array().inverse();
-  
-  // Centralize y
-  Eigen::VectorXd mu = Y.colwise().sum();
-  mu = mu.array() * iN.array();
-  Eigen::MatrixXd y(n0,k);
-  for(int i=0; i<k; i++){
-    y.col(i) = (Y.col(i).array()-mu(i)).array() * Z.col(i).array();}
-  
-  // Sum of squares of X
-  Eigen::MatrixXd XX(p,k);
-  for(int i=0; i<p; i++){
-    XX.row(i) = X.col(i).array().square().matrix().transpose() * Z;}
-  
-  // Compute Tr(XSX);
-  Eigen::MatrixXd XSX(p,k);
-  for(int i=0; i<p; i++){
-    XSX.row(i) = XX.row(i).transpose().array()*iN.array() - 
-      ((X.col(i).transpose()*Z).transpose().array()*iN.array()).square();}
-  Eigen::VectorXd MSx = XSX.colwise().sum();
-  Eigen::VectorXd TrXSX = n.array()*MSx.array();
-  
-  // Variances
-  iN = (n.array()-1).inverse();
-  Eigen::VectorXd vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
-  Eigen::VectorXd ve = vy * 0.5;
-  Eigen::VectorXd iVe = ve.array().inverse();
-  Eigen::MatrixXd vb(k,k), TildeHat(k,k);
-  vb = (ve.array()/MSx.array()).matrix().asDiagonal();
-  Eigen::MatrixXd iG = vb.inverse();
-  Eigen::VectorXd h2 = 1 - ve.array()/vy.array();
-  
-  // Beta tilde;
-  Eigen::MatrixXd tilde = X.transpose() * y;
-  
-  // Initialize coefficient matrices
-  Eigen::MatrixXd LHS(k,k);
-  Eigen::VectorXd RHS(k);
-  Eigen::MatrixXd b = Eigen::MatrixXd::Zero(p,k);
-  Eigen::VectorXd b0(k), b1(k);
-  Eigen::MatrixXd e(n0,k); e = y*1.0;
-  
-  // RGS
-  std::vector<int> RGSvec(p); int J;
-  for(int j=0; j<p; j++){RGSvec[j]=j;}
-  
-  // Convergence control
-  Eigen::MatrixXd A = vb*1.0; double MinDVb, inflate;
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EVDofA(A);
-  Eigen::MatrixXd beta0(p,k);
-  double cnv = 10.0, logtol = -8.0;
-  int numit = 0;
-  
-  // Loop
-  while(numit<maxit){
-    
-    // Store coefficients pre-iteration
-    beta0 = b*1.0;
-    
-    // Randomized Gauss-Seidel loop
-    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
-    
-    for(int j=0; j<p; j++){
-      J = RGSvec[j];
-      // Update coefficient
-      b0 = b.row(J)*1.0;
-      LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVe.array()).matrix();
-      RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
-      RHS = RHS.array() *iVe.array();
-      b1 = LHS.llt().solve(RHS);
-      b.row(J) = b1;
-      // Update residuals
-      e = (e-(X.col(J)*(b1-b0).transpose()).cwiseProduct(Z)).matrix();
-    }
-    
-    // Residual variance
-    ve = (e.cwiseProduct(y)).colwise().sum();
-    ve = ve.array() * iN.array();
-    iVe = ve.array().inverse();
-    
-    // Genetic variance
-    TildeHat = b.transpose()*tilde;
-    for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-      if(i==j){ vb(i,i) = TildeHat(i,i)/TrXSX(i); }else{
-        vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrXSX(i)+TrXSX(j));}}}
-    
-    // Bending
-    A = vb*1.0;
-    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
-    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
-      A.diagonal().array()+=inflate; vb=A*1.0;}
-    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
-    
-    // Print status
-    cnv = log10((beta0.array()-b.array()).square().sum());  ++numit;
-    if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; }
-    if( cnv<logtol ){break;}
-    if(std::isnan(cnv)){ break;}
-    
-  }
-  
-  // Fitting the model
-  h2 = 1 - ve.array()/vy.array();
-  Eigen::MatrixXd hat = X * b;
-  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
-  
-  // Genetic correlations
-  Eigen::MatrixXd GC(k,k);
-  for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
-  
-  // Output
-  return Rcpp::List::create(Rcpp::Named("mu")=mu,
-                            Rcpp::Named("b")=b,
-                            Rcpp::Named("hat")=hat,
-                            Rcpp::Named("h2")=h2,
-                            Rcpp::Named("GC")=GC,
-                            Rcpp::Named("Vb")=vb,
-                            Rcpp::Named("Ve")=ve,
-                            Rcpp::Named("MSx")=MSx,
-                            Rcpp::Named("cnv")=cnv);
-  
-}
-
-// [[Rcpp::export]]
-SEXP mrr_float(Eigen::MatrixXf Y, Eigen::MatrixXf X){
-  
-  // Basic info
-  int k = Y.cols(), n0 = Y.rows(), p = X.cols();
-  int maxit = 200;
-  
-  // Incidence matrix Z
-  Eigen::MatrixXf Z(n0,k);
-  for(int i=0; i<n0; i++){
-    for(int j=0; j<k; j++){
-      if(std::isnan(Y(i,j))){
-        Z(i,j) = 0.0;
-        Y(i,j) = 0.0;
-      }else{ Z(i,j) = 1.0;}}}
-  
-  // Count observations per trait
-  Eigen::VectorXf n = Z.colwise().sum();
-  Eigen::VectorXf iN = n.array().inverse();
-  
-  // Centralize y
-  Eigen::VectorXf mu = Y.colwise().sum();
-  mu = mu.array() * iN.array();
-  Eigen::MatrixXf y(n0,k);
-  for(int i=0; i<k; i++){
-    y.col(i) = (Y.col(i).array()-mu(i)).array() * Z.col(i).array();}
-  
-  // Sum of squares of X
-  Eigen::MatrixXf XX(p,k);
-  for(int i=0; i<p; i++){
-    XX.row(i) = X.col(i).array().square().matrix().transpose() * Z;}
-  
-  // Compute Tr(XSX);
-  Eigen::MatrixXf XSX(p,k);
-  for(int i=0; i<p; i++){
-    XSX.row(i) = XX.row(i).transpose().array()*iN.array() - 
-      ((X.col(i).transpose()*Z).transpose().array()*iN.array()).square();}
-  Eigen::VectorXf MSx = XSX.colwise().sum();
-  Eigen::VectorXf TrXSX = n.array()*MSx.array();
-  
-  // Variances
-  iN = (n.array()-1).inverse();
-  Eigen::VectorXf vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
-  Eigen::VectorXf ve = vy * 0.5;
-  Eigen::VectorXf iVe = ve.array().inverse();
-  Eigen::MatrixXf vb(k,k), TildeHat(k,k);
-  vb = (ve.array()/MSx.array()).matrix().asDiagonal();
-  Eigen::VectorXf h2 = 1 - ve.array()/vy.array();
-  
-  // Bending
-  Eigen::MatrixXf A = vb*1.0;
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> EVDofA(A); float MinDVb, inflate;
-  Eigen::MatrixXf iG = vb.completeOrthogonalDecomposition().pseudoInverse();
-  
-  // Beta tilde;
-  Eigen::MatrixXf tilde = X.transpose() * y;
-  
-  // Initialize coefficient matrices
-  Eigen::MatrixXf LHS(k,k);
-  Eigen::VectorXf RHS(k);
-  Eigen::MatrixXf b = Eigen::MatrixXf::Zero(p,k);
-  Eigen::VectorXf b0(k), b1(k);
-  Eigen::MatrixXf e(n0,k); e = y*1.0;
-  
-  // RGS
-  std::vector<int> RGSvec(p); int J;
-  for(int j=0; j<p; j++){RGSvec[j]=j;}
-  
-  // Inner RGS
-  std::vector<int> InnerRGSvec(k); int ri;
-  for(int j=0; j<k; j++){InnerRGSvec[j]=j;}
-  
-  // Convergence control
-  Eigen::MatrixXf beta0(p,k);
-  float cnv = 10.0, logtol = -8.0;
-  int numit = 0;
-  
-  // Loop
-  while(numit<maxit){
-    
-    // Store coefficients pre-iteration
-    beta0 = b*1.0;
-    
-    // Randomized Gauss-Seidel loop
-    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
-    std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), std::mt19937(numit));
-    
-    for(int j=0; j<p; j++){
-      
-      J = RGSvec[j];
-      // Update coefficient
-      b0 = b.row(J)*1.0;
-      LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVe.array()).matrix();
-      RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
-      RHS = RHS.array() *iVe.array();
-      // Inner GS
-      b1 = b.row(J)*1.0;
-      for(int i=0; i<k; i++){
-        ri = InnerRGSvec[i];
-        b1(ri) = (RHS(ri)-(LHS.col(ri).array()*b1.array()).sum()+LHS(ri,ri)*b1(ri))/LHS(ri,ri);}
-      // Update residuals
-      b.row(J) = b1;
-      e = (e-(X.col(J)*(b1-b0).transpose()).cwiseProduct(Z)).matrix();
-    }
-    
-    // Residual variance
-    ve = (e.cwiseProduct(y)).colwise().sum();
-    ve = ve.array() * iN.array();
-    iVe = ve.array().inverse();
-    
-    // Genetic variance
-    TildeHat = b.transpose()*tilde;
-    for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-      if(i==j){ vb(i,i) = TildeHat(i,i)/TrXSX(i); }else{
-        vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrXSX(i)+TrXSX(j));}}}
-    
-    // Bending and inverse of vb
-    A = vb*1.0;
-    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
-    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
-      A.diagonal().array()+=inflate; vb=A*1.0;}
-    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
-    
-    // Print status
-    cnv = log10((beta0.array()-b.array()).square().colwise().sum().maxCoeff());
-    ++numit; if( cnv<logtol ){break;}
-    if(std::isnan(cnv)){ break;}
-    
-  }
-  
-  // Fitting the model
-  h2 = 1 - ve.array()/vy.array();
-  Eigen::MatrixXf hat = X * b;
-  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
-  
-  // Genetic correlations
-  Eigen::MatrixXf GC(k,k);
-  for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
-  
-  // Output
-  return Rcpp::List::create(Rcpp::Named("mu")=mu,
-                            Rcpp::Named("b")=b,
-                            Rcpp::Named("hat")=hat,
-                            Rcpp::Named("h2")=h2,
-                            Rcpp::Named("GC")=GC,
-                            Rcpp::Named("Vb")=vb,
-                            Rcpp::Named("Ve")=ve,
-                            Rcpp::Named("MSx")=MSx,
-                            Rcpp::Named("cnv")=cnv);
-  
-}
-
 
 // [[Rcpp::export]]
 SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
@@ -1758,9 +1450,9 @@ Eigen::VectorXf solver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X,
     beta0 = b*1.0;
     std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
     for(int j=0; j<p; j++){
-      J = RGSvec[j]; b0 = b[J]*1.0;
+      J = RGSvec[j]; if(XX[J]>0.00001){ b0 = b[J]*1.0;
       b1 = (e.transpose()*X.col(J)+XX(J)*b0)/(XX[J]+lambda);
-      e = e - X.col(J)*(b1-b0); b[J] = b1*1.0;}
+      e = e - X.col(J)*(b1-b0); b[J] = b1*1.0;}else{ b[J] = 0.0;}}
     mu0 = e.array().mean(); mu+=mu0; e=e.array()-mu0;
     ve = e.transpose()*y;
     ve += e.transpose()*e; 
@@ -1799,13 +1491,13 @@ Eigen::VectorXf solver2xF(Eigen::VectorXf Y, Eigen::MatrixXf X1, Eigen::MatrixXf
     std::shuffle(RGSvec1.begin(), RGSvec2.end(), std::mt19937(numit));
     std::shuffle(RGSvec1.begin(), RGSvec2.end(), std::mt19937(numit));
     for(int j=0; j<p1; j++){
-      J = RGSvec1[j]; b0 = b_1[J]*1.0;
-      b1 = (e.transpose()*X1.col(J)+XX1(J)*b0)/(XX1[J]+lambda1);
-      e = e - X1.col(J)*(b1-b0); b_1[J] = b1*1.0;}
+      J = RGSvec1[j]; if(XX1[J]>0.00001){ b0 = b_1[J]*1.0;
+        b1 = (e.transpose()*X1.col(J)+XX1(J)*b0)/(XX1[J]+lambda1);
+        e = e - X1.col(J)*(b1-b0); b_1[J] = b1*1.0; }else{ b_1[J] = 0.0;}}
     for(int j=0; j<p2; j++){
-      J = RGSvec2[j]; b0 = b_2[J]*1.0;
+      J = RGSvec2[j]; if(XX2[J]>0.00001){ b0 = b_2[J]*1.0;
       b1 = (e.transpose()*X2.col(J)+XX2(J)*b0)/(XX2[J]+lambda2);
-      e = e - X2.col(J)*(b1-b0); b_2[J] = b1*1.0;}
+      e = e - X2.col(J)*(b1-b0); b_2[J] = b1*1.0;}else{ b_2[J] = 0.0;}}
     mu0=e.array().mean(); mu+=mu0; e=e.array()-mu0;
     ve = e.transpose()*e;
     ve += e.transpose()*y; 
@@ -2068,19 +1760,19 @@ SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
 
 
 // [[Rcpp::export]]
-Eigen::MatrixXd EigenArcZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, int cores = 1){
+Eigen::MatrixXf EigenArcZ( Eigen::MatrixXf Zfndr, Eigen::MatrixXf Zsamp, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores);  
   int p = Zfndr.cols(), nf = Zfndr.rows(), ns = Zsamp.rows();
   // Centralize matrices to create relationship matrix
-  Eigen::VectorXd MeanColumnZfndr = Zfndr.colwise().mean();
+  Eigen::VectorXf MeanColumnZfndr = Zfndr.colwise().mean();
   for(int i=0; i<p; i++){
     Zfndr.col(i) = Zfndr.col(i).array()-MeanColumnZfndr(i);
     Zsamp.col(i) = Zsamp.col(i).array()-MeanColumnZfndr(i);}
-  Eigen::MatrixXd Kff = Zfndr * Zfndr.transpose();
-  Eigen::MatrixXd Kfs = Zfndr * Zsamp.transpose();
-  double Kscalar, tmp, NormProd, Npi = 3.14159;
-  Eigen::VectorXd DiagKff = Kff.diagonal().array();
-  Eigen::VectorXd DiagKss = (Zsamp.cwiseProduct(Zsamp)).rowwise().sum();
+  Eigen::MatrixXf Kff = Zfndr * Zfndr.transpose();
+  Eigen::MatrixXf Kfs = Zfndr * Zsamp.transpose();
+  float Kscalar, tmp, NormProd, Npi = 3.14159;
+  Eigen::VectorXf DiagKff = Kff.diagonal().array();
+  Eigen::VectorXf DiagKss = (Zsamp.cwiseProduct(Zsamp)).rowwise().sum();
   // Relationship(Founder)
   for(int i=0; i<nf; i++){  for(int j=0; j<nf; j++){ if(j>=i){
     NormProd = sqrt(DiagKff(i)*DiagKff(j)*1.001);
@@ -2095,21 +1787,21 @@ Eigen::MatrixXd EigenArcZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, int cor
     tmp = NormProd*(sin(tmp)+(Npi-tmp)*cos(tmp));
     tmp /= Npi; Kfs(i,j) = tmp*Kscalar;}}
   // Spectral decomposition
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(Kff);
-  Eigen::MatrixXd L = es.eigenvectors() * es.eigenvalues().array().rsqrt().matrix().asDiagonal();
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(Kff);
+  Eigen::MatrixXf L = es.eigenvectors() * es.eigenvalues().array().rsqrt().matrix().asDiagonal();
   return Kfs.transpose() * L;
 }
 
 // [[Rcpp::export]]
-Eigen::MatrixXd EigenGauZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, double phi = 1.0, int cores = 1){
+Eigen::MatrixXf EigenGauZ( Eigen::MatrixXf Zfndr, Eigen::MatrixXf Zsamp, float phi = 1.0, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores);  
   int p = Zfndr.cols(), nf = Zfndr.rows(), ns = Zsamp.rows();
   // Centralize matrices to create relationship matrix
-  Eigen::MatrixXd Kff = Zfndr * Zfndr.transpose();
-  Eigen::MatrixXd Kfs = Zfndr * Zsamp.transpose();
-  Eigen::VectorXd DiagKff = Kff.diagonal().array();
-  Eigen::VectorXd DiagKss = (Zsamp.cwiseProduct(Zsamp)).rowwise().sum();
-  double tmp;
+  Eigen::MatrixXf Kff = Zfndr * Zfndr.transpose();
+  Eigen::MatrixXf Kfs = Zfndr * Zsamp.transpose();
+  Eigen::VectorXf DiagKff = Kff.diagonal().array();
+  Eigen::VectorXf DiagKss = (Zsamp.cwiseProduct(Zsamp)).rowwise().sum();
+  float tmp;
   // Relationship(Founder,Sample)
   for(int i=0; i<nf; i++){ for(int j=0; j<ns; j++){
     tmp = sqrt(DiagKff(i) + DiagKss(j) - 2*Kfs(i,j));
@@ -2127,16 +1819,16 @@ Eigen::MatrixXd EigenGauZ( Eigen::MatrixXd Zfndr, Eigen::MatrixXd Zsamp, double 
     Kfs.row(i) = exp(Kfs.row(i).array()*tmp);
   }
   // Spectral decomposition
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(Kff);
-  Eigen::MatrixXd L = es.eigenvectors() * es.eigenvalues().array().rsqrt().matrix().asDiagonal();
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(Kff);
+  Eigen::MatrixXf L = es.eigenvectors() * es.eigenvalues().array().rsqrt().matrix().asDiagonal();
   return Kfs.transpose() * L;
 }
 
 // [[Rcpp::export]]
-Eigen::MatrixXd K2X(Eigen::MatrixXd K, int cores = 1){
+Eigen::MatrixXf K2X(Eigen::MatrixXf K, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores);
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(K);
-  Eigen::BDCSVD<Eigen::MatrixXd> svd(K, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(K);
+  Eigen::BDCSVD<Eigen::MatrixXf> svd(K, Eigen::ComputeThinU | Eigen::ComputeThinV );
   return svd.matrixU() * svd.singularValues().matrix().asDiagonal();
 }
 
