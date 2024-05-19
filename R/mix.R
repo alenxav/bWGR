@@ -1268,6 +1268,6 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,Rn
 
 #############################################################################################################                   
 
-mrr = function(Y,X) MRR(Y,X)
+mrr = function(Y,X) MRR3(Y,X)
 
-mrr_float = function(Y,X) MRRF(Y,X)
+mrr_float = function(Y,X) MRR3F(Y,X)
