@@ -1201,7 +1201,8 @@ predict_FLMSS = function(x, data=NULL, M=NULL){
 #############################################################################################################                   
 
 # MegaSEM
-SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,RndLatSp=TRUE){
+SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),
+               TOI=NULL,Beta0=NULL,RndLatSp=TRUE){
   cat('Using',PCs,'latent spaces\n')
   k = ncol(Y)
   Mu = colMeans(Y,na.rm=T)
@@ -1215,7 +1216,7 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,Rn
       w = which(!is.na(y))
       yy = y[w]
       xx = Z[w,]
-      beta = MRR3(matrix(yy),xx)
+      beta = MRR3F(matrix(yy),xx,NonLinearFactor=2,weight_prior_h2=0.1)
       if((100*i/k)%%10==0) cat('===')
       return( c(beta$b) )})
     cat('|\n')
@@ -1237,8 +1238,8 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),TOI=NULL,Beta0=NULL,Rn
     xx = Z[w,]
     if(RndLatSp){
       X = cbind(G[w,] %*% E)
-      b0 = MRR3(matrix(yy),X)
-      b1 = MRR3(matrix(yy-b0$hat),xx)
+      b0 = MRR3F(matrix(yy),X,weight_prior_h2=0.1)
+      b1 = MRR3F(matrix(yy-b0$hat),xx,NonLinearFactor=2,weight_prior_h2=0.1)
       betaf = c( Beta0 %*% E %*% b0$b ) + c(b1$b)
     }else{
       X = cbind(1,G[w,] %*% E)
