@@ -315,187 +315,6 @@ SEXP mrr2X(Eigen::MatrixXd Y, Eigen::MatrixXd X1, Eigen::MatrixXd X2){
                             Rcpp::Named("cnv")=cnv);}
 
 // [[Rcpp::export]]
-SEXP mrr_svd(Eigen::MatrixXd Y, Eigen::MatrixXd W){
-  
-  // Start setup
-  int maxit = 500;
-  double tol = 10e-9;
-  
-  // Gather basic info
-  int k = Y.cols(), n0 = Y.rows(), m = W.cols();
-  
-  // Center X
-  Rcpp::Rcout << "Centering marker score matrix\n";
-  Eigen::VectorXd xx = W.colwise().mean();
-  for(int i=0; i<m; i++){ W.col(i) = W.col(i).array() - xx(i);}
-  
-  // Single value decomposition
-  Rcpp::Rcout << "SVD of marker scores\n";
-  Eigen::BDCSVD<Eigen::MatrixXd> svd(W, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  Eigen::MatrixXd V = svd.matrixV();
-  Eigen::MatrixXd X = svd.matrixU() * svd.singularValues().array().matrix().asDiagonal();
-  int p = X.cols();
-  
-  // Incidence matrix Z
-  Eigen::MatrixXd Z(n0,k);
-  for(int i=0; i<n0; i++){
-    for(int j=0; j<k; j++){
-      if(std::isnan(Y(i,j))){
-        Z(i,j) = 0.0;Y(i,j) = 0.0;
-      }else{ Z(i,j) = 1.0;}}}
-  
-  // Count observations per trait
-  Eigen::VectorXd n = Z.colwise().sum();
-  Eigen::VectorXd iN = n.array().inverse();
-  
-  // Centralize y
-  Rcpp::Rcout << "Centering Y\n";
-  Eigen::VectorXd mu = Y.colwise().sum();
-  mu = mu.array() * iN.array();
-  Eigen::MatrixXd y(n0,k);
-  for(int i=0; i<k; i++){
-    y.col(i) = (Y.col(i).array()-mu(i)).array() * Z.col(i).array();
-  }
-  
-  // Sum of squares of X
-  Rcpp::Rcout << "Computing diagonal elements of Z'Z\n";
-  Eigen::MatrixXd XX(p,k);
-  for(int i=0; i<p; i++){ XX.row(i) = X.col(i).array().square().matrix().transpose() * Z;}
-  // Compute Tr(XSX);
-  Eigen::MatrixXd XSX(p,k);
-  for(int i=0; i<p; i++){ XSX.row(i) = XX.row(i).transpose().array()*iN.array() - 
-      ((X.col(i).transpose()*Z).transpose().array()*iN.array()).square();}
-  Eigen::VectorXd MSx = XSX.colwise().sum();
-  Eigen::VectorXd TrXSX = n.array()*MSx.array();
-  
-  Rcpp::Rcout << "Set starting values for coefficients and variances\n";
-  // Variances
-  iN = (n.array()-1).inverse();
-  Eigen::VectorXd vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
-  Eigen::VectorXd ve = vy * 0.5;
-  Eigen::VectorXd iVe = ve.array().inverse();
-  Eigen::MatrixXd vb(k,k), TildeHat(k,k);
-  vb = (ve.array()/MSx.array()).matrix().asDiagonal();
-  Eigen::MatrixXd iG = vb.inverse();
-  Eigen::VectorXd h2 = 1 - ve.array()/vy.array();
-  // Beta tilde;
-  Eigen::MatrixXd tilde = X.transpose() * y;
-  Eigen::VectorXd TrDinvXSX(k);
-  Eigen::MatrixXd Dinv(p,k);
-  for(int i=0; i<k; i++){ XSX.col(i) = XSX.col(i).array() * n(i); }
-  // Initialize coefficient matrices
-  Eigen::MatrixXd LHS(k,k);
-  Eigen::VectorXd RHS(k);
-  Eigen::MatrixXd b = Eigen::MatrixXd::Zero(p,k);
-  Eigen::VectorXd b0(k), b1(k);
-  Eigen::MatrixXd e(n0,k); e = y*1.0;
-  // Bending and convergence control
-  Eigen::MatrixXd A = vb*1.0, GC(k,k);
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EVDofA(A);
-  Eigen::MatrixXd beta0(p,k), vb0(k,k);
-  Eigen::VectorXd CNV1(maxit),CNV2(maxit),CNV3(maxit), ve0(k), h20(k);
-  double cnv = 10.0, MinDVb, inflate;
-  int numit = 0;
-  double logtol = log10(tol);
-  
-  // Loop
-  Rcpp::Rcout << "Starting Gauss-Seidel\n";
-  while(numit<maxit){
-    
-    // Store coefficients pre-iteration
-    beta0 = b*1.0;
-    vb0 = vb*1.0;
-    ve0 = ve*1.0;
-    h20 = h2*1.0;
-    
-    // Randomized Gauss-Seidel loop
-    for(int J=0; J<p; J++){
-      // Update coefficient
-      b0 = b.row(J)*1.0;
-      LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVe.array()).matrix();
-      RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
-      RHS = RHS.array() * iVe.array();
-      b1 = LHS.llt().solve(RHS);
-      b.row(J) = b1;
-      // Update residuals
-      e = (e-(X.col(J)*(b1-b0).transpose()).cwiseProduct(Z)).matrix();
-    }
-    
-    // Residual variance
-    ve = (e.cwiseProduct(y)).colwise().sum();
-    ve = ve.array() * iN.array();
-    iVe = ve.array().inverse();
-    h2 = 1 - ve.array()/vy.array();
-    
-    // Get tilde-hat
-    for(int i=0; i<k; i++){
-        Dinv.col(i) = (XSX.col(i).array()/ve(i) + iG(i,i)).inverse().array();
-        TrDinvXSX(i)  = (XSX.col(i).transpose() * Dinv.col(i));}
-    TildeHat = b.transpose()* Dinv.cwiseProduct(tilde);
-    
-    for(int i=0; i<k; i++){
-      for(int j=0; j<k; j++){
-        if(i==j){ // Variances
-          vb(i,i) = TildeHat(i,i)/TrDinvXSX(i);
-        }else{ // Covariances
-          vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrDinvXSX(i)+TrDinvXSX(j));
-        }}}
-    
-    // Bending
-    A = vb*1.0;
-    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
-    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
-      A.diagonal().array()+=inflate; vb=A*1.0;}
-    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
-    
-    // Covariances
-    cnv = log10((beta0.array()-b.array()).square().sum());  CNV1(numit) = cnv;
-    CNV2(numit) = log10((h20.array()-h2.array()).square().sum());
-    CNV3(numit) = log10((vb0.array()-vb.array()).square().sum());
-    
-    // Print
-    ++numit;
-    if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
-    if( cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
-    if(std::isnan(cnv)){ break;}
-    
-  }
-  
-  Rcpp::Rcout << "Fitting final model\n";
-  // Fitting the model
-  Eigen::MatrixXd hat = X * b;
-  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
-  Eigen::MatrixXd beta = V*b;
-  
-  // Correlations
-  Rcpp::Rcout << "Estimating correlations\n";
-  for(int i=0; i<k; i++){
-    for(int j=0; j<k; j++){
-      GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
-  
-  // Resize convergence vectors
-  Rcpp::Rcout << "Convergence statistics\n";
-  Eigen::VectorXd CNV1b(numit),CNV2b(numit),CNV3b(numit);
-  for(int i=0; i<numit; i++){ CNV1b(i)=CNV1(i);CNV2b(i)=CNV2(i);CNV3b(i)=CNV3(i);}
-  
-  // Null model Output
-  Rcpp::List NullModelOutput = Rcpp::List::create(Rcpp::Named("Intercepts")=mu,
-                                                  Rcpp::Named("MarkerEffects")=beta,
-                                                  Rcpp::Named("FittedValues")=hat,
-                                                  Rcpp::Named("Heritability")=h2,
-                                                  Rcpp::Named("WCorrelations")=GC,
-                                                  Rcpp::Named("VarBeta")=vb,
-                                                  Rcpp::Named("VarResiduals")=ve,
-                                                  Rcpp::Named("ConvergenceBeta")=CNV1b,
-                                                  Rcpp::Named("ConvergenceH2")=CNV2b,
-                                                  Rcpp::Named("ConvergenceVar")=CNV3b,
-                                                  Rcpp::Named("NumOfIterations")=numit);
-  NullModelOutput.attr("class") = "WModel";
-  return NullModelOutput;
-  
-}
-
-// [[Rcpp::export]]
 SEXP MRR3(Eigen::MatrixXd Y,
           Eigen::MatrixXd X,
           int maxit = 500,
@@ -1224,6 +1043,334 @@ SEXP MRR3F(Eigen::MatrixXf Y,
                             Rcpp::Named("Its")=numit);
 }
 
+// [[Rcpp::export]]
+SEXP mrr_svd(Eigen::MatrixXf Y, Eigen::MatrixXf W){
+  
+  // Start setup
+  int maxit = 500;
+  float tol = 10e-9;
+  
+  // Gather basic info
+  int k = Y.cols(), n0 = Y.rows(), m = W.cols();
+  
+  // Center X
+  Rcpp::Rcout << "Centering marker score matrix\n";
+  Eigen::VectorXf xx = W.colwise().mean();
+  for(int i=0; i<m; i++){ W.col(i) = W.col(i).array() - xx(i);}
+  
+  // Single value decomposition
+  Rcpp::Rcout << "SVD of marker scores\n";
+  Eigen::BDCSVD<Eigen::MatrixXf> svd(W, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  Eigen::MatrixXf V = svd.matrixV();
+  Eigen::MatrixXf X = svd.matrixU() * svd.singularValues().array().matrix().asDiagonal();
+  int p = X.cols();
+  
+  // Incidence matrix Z
+  Eigen::MatrixXf Z(n0,k);
+  for(int i=0; i<n0; i++){
+    for(int j=0; j<k; j++){
+      if(std::isnan(Y(i,j))){
+        Z(i,j) = 0.0;Y(i,j) = 0.0;
+      }else{ Z(i,j) = 1.0;}}}
+  
+  // Count observations per trait
+  Eigen::VectorXf n = Z.colwise().sum();
+  Eigen::VectorXf iN = n.array().inverse();
+  
+  // Centralize y
+  Rcpp::Rcout << "Centering Y\n";
+  Eigen::VectorXf mu = Y.colwise().sum();
+  mu = mu.array() * iN.array();
+  Eigen::MatrixXf y(n0,k);
+  for(int i=0; i<k; i++){
+    y.col(i) = (Y.col(i).array()-mu(i)).array() * Z.col(i).array();
+  }
+  
+  // Sum of squares of X
+  Rcpp::Rcout << "Computing diagonal elements of Z'Z\n";
+  Eigen::MatrixXf XX(p,k);
+  for(int i=0; i<p; i++){ XX.row(i) = X.col(i).array().square().matrix().transpose() * Z;}
+  // Compute Tr(XSX);
+  Eigen::MatrixXf XSX(p,k);
+  for(int i=0; i<p; i++){ XSX.row(i) = XX.row(i).transpose().array()*iN.array() - 
+    ((X.col(i).transpose()*Z).transpose().array()*iN.array()).square();}
+  Eigen::VectorXf MSx = XSX.colwise().sum();
+  Eigen::VectorXf TrXSX = n.array()*MSx.array();
+  
+  Rcpp::Rcout << "Set starting values for coefficients and variances\n";
+  // Variances
+  iN = (n.array()-1).inverse();
+  Eigen::VectorXf vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
+  Eigen::VectorXf ve = vy * 0.5;
+  Eigen::VectorXf iVe = ve.array().inverse();
+  Eigen::MatrixXf vb(k,k), TildeHat(k,k);
+  vb = (ve.array()/MSx.array()).matrix().asDiagonal();
+  Eigen::MatrixXf iG = vb.inverse();
+  Eigen::VectorXf h2 = 1 - ve.array()/vy.array();
+  // Beta tilde;
+  Eigen::MatrixXf tilde = X.transpose() * y;
+  Eigen::VectorXf TrDinvXSX(k);
+  Eigen::MatrixXf Dinv(p,k);
+  for(int i=0; i<k; i++){ XSX.col(i) = XSX.col(i).array() * n(i); }
+  // Initialize coefficient matrices
+  Eigen::MatrixXf LHS(k,k);
+  Eigen::VectorXf RHS(k);
+  Eigen::MatrixXf b = Eigen::MatrixXf::Zero(p,k);
+  Eigen::VectorXf b0(k), b1(k);
+  Eigen::MatrixXf e(n0,k); e = y*1.0;
+  // Bending and convergence control
+  Eigen::MatrixXf A = vb*1.0, GC(k,k);
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> EVDofA(A);
+  Eigen::MatrixXf beta0(p,k), vb0(k,k);
+  Eigen::VectorXf CNV1(maxit),CNV2(maxit),CNV3(maxit), ve0(k), h20(k);
+  float cnv = 10.0, MinDVb, inflate;
+  int numit = 0;
+  float logtol = log10(tol);
+  
+  // Loop
+  Rcpp::Rcout << "Starting Gauss-Seidel\n";
+  while(numit<maxit){
+    
+    // Store coefficients pre-iteration
+    beta0 = b*1.0;
+    vb0 = vb*1.0;
+    ve0 = ve*1.0;
+    h20 = h2*1.0;
+    
+    // Randomized Gauss-Seidel loop
+    for(int J=0; J<p; J++){
+      // Update coefficient
+      b0 = b.row(J)*1.0;
+      LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVe.array()).matrix();
+      RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
+      RHS = RHS.array() * iVe.array();
+      b1 = LHS.llt().solve(RHS);
+      b.row(J) = b1;
+      // Update residuals
+      e = (e-(X.col(J)*(b1-b0).transpose()).cwiseProduct(Z)).matrix();
+    }
+    
+    // Residual variance
+    ve = (e.cwiseProduct(y)).colwise().sum();
+    ve = ve.array() * iN.array();
+    iVe = ve.array().inverse();
+    h2 = 1 - ve.array()/vy.array();
+    
+    // Get tilde-hat
+    for(int i=0; i<k; i++){
+      Dinv.col(i) = (XSX.col(i).array()/ve(i) + iG(i,i)).inverse().array();
+      TrDinvXSX(i)  = (XSX.col(i).transpose() * Dinv.col(i));}
+    TildeHat = b.transpose()* Dinv.cwiseProduct(tilde);
+    
+    for(int i=0; i<k; i++){
+      for(int j=0; j<k; j++){
+        if(i==j){ // Variances
+          vb(i,i) = TildeHat(i,i)/TrDinvXSX(i);
+        }else{ // Covariances
+          vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrDinvXSX(i)+TrDinvXSX(j));
+        }}}
+    
+    // Bending
+    A = vb*1.0;
+    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+      A.diagonal().array()+=inflate; vb=A*1.0;}
+    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
+    
+    // Covariances
+    cnv = log10((beta0.array()-b.array()).square().sum());  CNV1(numit) = cnv;
+    CNV2(numit) = log10((h20.array()-h2.array()).square().sum());
+    CNV3(numit) = log10((vb0.array()-vb.array()).square().sum());
+    
+    // Print
+    ++numit;
+    if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
+    if( cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
+    if(std::isnan(cnv)){ break;}
+    
+  }
+  
+  Rcpp::Rcout << "Fitting final model\n";
+  // Fitting the model
+  Eigen::MatrixXf hat = X * b;
+  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
+  Eigen::MatrixXf beta = V*b;
+  
+  // Correlations
+  Rcpp::Rcout << "Estimating correlations\n";
+  for(int i=0; i<k; i++){
+    for(int j=0; j<k; j++){
+      GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
+  
+  // Resize convergence vectors
+  Rcpp::Rcout << "Convergence statistics\n";
+  Eigen::VectorXf CNV1b(numit),CNV2b(numit),CNV3b(numit);
+  for(int i=0; i<numit; i++){ CNV1b(i)=CNV1(i);CNV2b(i)=CNV2(i);CNV3b(i)=CNV3(i);}
+  
+  // Null model Output
+  Rcpp::List NullModelOutput = Rcpp::List::create(Rcpp::Named("Intercepts")=mu,
+                                                  Rcpp::Named("MarkerEffects")=beta,
+                                                  Rcpp::Named("FittedValues")=hat,
+                                                  Rcpp::Named("Heritability")=h2,
+                                                  Rcpp::Named("WCorrelations")=GC,
+                                                  Rcpp::Named("VarBeta")=vb,
+                                                  Rcpp::Named("VarResiduals")=ve,
+                                                  Rcpp::Named("ConvergenceBeta")=CNV1b,
+                                                  Rcpp::Named("ConvergenceH2")=CNV2b,
+                                                  Rcpp::Named("ConvergenceVar")=CNV3b,
+                                                  Rcpp::Named("NumOfIterations")=numit);
+  NullModelOutput.attr("class") = "WModel";
+  return NullModelOutput;}
+
+// [[Rcpp::export]]
+SEXP MLM(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::MatrixXf Z,
+         int maxit = 500, float logtol = -8, int cores = 1, 
+         bool verb = false, float df0 = 1.1){
+  
+  // Basic info
+  if(cores!=1) Eigen::setNbThreads(cores);
+  int k = Y.cols(), n0 = Y.rows(), f = X.cols(), p = Z.cols();
+  
+  // Incidence matrix W
+  Eigen::MatrixXf W(n0,k);
+  for(int i=0; i<n0; i++){
+    for(int j=0; j<k; j++){
+      if(std::isnan(Y(i,j))){
+        W(i,j) = 0.0;
+        Y(i,j) = 0.0;
+      }else{ W(i,j) = 1.0;}}}
+  Eigen::VectorXf n = W.colwise().sum();
+  Eigen::VectorXf iN = (n.array()-f).inverse();
+  
+  // Compute SY, SZ
+  Eigen::MatrixXf y(n0,k), WX(n0,f), MU(f,k), iXX(f,f);
+  for(int i=0; i<k; i++){
+    for(int j=0; j<f; j++){WX.col(j)=X.col(j).array()*W.col(i).array();}
+    iXX = (WX.transpose()*WX).inverse();
+    MU.col(i) = iXX * WX.transpose()*Y.col(i);
+    y.col(i) = (Y.col(i)-WX*MU.col(i) ).array()*W.col(i).array(); }
+  iXX = (X.transpose()*X).inverse();
+  for(int j=0; j<p; j++){ Z.col(j) = (Z.col(j) - X*(iXX*X.transpose()*Z.col(j))).array(); }
+  
+  // Sum of squares of Z
+  Eigen::MatrixXf ZZ(p,k); 
+  for(int i=0; i<p; i++){ ZZ.row(i) = Z.col(i).array().square().matrix().transpose() * W;}
+  Eigen::VectorXf TrZSZ = ZZ.colwise().sum().array();
+  
+  // Initialize coefficient matrices
+  Eigen::MatrixXf LHS(k,k);
+  Eigen::VectorXf RHS(k);
+  Eigen::MatrixXf b = Eigen::MatrixXf::Zero(p,k);
+  Eigen::VectorXf b0(k), b1(k);
+  Eigen::MatrixXf e(n0,k); e = y*1.0;
+  
+  // Variances
+  Eigen::VectorXf vy = y.colwise().squaredNorm(); vy=vy.array()*iN.array();
+  Eigen::VectorXf ve = vy * 0.5;
+  Eigen::VectorXf iVe = ve.array().inverse();
+  Eigen::MatrixXf vb(k,k), TildeHat(k,k);
+  vb = (ve.array()/ (TrZSZ.array()*iN.array())  ).matrix().asDiagonal();
+  Eigen::MatrixXf iG = vb.inverse();
+  Eigen::VectorXf h2 = 1 - ve.array()/vy.array();
+  Eigen::MatrixXf tilde = Z.transpose() * y;
+  
+  // Bending
+  Eigen::MatrixXf A = vb*1.0;
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> EVDofA(A);
+  float MinDVb, inflate = 0.0;
+  
+  // Prior for stability
+  Eigen::MatrixXf Sb = vb*df0;
+  Eigen::VectorXf Se = ve*df0;
+  Eigen::VectorXf iNp = (n.array()+df0-f).inverse();
+  
+  // RGS
+  std::vector<int> RGSvec(p); int J;
+  for(int j=0; j<p; j++){RGSvec[j]=j;}
+  
+  // Convergence control
+  Eigen::MatrixXf beta0(p,k);
+  float cnv = 10.0;
+  int numit = 0;
+  
+  // Loop
+  while(numit<maxit){
+    
+    // Store coefficients pre-iteration
+    beta0 = b*1.0;
+    
+    // Randomized Gauss-Seidel loop
+    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
+    for(int j=0; j<p; j++){
+      J = RGSvec[j];
+      
+      // Update coefficient
+      b0 = b.row(J)*1.0;
+      LHS = iG;  LHS.diagonal() += (ZZ.row(J).transpose().array() * iVe.array()).matrix();
+      RHS = (Z.col(J).transpose()*e).array() + ZZ.row(J).array()*b0.transpose().array();
+      RHS = RHS.array() *iVe.array();
+      b1 = LHS.llt().solve(RHS);
+      b.row(J) = b1;
+      
+      // Update residuals
+      e = (e-(Z.col(J)*(b1-b0).transpose()).cwiseProduct(W)).matrix();}
+    
+    // Residual variance
+    ve = (e.cwiseProduct(y)).colwise().sum();
+    ve = (ve.array()+Se.array()) * iNp.array();
+    iVe = ve.array().inverse();
+    
+    // Genetic variance
+    TildeHat = b.transpose()*tilde;
+    for(int i=0; i<k; i++){for(int j=0; j<k; j++){
+      if(i==j){
+        vb(i,i) = (TildeHat(i,i)+Sb(i,i))/(TrZSZ(i)+df0);            }else{
+          vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrZSZ(i)+TrZSZ(j)); }}}
+    
+    // Bending
+    A = vb*1.0;
+    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
+      A.diagonal().array()+=inflate; vb=A*1.0;}
+    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
+    
+    // Print status
+    ++numit;
+    cnv = log10((beta0.array()-b.array()).square().sum());
+    
+    if(verb){
+      if( std::isnan(cnv) ){Rcpp::Rcout << "Numerical issue! Job aborted (it=" << numit << ")\n"; break;}
+      if( numit % 100 == 0 ){ Rcpp::Rcout << "Iter: "<< numit << " || log10 Conv: "<< cnv << "\n"; } 
+      if(  cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
+      if( numit == maxit ){ Rcpp::Rcout << "Model did not converge\n";}}else if( std::isnan(cnv) ){ break;}
+      
+  }
+  
+  // Fitting the model
+  h2 = 1 - ve.array()/vy.array();
+  Eigen::MatrixXf hat = Z*b;
+  for(int i=0; i<k; i++){ hat.col(i) = ( X * MU.col(i) + hat.col(i)).array(); }
+  
+  // Genetic correlations
+  Eigen::MatrixXf GC(k,k);
+  for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
+  
+  // Name and create outputs
+  Rcpp::List OutputList = Rcpp::List::create(Rcpp::Named("b")=MU,
+                                             Rcpp::Named("u")=b,
+                                             Rcpp::Named("hat")=hat,
+                                             Rcpp::Named("h2")=h2,
+                                             Rcpp::Named("GC")=GC,
+                                             Rcpp::Named("vb")=vb,
+                                             Rcpp::Named("ve")=ve,
+                                             Rcpp::Named("cnv")=cnv,
+                                             Rcpp::Named("its")=numit);
+  
+  // Output
+  OutputList.attr("class") = "PEGSmodel";
+  return OutputList;
+  
+}
 
 // [[Rcpp::export]]
 Eigen::VectorXd solver1x(Eigen::VectorXd Y, Eigen::MatrixXd X,
@@ -1426,8 +1573,7 @@ SEXP GSEM(Eigen::MatrixXd Y, Eigen::MatrixXd X, int npc = -1){
   // Output
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
                             Rcpp::Named("b")=BETA*svd.matrixV()*b1+b2,
-                            Rcpp::Named("hat")=hat);
-}
+                            Rcpp::Named("hat")=hat);}
 
 // [[Rcpp::export]]
 Eigen::VectorXf solver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X,
@@ -1537,102 +1683,6 @@ Eigen::MatrixXf FUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
           BETA.col(i) = Eigen::VectorXf::Zero(p);}}
   return BETA;}
 
-Eigen::MatrixXf GetImputedYF(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::MatrixXf BETA){
-  int n0=Y.rows(),k=Y.cols();
-  Eigen::VectorXf Mu = Eigen::VectorXf::Zero(k), N = Eigen::VectorXf::Zero(k);
-  for(int j=0;j<k;j++){for(int i=0;i<n0;i++){
-    if(!std::isnan(Y(i,j))){N(j)+=1.0;Mu(j)+=Y(i,j);}}}
-  Mu = Mu.array() / N.array();
-  for(int i=0; i<n0; i++){
-    for(int j=0; j<k; j++){
-      if(!std::isnan(Y(i,j))){
-        Y(i,j) -= Mu(j);}else{
-          Y(i,j) = X.row(i)*BETA.col(j);}}}
-  return Y;}
-
-Eigen::MatrixXf LatentSpaces(Eigen::MatrixXf Y, Eigen::MatrixXf X, Eigen::MatrixXf BETA, int NPC = 0){
-  int n=Y.rows(),k=Y.cols();
-  Eigen::MatrixXf Y2 = GetImputedYF(Y,X,BETA);
-  Eigen::VectorXf SD = Y2.colwise().squaredNorm().array(); SD = (SD.array()/(n-1)).sqrt();
-  for(int i=0; i<k; i++){ Y2.col(i) /= SD(i);};
-  Eigen::BDCSVD<Eigen::MatrixXf> svd(Y2, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  Eigen::MatrixXf LS = svd.matrixU() * svd.singularValues().matrix().asDiagonal();
-  if(NPC<0) NPC = round(2*sqrt(svd.matrixU().cols()));
-  if(NPC==0) NPC += svd.matrixU().cols();
-  return LS.leftCols(NPC);}
-
-// [[Rcpp::export]]
-SEXP MEGAF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
-  int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
-  for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
-  Eigen::MatrixXf BETA = FUVBETA(Y,X);
-  Eigen::MatrixXf LS = LatentSpaces(Y,X,BETA,npc);
-  Eigen::MatrixXf LS_BETA = FUVBETA(LS,X);
-  int p2 = LS.cols();
-  Eigen::VectorXf xxx(1+p1+p2);
-  // store outputs
-  Eigen::VectorXf mu(k), h2(k);
-  Eigen::MatrixXf b1(p2,k), b2(p1,k);
-  for(int i=0; i<k; i++){
-    xxx = solver2xF(
-      subvec_fF( Y.col(i).array(), W.col(i).array()),
-      submat_fF( LS, W.col(i).array()),
-      submat_fF( X, W.col(i).array())).array();
-    mu(i) = xxx(0);
-    for(int j=0; j<p2 ; j++){b1(j,i) = xxx(1+j);}
-    for(int j=0; j<p1 ; j++){b2(j,i) = xxx(1+p2+j);}
-  }
-  // Fitted values
-  Eigen::MatrixXf end_beta = LS_BETA * b1 + b2;
-  Eigen::MatrixXf hat = LS*b1+X*b2;
-  Eigen::MatrixXf gebv = X*end_beta;
-  for(int i=0; i<k; i++){
-    hat.col(i) = hat.col(i).array() + mu(i);
-    gebv.col(i) = gebv.col(i).array() + mu(i);
-  }
-  // Output
-  return Rcpp::List::create(Rcpp::Named("mu")=mu,
-                            Rcpp::Named("b")=end_beta,
-                            Rcpp::Named("hat")=hat,
-                            Rcpp::Named("LS")=LS,
-                            Rcpp::Named("LS_BETA")=LS_BETA,
-                            Rcpp::Named("BETA1")=b1,
-                            Rcpp::Named("BETA2")=b2,
-                            Rcpp::Named("gebv")=gebv);
-}
-
-// [[Rcpp::export]]
-SEXP GSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
-  int n0=Y.rows(), p1=X.cols(), k=Y.cols(); Eigen::MatrixXi W(n0,k);
-  for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
-  Eigen::MatrixXf BETA = FUVBETA(Y,X);
-  Eigen::BDCSVD<Eigen::MatrixXf> svd(X*BETA, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
-  if(npc==0) npc += svd.matrixU().cols();
-  Eigen::MatrixXf LS = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
-  int p2 = LS.cols();
-  Eigen::VectorXf xxx(1+p1+p2);
-  // store outputs
-  Eigen::VectorXf mu(k), h2(k);
-  Eigen::MatrixXf b1(p2,k), b2(p1,k);
-  for(int i=0; i<k; i++){
-    xxx = solver2xF(
-      subvec_fF( Y.col(i).array(), W.col(i).array()),
-      submat_fF( LS, W.col(i).array()),
-      submat_fF( X, W.col(i).array())).array();
-    mu(i) = xxx(0);
-    for(int j=0; j<p2 ; j++){b1(j,i) = xxx(1+j);}
-    for(int j=0; j<p1 ; j++){b2(j,i) = xxx(1+p2+j);}
-  }
-  // Fitted values
-  Eigen::MatrixXf hat = LS*b1+X*b2;
-  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
-  // Output
-  return Rcpp::List::create(Rcpp::Named("mu")=mu,
-                            Rcpp::Named("b")=BETA*svd.matrixV().leftCols(npc)*b1+b2,
-                            Rcpp::Named("hat")=hat);
-}
-
 //// SIMPLIFIED
 Eigen::VectorXf xsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
   int maxit = 100, n = X.rows(), p = X.cols(), numit = 0, J;
@@ -1684,6 +1734,7 @@ SEXP XSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = 0){
   Eigen::MatrixXf GC = (G.transpose()*G)/(Y.rows());
   return Rcpp::List::create(Rcpp::Named("b")=b,Rcpp::Named("GC")=GC,Rcpp::Named("hat")=G);}
 
+// [[Rcpp::export]]
 Eigen::VectorXf zsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
   int maxit = 100; float tol = 10e-7; float df0 = 20.0;
   int n = X.rows(), p = X.cols(), numit = 0, J;
@@ -1719,6 +1770,7 @@ Eigen::VectorXf zsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
   for(int j=0; j<p ; j++){xxx(2+j)=b(j);}
   return xxx;}
 
+// [[Rcpp::export]]
 Eigen::MatrixXf ZFUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   int n0=Y.rows(), p=X.cols(), k=Y.cols(); Eigen::MatrixXf BETA(p+2,k); Eigen::MatrixXi W(n0,k);
   for(int i=0;i<n0;i++){for(int j=0;j<k;j++){if(std::isnan(Y(i,j))){W(i,j)=0;}else{W(i,j)=1;}}}
@@ -1949,153 +2001,4 @@ SEXP MvSimY(
   
 }
 
-// [[Rcpp::export]]
-SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
-         int maxit = 500, double logtol = -8, int cores = 1, bool verb = false){
-  
-  // Basic info
-  double df0 = 1.1; 
-  if(cores!=1) Eigen::setNbThreads(cores);
-  int k = Y.cols(), n0 = Y.rows(), f = X.cols(), p = Z.cols();
-  
-  // Incidence matrix W
-  Eigen::MatrixXd W(n0,k);
-  for(int i=0; i<n0; i++){
-    for(int j=0; j<k; j++){
-      if(std::isnan(Y(i,j))){
-        W(i,j) = 0.0;
-        Y(i,j) = 0.0;
-      }else{ W(i,j) = 1.0;}}}
-  Eigen::VectorXd n = W.colwise().sum();
-  Eigen::VectorXd iN = (n.array()-f).inverse();
-  
-  // Compute SY, SZ
-  Eigen::MatrixXd y(n0,k), WX(n0,f), MU(f,k), iXX(f,f);
-  for(int i=0; i<k; i++){
-    for(int j=0; j<f; j++){WX.col(j)=X.col(j).array()*W.col(i).array();}
-    iXX = (WX.transpose()*WX).inverse();
-    MU.col(i) = iXX * WX.transpose()*Y.col(i);
-    y.col(i) = (Y.col(i)-WX*MU.col(i) ).array()*W.col(i).array(); }
-  iXX = (X.transpose()*X).inverse();
-  for(int j=0; j<p; j++){ Z.col(j) = (Z.col(j) - X*(iXX*X.transpose()*Z.col(j))).array(); }
-  
-  // Sum of squares of Z
-  Eigen::MatrixXd ZZ(p,k); 
-  for(int i=0; i<p; i++){ ZZ.row(i) = Z.col(i).array().square().matrix().transpose() * W;}
-  Eigen::VectorXd TrZSZ = ZZ.colwise().sum().array();
-  
-  // Initialize coefficient matrices
-  Eigen::MatrixXd LHS(k,k);
-  Eigen::VectorXd RHS(k);
-  Eigen::MatrixXd b = Eigen::MatrixXd::Zero(p,k);
-  Eigen::VectorXd b0(k), b1(k);
-  Eigen::MatrixXd e(n0,k); e = y*1.0;
-  
-  // Variances
-  Eigen::VectorXd vy = y.colwise().squaredNorm(); vy=vy.array()*iN.array();
-  Eigen::VectorXd ve = vy * 0.5;
-  Eigen::VectorXd iVe = ve.array().inverse();
-  Eigen::MatrixXd vb(k,k), TildeHat(k,k);
-  vb = (ve.array()/ (TrZSZ.array()*iN.array())  ).matrix().asDiagonal();
-  Eigen::MatrixXd iG = vb.inverse();
-  Eigen::VectorXd h2 = 1 - ve.array()/vy.array();
-  Eigen::MatrixXd tilde = Z.transpose() * y;
-  
-  // Bending
-  Eigen::MatrixXd A = vb*1.0;
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> EVDofA(A);
-  double MinDVb, inflate = 0.0;
-  
-  // Prior for stability
-  Eigen::MatrixXd Sb = vb*df0;
-  Eigen::VectorXd Se = ve*df0;
-  Eigen::VectorXd iNp = (n.array()+df0-f).inverse();
-  
-  // RGS
-  std::vector<int> RGSvec(p); int J;
-  for(int j=0; j<p; j++){RGSvec[j]=j;}
-  
-  // Convergence control
-  Eigen::MatrixXd beta0(p,k);
-  double cnv = 10.0;
-  int numit = 0;
-  
-  // Loop
-  while(numit<maxit){
-    
-    // Store coefficients pre-iteration
-    beta0 = b*1.0;
-    
-    // Randomized Gauss-Seidel loop
-    std::shuffle(RGSvec.begin(), RGSvec.end(), std::mt19937(numit));
-    for(int j=0; j<p; j++){
-      J = RGSvec[j];
-      
-      // Update coefficient
-      b0 = b.row(J)*1.0;
-      LHS = iG;  LHS.diagonal() += (ZZ.row(J).transpose().array() * iVe.array()).matrix();
-      RHS = (Z.col(J).transpose()*e).array() + ZZ.row(J).array()*b0.transpose().array();
-      RHS = RHS.array() *iVe.array();
-      b1 = LHS.llt().solve(RHS);
-      b.row(J) = b1;
-      
-      // Update residuals
-      e = (e-(Z.col(J)*(b1-b0).transpose()).cwiseProduct(W)).matrix();}
-    
-    // Residual variance
-    ve = (e.cwiseProduct(y)).colwise().sum();
-    ve = (ve.array()+Se.array()) * iNp.array();
-    iVe = ve.array().inverse();
-    
-    // Genetic variance
-    TildeHat = b.transpose()*tilde;
-    for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-      if(i==j){
-        vb(i,i) = (TildeHat(i,i)+Sb(i,i))/(TrZSZ(i)+df0);            }else{
-          vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrZSZ(i)+TrZSZ(j)); }}}
-    
-    // Bending
-    A = vb*1.0;
-    EVDofA.compute(A); MinDVb = EVDofA.eigenvalues().minCoeff();
-    if( MinDVb < 0.0 ){ inflate = abs(MinDVb*1.1);
-      A.diagonal().array()+=inflate; vb=A*1.0;}
-    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
-    
-    // Print status
-    ++numit;
-    cnv = log10((beta0.array()-b.array()).square().sum());
-    
-    if(verb){
-      if( std::isnan(cnv) ){Rcpp::Rcout << "Numerical issue! Job aborted (it=" << numit << ")\n"; break;}
-      if( numit % 100 == 0 ){ Rcpp::Rcout << "Iter: "<< numit << " || log10 Conv: "<< cnv << "\n"; } 
-      if(  cnv<logtol ){ Rcpp::Rcout << "Model coverged in "<< numit << " iterations\n"; break; }
-      if( numit == maxit ){ Rcpp::Rcout << "Model did not converge\n";}}else if( std::isnan(cnv) ){ break;}
-    
-  }
-  
-  // Fitting the model
-  h2 = 1 - ve.array()/vy.array();
-  Eigen::MatrixXd hat = Z*b;
-  for(int i=0; i<k; i++){ hat.col(i) = ( X * MU.col(i) + hat.col(i)).array(); }
-  
-  // Genetic correlations
-  Eigen::MatrixXd GC(k,k);
-  for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}
-  
-  // Name and create outputs
-  Rcpp::List OutputList = Rcpp::List::create(Rcpp::Named("b")=MU,
-                                             Rcpp::Named("u")=b,
-                                             Rcpp::Named("hat")=hat,
-                                             Rcpp::Named("h2")=h2,
-                                             Rcpp::Named("GC")=GC,
-                                             Rcpp::Named("vb")=vb,
-                                             Rcpp::Named("ve")=ve,
-                                             Rcpp::Named("cnv")=cnv,
-                                             Rcpp::Named("its")=numit);
-  
-  // Output
-  OutputList.attr("class") = "PEGSmodel";
-  return OutputList;
-  
-}
 

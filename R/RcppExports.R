@@ -177,16 +177,20 @@ mrr2X <- function(Y, X1, X2) {
     .Call('_bWGR_mrr2X', PACKAGE = 'bWGR', Y, X1, X2)
 }
 
-mrr_svd <- function(Y, W) {
-    .Call('_bWGR_mrr_svd', PACKAGE = 'bWGR', Y, W)
-}
-
 MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, NumXFA = 3L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
     .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
 }
 
 MRR3F <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NonLinearFactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, NumXFA = 3L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
     .Call('_bWGR_MRR3F', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NonLinearFactor, InnerGS, NoInv, HCS, XFA, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
+}
+
+mrr_svd <- function(Y, W) {
+    .Call('_bWGR_mrr_svd', PACKAGE = 'bWGR', Y, W)
+}
+
+MLM <- function(Y, X, Z, maxit = 500L, logtol = -8, cores = 1L, verb = FALSE, df0 = 1.1) {
+    .Call('_bWGR_MLM', PACKAGE = 'bWGR', Y, X, Z, maxit, logtol, cores, verb, df0)
 }
 
 solver1x <- function(Y, X, maxit = 100L, tol = 10e-7, df0 = 20.0) {
@@ -221,20 +225,20 @@ FUVBETA <- function(Y, X) {
     .Call('_bWGR_FUVBETA', PACKAGE = 'bWGR', Y, X)
 }
 
-MEGAF <- function(Y, X, npc = -1L) {
-    .Call('_bWGR_MEGAF', PACKAGE = 'bWGR', Y, X, npc)
-}
-
-GSEMF <- function(Y, X, npc = -1L) {
-    .Call('_bWGR_GSEMF', PACKAGE = 'bWGR', Y, X, npc)
-}
-
 XFUVBETA <- function(Y, X) {
     .Call('_bWGR_XFUVBETA', PACKAGE = 'bWGR', Y, X)
 }
 
 XSEMF <- function(Y, X, npc = 0L) {
     .Call('_bWGR_XSEMF', PACKAGE = 'bWGR', Y, X, npc)
+}
+
+zsolver1xF <- function(Y, X) {
+    .Call('_bWGR_zsolver1xF', PACKAGE = 'bWGR', Y, X)
+}
+
+ZFUVBETA <- function(Y, X) {
+    .Call('_bWGR_ZFUVBETA', PACKAGE = 'bWGR', Y, X)
 }
 
 ZSEMF <- function(Y, X) {
@@ -255,9 +259,5 @@ K2X <- function(K, MinEV = 1e-8, cores = 1L) {
 
 MvSimY <- function(Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc = 20L, Seed = 123L) {
     .Call('_bWGR_MvSimY', PACKAGE = 'bWGR', Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc, Seed)
-}
-
-MLM <- function(Y, X, Z, maxit = 500L, logtol = -8, cores = 1L, verb = FALSE) {
-    .Call('_bWGR_MLM', PACKAGE = 'bWGR', Y, X, Z, maxit, logtol, cores, verb)
 }
 
