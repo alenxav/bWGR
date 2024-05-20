@@ -117,14 +117,6 @@ mtgsru <- function(Y, X, b, vb, ve, iG, maxit = 50L) {
     .Call('_bWGR_mtgsru', PACKAGE = 'bWGR', Y, X, b, vb, ve, iG, maxit)
 }
 
-mkr <- function(Y, K) {
-    .Call('_bWGR_mkr', PACKAGE = 'bWGR', Y, K)
-}
-
-mkr2X <- function(Y, K1, K2) {
-    .Call('_bWGR_mkr2X', PACKAGE = 'bWGR', Y, K1, K2)
-}
-
 lasso <- function(y, gen) {
     .Call('_bWGR_lasso', PACKAGE = 'bWGR', y, gen)
 }
@@ -257,8 +249,8 @@ EigenGauZ <- function(Zfndr, Zsamp, phi = 1.0, cores = 1L) {
     .Call('_bWGR_EigenGauZ', PACKAGE = 'bWGR', Zfndr, Zsamp, phi, cores)
 }
 
-K2X <- function(K, cores = 1L) {
-    .Call('_bWGR_K2X', PACKAGE = 'bWGR', K, cores)
+K2X <- function(K, MinEV = 1e-8, cores = 1L) {
+    .Call('_bWGR_K2X', PACKAGE = 'bWGR', K, MinEV, cores)
 }
 
 MvSimY <- function(Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc = 20L, Seed = 123L) {

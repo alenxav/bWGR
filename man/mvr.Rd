@@ -31,9 +31,9 @@
   Multivariate model to find breeding values.
 }
 \usage{
-  mkr(Y,K)
-  mrr(Y,X)
-  mrr_float(Y,X)
+  mkr(Y,K,...)
+  mrr(Y,X,...)
+  mrr_float(Y,X,...)
 }
 \arguments{
   \item{Y}{
@@ -44,6 +44,9 @@
   }
   \item{X}{
     Numeric matrix containing the genotyping matrix.
+  } 
+  \item{...}{
+    Arguments to pass to MRR3/MRR3F. See \code{args(MRR3)}.
   } 
   
 }

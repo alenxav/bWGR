@@ -1757,8 +1757,6 @@ SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
                             Rcpp::Named("h2")=h2,
                             Rcpp::Named("GC")=GC);}
 
-
-
 // [[Rcpp::export]]
 Eigen::MatrixXf EigenArcZ( Eigen::MatrixXf Zfndr, Eigen::MatrixXf Zsamp, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores);  
@@ -1825,12 +1823,13 @@ Eigen::MatrixXf EigenGauZ( Eigen::MatrixXf Zfndr, Eigen::MatrixXf Zsamp, float p
 }
 
 // [[Rcpp::export]]
-Eigen::MatrixXf K2X(Eigen::MatrixXf K, int cores = 1){
+Eigen::MatrixXf K2X(Eigen::MatrixXf K, float MinEV = 1e-8, int cores = 1){
   if(cores!=1) Eigen::setNbThreads(cores);
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(K);
   Eigen::BDCSVD<Eigen::MatrixXf> svd(K, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  return svd.matrixU() * svd.singularValues().matrix().asDiagonal();
-}
+  int NPC = 0; Eigen::VectorXf D = svd.singularValues().array();
+  for(int i=0; i< D.size(); i++){ if(D[i]>MinEV) NPC +=1; };
+  return svd.matrixU().leftCols(NPC) * svd.singularValues().head(NPC).matrix().asDiagonal();}
 
 Eigen::MatrixXd GetL(Eigen::MatrixXd A){
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es(A);
@@ -2099,3 +2098,4 @@ SEXP MLM(Eigen::MatrixXd Y, Eigen::MatrixXd X, Eigen::MatrixXd Z,
   return OutputList;
   
 }
+

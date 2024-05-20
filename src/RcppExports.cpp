@@ -446,31 +446,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// mkr
-SEXP mkr(NumericMatrix Y, NumericMatrix K);
-RcppExport SEXP _bWGR_mkr(SEXP YSEXP, SEXP KSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type K(KSEXP);
-    rcpp_result_gen = Rcpp::wrap(mkr(Y, K));
-    return rcpp_result_gen;
-END_RCPP
-}
-// mkr2X
-SEXP mkr2X(NumericMatrix Y, NumericMatrix K1, NumericMatrix K2);
-RcppExport SEXP _bWGR_mkr2X(SEXP YSEXP, SEXP K1SEXP, SEXP K2SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericMatrix >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type K1(K1SEXP);
-    Rcpp::traits::input_parameter< NumericMatrix >::type K2(K2SEXP);
-    rcpp_result_gen = Rcpp::wrap(mkr2X(Y, K1, K2));
-    return rcpp_result_gen;
-END_RCPP
-}
 // lasso
 SEXP lasso(NumericVector y, NumericMatrix gen);
 RcppExport SEXP _bWGR_lasso(SEXP ySEXP, SEXP genSEXP) {
@@ -975,14 +950,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // K2X
-Eigen::MatrixXf K2X(Eigen::MatrixXf K, int cores);
-RcppExport SEXP _bWGR_K2X(SEXP KSEXP, SEXP coresSEXP) {
+Eigen::MatrixXf K2X(Eigen::MatrixXf K, float MinEV, int cores);
+RcppExport SEXP _bWGR_K2X(SEXP KSEXP, SEXP MinEVSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type K(KSEXP);
+    Rcpp::traits::input_parameter< float >::type MinEV(MinEVSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(K2X(K, cores));
+    rcpp_result_gen = Rcpp::wrap(K2X(K, MinEV, cores));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1052,8 +1028,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_SPC", (DL_FUNC) &_bWGR_SPC, 6},
     {"_bWGR_SPM", (DL_FUNC) &_bWGR_SPM, 5},
     {"_bWGR_mtgsru", (DL_FUNC) &_bWGR_mtgsru, 7},
-    {"_bWGR_mkr", (DL_FUNC) &_bWGR_mkr, 2},
-    {"_bWGR_mkr2X", (DL_FUNC) &_bWGR_mkr2X, 3},
     {"_bWGR_lasso", (DL_FUNC) &_bWGR_lasso, 2},
     {"_bWGR_emBCpi", (DL_FUNC) &_bWGR_emBCpi, 5},
     {"_bWGR_NNSEARCH", (DL_FUNC) &_bWGR_NNSEARCH, 5},
@@ -1087,7 +1061,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_ZSEMF", (DL_FUNC) &_bWGR_ZSEMF, 2},
     {"_bWGR_EigenArcZ", (DL_FUNC) &_bWGR_EigenArcZ, 3},
     {"_bWGR_EigenGauZ", (DL_FUNC) &_bWGR_EigenGauZ, 4},
-    {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 2},
+    {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 3},
     {"_bWGR_MvSimY", (DL_FUNC) &_bWGR_MvSimY, 8},
     {"_bWGR_MLM", (DL_FUNC) &_bWGR_MLM, 7},
     {NULL, NULL, 0}

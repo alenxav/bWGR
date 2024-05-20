@@ -1260,7 +1260,6 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),
     pa = cor(G,Y,use='p'); GC = 0.5*(pa+t(pa))
     for(i in 1:ncol(G)) G[,i]=G[,i]+Mu[i]
     h2 = 1-c(colMeans((Y-G)*Yc,na.rm=T))/apply(Y,2,var,na.rm=T)}
-  
   rownames(MvBeta) = colnames(Z)
   if(is.null(TOI)){ colnames(MvBeta) = colnames(Y)  }else{ colnames(MvBeta) = colnames(Y)[TOI] } 
   out = list(Univ=Beta0,SEM=MvBeta,Mu=Mu)
@@ -1269,6 +1268,10 @@ SEM = function(Y,Z,PCs=ifelse(RndLatSp,min(30,ncol(Y)),3),
 
 #############################################################################################################                   
 
-mrr = function(Y,X) MRR3(Y,X)
+mrr = function(Y,X,...) MRR3(Y,X,...)
 
-mrr_float = function(Y,X) MRR3F(Y,X)
+mrr_float = function(Y,X,...) MRR3F(Y,X,...)
+
+mkr = function(Y,K,...) MRR3(Y,K2X(K),...)
+
+mkr2X = function(Y,K1,K2,...) mrr2X(Y,K2X(K1,...),K2X(K2,...))

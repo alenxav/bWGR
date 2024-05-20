@@ -45,7 +45,7 @@ Complementary functions that may help with handling parameters and routine opera
 
 \code{GAU(X)} # Creates Gaussian kernel as exp(-Dist2/mean(Dist2))
 
-\code{GRM(X,Code012=FALSE)} # Creates additive kinship matrix VanRaden (2008)
+\code{GRM(X,Code012=FALSE)} # Creates additive kinship matrix VanRaden 2008
 
 \code{SPC(y,blk,row,col,rN=3,cN=1)} # Spatial covariate
 
@@ -55,33 +55,29 @@ Complementary functions that may help with handling parameters and routine opera
 
 \code{Hmat(ped,gen=NULL)} # Kinship combining pedigree and genomics
   
-\code{EigenGRM(X, centralizeZ = TRUE, cores = 2)} # GRM using Eigen library
+\code{EigenGRM(X, centralizeZ = TRUE, cores = 1)} # GRM using Eigen library
 
-\code{EigenARC(X, centralizeZ = TRUE, cores = 2)} # ArcCosine kernel
+\code{EigenARC(X, centralizeZ = TRUE, cores = 1)} # ArcCosine kernel
 
-\code{EigenGAU(X, phi = 1.0, cores = 2)} # Gaussian kernel using Eigen library
+\code{EigenGAU(X, phi = 1.0, cores = 1)} # Gaussian kernel using Eigen library
 
-\code{EigenCNT(X, cores = 2)} # Center SNPs without missing Eigen library
+\code{EigenCNT(X, cores = 1)} # Center SNPs without missing Eigen library
 
-\code{EigenEVD(A, cores = 2)} # Eigendecomposition from Eigen library
+\code{EigenEVD(A, cores = 1)} # Eigendecomposition from Eigen library
 
-\code{EigenBDCSVD(X, cores = 2)} # BDC single value composition from Eigen
+\code{EigenBDCSVD(X, cores = 1)} # BDC single value composition from Eigen
 
-\code{EigenEVD_F(A, cores = 2)} # Eigendecomposition - float
+\code{EigenJacobiSVD(X, cores = 1)} # Jacobi single value composition from Eigen
 
-\code{EigenBDCSVD_F(X, cores = 2)} # Single value composition - float
+\code{EigenAcc(X1, X2, h2 = 0.5, cores = 1)} # Deterministic accuracy X1 -> X2 via V
 
-\code{EigenJacobiSVD(X, cores = 2)} # Jacobi single value composition from Eigen
+\code{AccByC(X1, X2, h2 = 0.5, cores = 1)} # Deterministic accuracy X1 -> X2 via C
 
-\code{EigenAcc(X1, X2, h2 = 0.5, cores = 2)} # Deterministic accuracy X1 -> X2 via V
+\code{EigenArcZ(Zfndr, Zsamp, cores = 1)} # Reduced rank ArcCos kernel PCs with founder rotation
 
-\code{AccByC(X1, X2, h2 = 0.5, cores = 2)} # Deterministic accuracy X1 -> X2 via C
+\code{EigenGauZ(Zfndr, Zsamp, phi=1, cores = 1)} # Reduced rank Gaussian kernel PCs with founder rotation 
 
-\code{EigenArcZ(Zfndr, Zsamp, cores = 2)} # Reduced rank ArcCos kernel PCs with founder rotation
-
-\code{EigenGauZ(Zfndr, Zsamp, phi=1, cores = 2)} # Reduced rank Gaussian kernel PCs with founder rotation 
-
-\code{K2X(K)} # Reparametrize kernel to PCs to run regression models 
+\code{K2X(K, MinEV = 1e-8, cores = 1)} # Reparametrize kernel to PCs to run regression models 
 
 \code{SimY(Z,k=5,h2=0.5,GC=0.5,seed=123,unbalanced=FALSE,PercMiss=0,BlkMiss=FALSE)} # Simulate phenotypes 
 
