@@ -1734,7 +1734,6 @@ SEXP XSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = 0){
   Eigen::MatrixXf GC = (G.transpose()*G)/(Y.rows());
   return Rcpp::List::create(Rcpp::Named("b")=b,Rcpp::Named("GC")=GC,Rcpp::Named("hat")=G);}
 
-// [[Rcpp::export]]
 Eigen::VectorXf zsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X){
   int maxit = 100; float tol = 10e-7; float df0 = 20.0;
   int n = X.rows(), p = X.cols(), numit = 0, J;

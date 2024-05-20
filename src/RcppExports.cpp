@@ -902,18 +902,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// zsolver1xF
-Eigen::VectorXf zsolver1xF(Eigen::VectorXf Y, Eigen::MatrixXf X);
-RcppExport SEXP _bWGR_zsolver1xF(SEXP YSEXP, SEXP XSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Eigen::VectorXf >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(zsolver1xF(Y, X));
-    return rcpp_result_gen;
-END_RCPP
-}
 // ZFUVBETA
 Eigen::MatrixXf ZFUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X);
 RcppExport SEXP _bWGR_ZFUVBETA(SEXP YSEXP, SEXP XSEXP) {
@@ -1056,7 +1044,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_FUVBETA", (DL_FUNC) &_bWGR_FUVBETA, 2},
     {"_bWGR_XFUVBETA", (DL_FUNC) &_bWGR_XFUVBETA, 2},
     {"_bWGR_XSEMF", (DL_FUNC) &_bWGR_XSEMF, 3},
-    {"_bWGR_zsolver1xF", (DL_FUNC) &_bWGR_zsolver1xF, 2},
     {"_bWGR_ZFUVBETA", (DL_FUNC) &_bWGR_ZFUVBETA, 2},
     {"_bWGR_ZSEMF", (DL_FUNC) &_bWGR_ZSEMF, 2},
     {"_bWGR_EigenArcZ", (DL_FUNC) &_bWGR_EigenArcZ, 3},

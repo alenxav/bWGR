@@ -233,10 +233,6 @@ XSEMF <- function(Y, X, npc = 0L) {
     .Call('_bWGR_XSEMF', PACKAGE = 'bWGR', Y, X, npc)
 }
 
-zsolver1xF <- function(Y, X) {
-    .Call('_bWGR_zsolver1xF', PACKAGE = 'bWGR', Y, X)
-}
-
 ZFUVBETA <- function(Y, X) {
     .Call('_bWGR_ZFUVBETA', PACKAGE = 'bWGR', Y, X)
 }
