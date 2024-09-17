@@ -88,7 +88,7 @@
 
     10) \code{ZSEMF(Y,X,npc=0):} Full-rank MegaSEM, float precision.
 
-    11) \code{YSEMF(Y,X,npc=-1):} Reduced-rank MegaSEM, float precision, two-step approach.
+    11) \code{YSEMF(Y,X,npc=-1):} Reduced-rank MegaSEM, float, two-steps approach.
 
     12) \code{XSEMF(Y,X,npc=0):} Full-rank MegaSEM, h2 fixed at 0.5, float precision.
     

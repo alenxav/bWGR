@@ -237,8 +237,12 @@ ZFUVBETA <- function(Y, X) {
     .Call('_bWGR_ZFUVBETA', PACKAGE = 'bWGR', Y, X)
 }
 
-ZSEMF <- function(Y, X) {
-    .Call('_bWGR_ZSEMF', PACKAGE = 'bWGR', Y, X)
+ZSEMF <- function(Y, X, npc = 0L) {
+    .Call('_bWGR_ZSEMF', PACKAGE = 'bWGR', Y, X, npc)
+}
+
+YSEMF <- function(Y, X, npc = -1L) {
+    .Call('_bWGR_YSEMF', PACKAGE = 'bWGR', Y, X, npc)
 }
 
 EigenArcZ <- function(Zfndr, Zsamp, cores = 1L) {

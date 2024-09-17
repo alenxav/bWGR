@@ -1788,14 +1788,11 @@ SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = 0){
   Eigen::MatrixXf G = X*BETA.bottomRows(X.cols());
   Eigen::VectorXf h2 = BETA.row(0).array();
   Eigen::BDCSVD<Eigen::MatrixXf> svd(G, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  //Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal());
-  //Eigen::MatrixXf Coef = ZFUVBETA(Y,Z);
   if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
   if(npc==0) npc += svd.matrixU().cols();
   Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
   Eigen::MatrixXf Coef = ZFUVBETA(Y,Z);
   // Hat and H2
-  //Eigen::MatrixXf beta_final = BETA.bottomRows(X.cols()) *svd.matrixV()* Coef.bottomRows( Z.cols());
   Eigen::MatrixXf beta_final = BETA.bottomRows(X.cols()) * svd.matrixV().leftCols(npc) * Coef.bottomRows( Z.cols()); 
   G = X*beta_final; Eigen::MatrixXf hat = G * 1.0;
   Eigen::VectorXf mu = Coef.row(1).array();
@@ -1818,29 +1815,24 @@ SEXP YSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
   int k = Y.cols(), N = Y.rows();
   Eigen::MatrixXf BETA = ZFUVBETA(Y,X);
   Eigen::MatrixXf G = X*BETA.bottomRows(X.cols());
-  Eigen::VectorXf h2 = BETA.row(0).array();
   Eigen::BDCSVD<Eigen::MatrixXf> svd(G, Eigen::ComputeThinU | Eigen::ComputeThinV );
   if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
   if(npc==0) npc += svd.matrixU().cols();
   Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
-  Eigen::MatrixXf Coef = XFUVBETA(Y,Z);
-  // Hat and H2
-  Eigen::MatrixXf beta_Fa = BETA.bottomRows(X.cols()) * svd.matrixV().leftCols(npc) * Coef; 
+  Eigen::MatrixXf ALPHA = ZFUVBETA(Y,Z);
+  Eigen::MatrixXf beta_Fa = BETA.bottomRows(X.cols()) * svd.matrixV().leftCols(npc) * ALPHA.bottomRows( Z.cols()); 
   G = X*beta_Fa;
-  Eigen::MatrixXf R = Y-G;
-  Eigen::MatrixXf beta_Xd = ZFUVBETA(R,X);
-  Eigen::MatrixXf beta_FaXd = beta_Fa+beta_Xd;
+  Eigen::MatrixXf beta_Xd = ZFUVBETA(Y-G,X);
+  Eigen::MatrixXf beta_FaXd = beta_Fa+beta_Xd.bottomRows( X.cols());
   G = X*beta_FaXd;
   Eigen::MatrixXf hat = G * 1.0;
-  Eigen::VectorXf mu = Coef.row(1).array();
+  Eigen::VectorXf mu = beta_Xd.row(1).array();
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i); }
-  h2 = Coef.row(0).array();
-  // GC
+  Eigen::VectorXf h2 = ALPHA.row(0).array() + beta_Xd.row(0).array();
   for(int i=0; i<k; i++){ G.col(i) = G.col(i).array() - G.col(i).mean(); }
   Eigen::VectorXf vg = G.colwise().squaredNorm(); vg /= N; vg = vg.array().sqrt();
   for(int i=0; i<k; i++){ G.col(i) = G.col(i).array() / vg(i); }
   Eigen::MatrixXf GC = (G.transpose()*G)/N;
-  // Output
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
                             Rcpp::Named("b")=beta_FaXd,
                             Rcpp::Named("hat")=hat,

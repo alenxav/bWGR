@@ -915,14 +915,28 @@ BEGIN_RCPP
 END_RCPP
 }
 // ZSEMF
-SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X);
-RcppExport SEXP _bWGR_ZSEMF(SEXP YSEXP, SEXP XSEXP) {
+SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc);
+RcppExport SEXP _bWGR_ZSEMF(SEXP YSEXP, SEXP XSEXP, SEXP npcSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
-    rcpp_result_gen = Rcpp::wrap(ZSEMF(Y, X));
+    Rcpp::traits::input_parameter< int >::type npc(npcSEXP);
+    rcpp_result_gen = Rcpp::wrap(ZSEMF(Y, X, npc));
+    return rcpp_result_gen;
+END_RCPP
+}
+// YSEMF
+SEXP YSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc);
+RcppExport SEXP _bWGR_YSEMF(SEXP YSEXP, SEXP XSEXP, SEXP npcSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type npc(npcSEXP);
+    rcpp_result_gen = Rcpp::wrap(YSEMF(Y, X, npc));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1045,7 +1059,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_XFUVBETA", (DL_FUNC) &_bWGR_XFUVBETA, 2},
     {"_bWGR_XSEMF", (DL_FUNC) &_bWGR_XSEMF, 3},
     {"_bWGR_ZFUVBETA", (DL_FUNC) &_bWGR_ZFUVBETA, 2},
-    {"_bWGR_ZSEMF", (DL_FUNC) &_bWGR_ZSEMF, 2},
+    {"_bWGR_ZSEMF", (DL_FUNC) &_bWGR_ZSEMF, 3},
+    {"_bWGR_YSEMF", (DL_FUNC) &_bWGR_YSEMF, 3},
     {"_bWGR_EigenArcZ", (DL_FUNC) &_bWGR_EigenArcZ, 3},
     {"_bWGR_EigenGauZ", (DL_FUNC) &_bWGR_EigenGauZ, 4},
     {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 3},
