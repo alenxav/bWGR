@@ -100,7 +100,7 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
   
   # Fit (loop)
   R2c = 0.5
-  pb = txtProgressBar(style = 3)
+  if(maxit!=10) pb = txtProgressBar(style = 3)
   for(iter in 1:maxit){
     
     # Fixed effects 
@@ -146,12 +146,12 @@ mixed = function(y,random=NULL,fixed=NULL,data=NULL,X=list(),alg=emML,maxit=10,D
     }
     
     # Print R2 and check convergence based on Ve
-    setTxtProgressBar(pb,iter/maxit)
+    if(maxit!=10) setTxtProgressBar(pb,iter/maxit)
     R2 = round(1-Ve/Vy,8)
     if(abs(R2c-R2)==0) break()
     R2c = R2
   }
-  close(pb)
+  if(maxit!=10) close(pb)
   
   # Fit model
   fit = rep(B[['Intercept']],length(y))

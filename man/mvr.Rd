@@ -17,10 +17,11 @@
 \alias{FUVBETA}
 \alias{solver1xF}
 \alias{solver2xF}
-\alias{XSEMF}
 \alias{FUVBETA}
 \alias{XFUVBETA}
 \alias{ZFUVBETA}
+\alias{XSEMF}
+\alias{YSEMF}
 \alias{ZSEMF}
 
 \title{
@@ -79,17 +80,20 @@
 
     06) \code{MLM(Y,X,Z,maxit=500,logtol=-8,cores=1):} Multivariate model with fixed effects.
 
-    07) \code{SEM(Y,Z,...):} Fits a XFA structural equation model (i.e., MegaSEM).
+    07) \code{SEM(Y,Z,...):} Fits a MegaSEM with both shared- and trait-specific terms.
 
-    08) \code{MEGA(Y,X,npc=-1):} Toy implementation of MegaLMM.
+    08) \code{MEGA(Y,X,npc=-1):} Toy implementation of MegaLMM, imputing missing with GEBVs.
 
-    09) \code{GSEM(Y,X,npc=-1):} Toy C++ implementaiton of MegaSEM.
+    09) \code{GSEM(Y,X,npc=-1):} Toy C++ implementaiton of MegaSEM, jointly fits FA and XB.
 
-    10) \code{XSEMF(Y,X,npc=0):} PC-based SEM - h2 fixed at 0.5.
+    10) \code{ZSEMF(Y,X,npc=0):} Full-rank MegaSEM, float precision.
+
+    11) \code{YSEMF(Y,X,npc=-1):} Reduced-rank MegaSEM, float precision, two-step approach.
+
+    12) \code{XSEMF(Y,X,npc=0):} Full-rank MegaSEM, h2 fixed at 0.5, float precision.
     
-    11) \code{ZSEMF(Y,X):} PC-based SEM - h2 is estimated.
     
-In GSEM and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
+In GSEM, XSEMF and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
 
     
 }

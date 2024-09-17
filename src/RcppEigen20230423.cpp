@@ -570,16 +570,6 @@ SEXP MRR3(Eigen::MatrixXd Y,
           }
         }}}
     
-    
-    if(weight_prior_h2>0){ // Proportion-based prior H2
-      for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
-    if(weight_prior_gc>0){ // Proportion-based prior GC
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-        if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
-        // Once calculation of GC without prior
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
-      
       // Heterogeneous Compound Symmetry
       if(HCS){
         gs = 0.0;
@@ -597,6 +587,16 @@ SEXP MRR3(Eigen::MatrixXd Y,
         GC = UDU * 1.0; for(int i=0; i<k; i++){ GC(i,i)=1.0; };
       }
       
+      // Proportion-base prior
+      if(weight_prior_h2>0){ // Proportion-based prior H2
+        for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
+      if(weight_prior_gc>0){ // Proportion-based prior GC
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){
+          if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
+          // Once calculation of GC without prior
+          for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
+        
       // Monkeying with the correlations
       for(int i=0; i<k; i++){
         for(int j=0; j<k; j++){
@@ -932,16 +932,6 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           }
         }}}
     
-    
-    if(weight_prior_h2>0){ // Proportion-based prior H2
-      for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
-    if(weight_prior_gc>0){ // Proportion-based prior GC
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-        if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
-      for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
-        // Once calculation of GC without prior
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
-      
       // Heterogeneous Compound Symmetry
       if(HCS){
         gs = 0.0;
@@ -959,6 +949,16 @@ SEXP MRR3F(Eigen::MatrixXf Y,
         GC = UDU * 1.0; for(int i=0; i<k; i++){ GC(i,i)=1.0; };
       }
       
+      // Proportion-base prior
+      if(weight_prior_h2>0){ // Proportion-based prior H2
+        for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
+      if(weight_prior_gc>0){ // Proportion-based prior GC
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){
+          if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
+          // Once calculation of GC without prior
+          for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
+        
       // Monkeying with the correlations
       for(int i=0; i<k; i++){
         for(int j=0; j<k; j++){
@@ -1782,16 +1782,21 @@ Eigen::MatrixXf ZFUVBETA(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   return BETA;}
 
 // [[Rcpp::export]]
-SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
+SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = 0){
   int k = Y.cols(), N = Y.rows();
   Eigen::MatrixXf BETA = ZFUVBETA(Y,X);
   Eigen::MatrixXf G = X*BETA.bottomRows(X.cols());
   Eigen::VectorXf h2 = BETA.row(0).array();
   Eigen::BDCSVD<Eigen::MatrixXf> svd(G, Eigen::ComputeThinU | Eigen::ComputeThinV );
-  Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal());
+  //Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal());
+  //Eigen::MatrixXf Coef = ZFUVBETA(Y,Z);
+  if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
+  if(npc==0) npc += svd.matrixU().cols();
+  Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
   Eigen::MatrixXf Coef = ZFUVBETA(Y,Z);
   // Hat and H2
-  Eigen::MatrixXf beta_final = BETA.bottomRows(X.cols()) *svd.matrixV()* Coef.bottomRows( Z.cols());
+  //Eigen::MatrixXf beta_final = BETA.bottomRows(X.cols()) *svd.matrixV()* Coef.bottomRows( Z.cols());
+  Eigen::MatrixXf beta_final = BETA.bottomRows(X.cols()) * svd.matrixV().leftCols(npc) * Coef.bottomRows( Z.cols()); 
   G = X*beta_final; Eigen::MatrixXf hat = G * 1.0;
   Eigen::VectorXf mu = Coef.row(1).array();
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i); }
@@ -1804,6 +1809,40 @@ SEXP ZSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X){
   // Output
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
                             Rcpp::Named("b")=beta_final,
+                            Rcpp::Named("hat")=hat,
+                            Rcpp::Named("h2")=h2,
+                            Rcpp::Named("GC")=GC);}
+
+// [[Rcpp::export]]
+SEXP YSEMF(Eigen::MatrixXf Y, Eigen::MatrixXf X, int npc = -1){
+  int k = Y.cols(), N = Y.rows();
+  Eigen::MatrixXf BETA = ZFUVBETA(Y,X);
+  Eigen::MatrixXf G = X*BETA.bottomRows(X.cols());
+  Eigen::VectorXf h2 = BETA.row(0).array();
+  Eigen::BDCSVD<Eigen::MatrixXf> svd(G, Eigen::ComputeThinU | Eigen::ComputeThinV );
+  if(npc<0) npc = round(2*sqrt(svd.matrixU().cols()));
+  if(npc==0) npc += svd.matrixU().cols();
+  Eigen::MatrixXf Z = (svd.matrixU() * svd.singularValues().matrix().asDiagonal()).leftCols(npc);
+  Eigen::MatrixXf Coef = XFUVBETA(Y,Z);
+  // Hat and H2
+  Eigen::MatrixXf beta_Fa = BETA.bottomRows(X.cols()) * svd.matrixV().leftCols(npc) * Coef; 
+  G = X*beta_Fa;
+  Eigen::MatrixXf R = Y-G;
+  Eigen::MatrixXf beta_Xd = ZFUVBETA(R,X);
+  Eigen::MatrixXf beta_FaXd = beta_Fa+beta_Xd;
+  G = X*beta_FaXd;
+  Eigen::MatrixXf hat = G * 1.0;
+  Eigen::VectorXf mu = Coef.row(1).array();
+  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i); }
+  h2 = Coef.row(0).array();
+  // GC
+  for(int i=0; i<k; i++){ G.col(i) = G.col(i).array() - G.col(i).mean(); }
+  Eigen::VectorXf vg = G.colwise().squaredNorm(); vg /= N; vg = vg.array().sqrt();
+  for(int i=0; i<k; i++){ G.col(i) = G.col(i).array() / vg(i); }
+  Eigen::MatrixXf GC = (G.transpose()*G)/N;
+  // Output
+  return Rcpp::List::create(Rcpp::Named("mu")=mu,
+                            Rcpp::Named("b")=beta_FaXd,
                             Rcpp::Named("hat")=hat,
                             Rcpp::Named("h2")=h2,
                             Rcpp::Named("GC")=GC);}
