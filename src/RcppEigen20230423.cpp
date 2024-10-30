@@ -570,6 +570,16 @@ SEXP MRR3(Eigen::MatrixXd Y,
           }
         }}}
     
+    // Proportion-base prior
+    if(weight_prior_h2>0){ // Proportion-based prior H2
+      for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
+    if(weight_prior_gc>0){ // Proportion-based prior GC
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){
+        if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
+        // Once calculation of GC without prior
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
+    
       // Heterogeneous Compound Symmetry
       if(HCS){
         gs = 0.0;
@@ -587,15 +597,6 @@ SEXP MRR3(Eigen::MatrixXd Y,
         GC = UDU * 1.0; for(int i=0; i<k; i++){ GC(i,i)=1.0; };
       }
       
-      // Proportion-base prior
-      if(weight_prior_h2>0){ // Proportion-based prior H2
-        for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
-      if(weight_prior_gc>0){ // Proportion-based prior GC
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-          if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
-          // Once calculation of GC without prior
-          for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
         
       // Monkeying with the correlations
       for(int i=0; i<k; i++){
@@ -932,6 +933,16 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           }
         }}}
     
+    // Proportion-base prior
+    if(weight_prior_h2>0){ // Proportion-based prior H2
+      for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
+    if(weight_prior_gc>0){ // Proportion-based prior GC
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){
+        if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
+      for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
+        // Once calculation of GC without prior
+        for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
+      
       // Heterogeneous Compound Symmetry
       if(HCS){
         gs = 0.0;
@@ -949,15 +960,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
         GC = UDU * 1.0; for(int i=0; i<k; i++){ GC(i,i)=1.0; };
       }
       
-      // Proportion-base prior
-      if(weight_prior_h2>0){ // Proportion-based prior H2
-        for(int i=0; i<k; i++){gs = vb(i,i)*(1-weight_prior_h2) + weight_prior_h2*vbInit(i); vb(i,i) = gs*1.0;}}
-      if(weight_prior_gc>0){ // Proportion-based prior GC
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){
-          if(i!=j){ GC(i,j) = (1.0-weight_prior_gc)*vb(i,j)/(sqrt(vb(i,i)*vb(j,j))) + gc0*weight_prior_gc;}else{GC(i,j) = 1.0;}}}
-        for(int i=0; i<k; i++){for(int j=0; j<k; j++){ if(i!=j){ vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}}else{
-          // Once calculation of GC without prior
-          for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
+
         
       // Monkeying with the correlations
       for(int i=0; i<k; i++){
