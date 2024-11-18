@@ -144,5 +144,7 @@ In GSEM, XSEMF and MEGA, 'npc' means number of latent spaces if input is above z
 }
 
 \references{
-Xavier, A and Habier, D. (2022). A new approach fits multivariate genomic prediction models efficiently. GSE, DOI: 10.1186/s12711-022-00730-w    
+Xavier, A and Habier, D. (2022). A new approach fits multivariate genomic prediction models efficiently. GSE, DOI: 10.1186/s12711-022-00730-w 
+
+Xavier, A et al. (2024). Megavariate Methods Capture Complex Genotype-by-Environment Interactions. Genetics, DOI: 10.1093/genetics/iyae179
 }

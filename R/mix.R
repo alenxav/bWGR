@@ -478,7 +478,7 @@ SimY = function(Z, k=5, h2=0.5, GC=0.5,  seed=123,
       Ym = matrix(F,10,10)
       col_index = sort(rep(1:10,length.out=ncol(Y)))
       row_index = sort(rep(1:10,length.out=nrow(Y)))
-      Ym[sample(100,100*PercMiss)] = T
+      Ym[sample(100,100*(1-PercMiss))] = T
       for(i in 1:10) for(j in 1:10) if(!Ym[i,j]) Y[which(row_index==i),which(col_index==j)] = NA
     }else{
       Y[sample(length(Y),length(Y)*PercMiss)] = NA
