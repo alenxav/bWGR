@@ -326,6 +326,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
           bool NoInv = false,
           bool HCS = false,
           bool XFA = false,
+          bool ACS = false,
           int NumXFA = 3,
           double R2 = 0.5,
           double gc0 = 0.5, 
@@ -580,8 +581,15 @@ SEXP MRR3(Eigen::MatrixXd Y,
         // Once calculation of GC without prior
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
     
-      // Heterogeneous Compound Symmetry
-      if(HCS){
+    // Average covariance structure (HCS+XFA)
+      if(ACS){
+        gs = (GC.array().sum()-k)/((k*(k-1)))/2.0;
+        es.compute(GC);
+        UDU = es.eigenvalues()[k-1] * es.eigenvectors().col(k-1) * es.eigenvectors().col(k-1).transpose();
+        for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i-1] * es.eigenvectors().col(k-i-1) * es.eigenvectors().col(k-i-1).transpose();
+        UDU.array() += gs; GC = UDU * 0.5;
+        for(int i=0; i<k; i++){ GC(i,i)=1.0; };
+      }else if(HCS){ // Heterogeneous Compound Symmetry
         gs = 0.0;
         for(int i=0; i<k; i++){
           for(int j=0; j<k; j++){
@@ -589,11 +597,10 @@ SEXP MRR3(Eigen::MatrixXd Y,
         gs = gs/((k*(k-1))/2);
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){ 
           if(i!=j){ GC(i,j) =  gs*1.0;}else{ GC(i,j) = 1.0; }}}
-        // Extended Factor Analytics
-      }else if(XFA){
+      }else if(XFA){ // Extended Factor Analytics
         es.compute(GC);
-        UDU = es.eigenvalues()[k] * es.eigenvectors().col(k) * es.eigenvectors().col(k).transpose();
-        for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i] * es.eigenvectors().col(k-i) * es.eigenvectors().col(k-i).transpose();
+        UDU = es.eigenvalues()[k-1] * es.eigenvectors().col(k-1) * es.eigenvectors().col(k-1).transpose();
+        for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i-1] * es.eigenvectors().col(k-i-1) * es.eigenvectors().col(k-i-1).transpose();
         GC = UDU * 1.0; for(int i=0; i<k; i++){ GC(i,i)=1.0; };
       }
       
@@ -694,6 +701,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           bool NoInv = false,
           bool HCS = false,
           bool XFA = false,
+          bool ACS = false,
           int NumXFA = 3,
           float R2 = 0.5,
           float gc0 = 0.5, 
@@ -943,8 +951,15 @@ SEXP MRR3F(Eigen::MatrixXf Y,
         // Once calculation of GC without prior
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){GC(i,j)=vb(i,j)/(sqrt(vb(i,i)*vb(j,j)));}}}
       
-      // Heterogeneous Compound Symmetry
-      if(HCS){
+      // Average covariance structure (HCS+XFA)
+      if(ACS){
+        gs = (GC.array().sum()-k)/((k*(k-1)))/2.0;
+        es.compute(GC);
+        UDU = es.eigenvalues()[k-1] * es.eigenvectors().col(k-1) * es.eigenvectors().col(k-1).transpose();
+        for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i-1] * es.eigenvectors().col(k-i-1) * es.eigenvectors().col(k-i-1).transpose();
+        UDU.array() += gs; GC = UDU * 0.5;
+        for(int i=0; i<k; i++){ GC(i,i)=1.0; };
+      }else if(HCS){ // Heterogeneous Compound Symmetry
         gs = 0.0;
         for(int i=0; i<k; i++){
           for(int j=0; j<k; j++){
@@ -952,11 +967,10 @@ SEXP MRR3F(Eigen::MatrixXf Y,
         gs = gs/((k*(k-1))/2);
         for(int i=0; i<k; i++){for(int j=0; j<k; j++){ 
           if(i!=j){ GC(i,j) =  gs*1.0;}else{ GC(i,j) = 1.0; }}}
-        // Extended Factor Analytics
-      }else if(XFA){
+      }else if(XFA){ // Extended Factor Analytics
         es.compute(GC);
-        UDU = es.eigenvalues()[k] * es.eigenvectors().col(k) * es.eigenvectors().col(k).transpose();
-        for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i] * es.eigenvectors().col(k-i) * es.eigenvectors().col(k-i).transpose();
+        UDU = es.eigenvalues()[k-1] * es.eigenvectors().col(k-1) * es.eigenvectors().col(k-1).transpose();
+        for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i-1] * es.eigenvectors().col(k-i-1) * es.eigenvectors().col(k-i-1).transpose();
         GC = UDU * 1.0; for(int i=0; i<k; i++){ GC(i,i)=1.0; };
       }
       
