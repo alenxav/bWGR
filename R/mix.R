@@ -736,7 +736,7 @@ mm = function(y,random=NULL,fixed=NULL,data=NULL,
     if(RND) Z0 = Z
     wNA = which(is.na(y))
     y = y[-wNA];
-    if(FIX) X = X[-wNA,]
+    if(FIX) X = X[-wNA,,drop=F]
     if(RND) Z = lapply(Z,function(z) z[-wNA,] )
     for(i in 1:nr){
       cm = colSums(Z[[i]]);
