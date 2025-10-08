@@ -483,7 +483,9 @@ SEXP MRR3(Eigen::MatrixXd Y,
     std::shuffle(InnerRGSvec.begin(), InnerRGSvec.end(), std::mt19937(numit));
     
     for(int j=0; j<p; j++){
+      
       J = RGSvec[j];
+      b0 = b.row(J)*1.0;
       
       // System of equations - Traditional vs Stranden and Garrick 2009
       if(NoInv){
@@ -497,8 +499,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
         RHS = RHS.array() * iVeWj.array();
       }
       
-      // Update coefficient
-      b0 = b.row(J)*1.0;
+      // Update coefficient      
       for(int i=0; i<k; i++){ iVeWj(i) = iVe(i)*W(J,i); }
       LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVeWj.array()   ).matrix();
       RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
@@ -2047,5 +2048,6 @@ SEXP MvSimY(
   );
   
 }
+
 
 
