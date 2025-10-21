@@ -331,6 +331,7 @@ SEXP MRR3(Eigen::MatrixXd Y,
           double R2 = 0.5,
           double gc0 = 0.5, 
           double df0 = 1.0, 
+          bool updateMu = false,
           double weight_prior_h2 = 0.01,
           double weight_prior_gc = 0.01,
           double PenCor = 0.0,
@@ -645,7 +646,16 @@ SEXP MRR3(Eigen::MatrixXd Y,
           vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}
       if(!NoInv||TH){ 
         iG=vb.completeOrthogonalDecomposition().pseudoInverse();}
-      
+
+     // Update intercept
+      if(updateMu){
+        b0 = e.colwise().sum();
+        b0 = b0.array() * iN.array();
+        for(int i=0; i<k; i++){ mu(i) += b0(i);
+        e.col(i) = (e.col(i).array()-b0(i)).array() * Z.col(i).array();} 
+      }
+
+    
       // Compute convergence and print status
       
       //cnv = log10((beta0.array()-b.array()).square().sum());
@@ -707,6 +717,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           float R2 = 0.5,
           float gc0 = 0.5, 
           float df0 = 1.0, 
+          bool updateMu = false,
           float weight_prior_h2 = 0.01,
           float weight_prior_gc = 0.01,
           float PenCor = 0.0,
@@ -974,9 +985,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
         for(int i=1; i<NumXFA; i++) UDU += es.eigenvalues()[k-i-1] * es.eigenvectors().col(k-i-1) * es.eigenvectors().col(k-i-1).transpose();
         GC = UDU * 1.0; for(int i=0; i<k; i++){ GC(i,i)=1.0; };
       }
-      
-
-        
+              
       // Monkeying with the correlations
       for(int i=0; i<k; i++){
         for(int j=0; j<k; j++){
@@ -1016,7 +1025,15 @@ SEXP MRR3F(Eigen::MatrixXf Y,
           vb(i,j) = GC(i,j)*sqrt(vb(i,i)*vb(j,j));}}}
       if(!NoInv||TH){ 
         iG=vb.completeOrthogonalDecomposition().pseudoInverse();}
-      
+
+      // Update intercept
+      if(updateMu){
+        b0 = e.colwise().sum();
+        b0 = b0.array() * iN.array();
+        for(int i=0; i<k; i++){ mu(i) += b0(i);
+        e.col(i) = (e.col(i).array()-b0(i)).array() * Z.col(i).array();} 
+      }    
+            
       // Compute convergence and print status
       
       //cnv = log10((beta0.array()-b.array()).square().sum());
@@ -1024,7 +1041,7 @@ SEXP MRR3F(Eigen::MatrixXf Y,
       CNV1(numit) = cnv; if(std::isnan(cnv)){ if(verbose){Rcpp::Rcout << "Numerical issue! Job aborted (it=" << numit << ")\n";} break;}
       CNV2(numit) = log10((h20.array()-h2.array()).square().sum());
       CNV3(numit) = log10((vb0.array()-vb.array()).square().sum());
-      
+            
       // Print
       ++numit;
       if( verbose && numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
@@ -2048,6 +2065,7 @@ SEXP MvSimY(
   );
   
 }
+
 
 
 
