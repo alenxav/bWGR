@@ -2270,7 +2270,7 @@ Eigen::MatrixXf DropIncZero(Eigen::MatrixXf matrix) {
     if(Counts(i)>0){
       ind(counts_included_columns) = i;
       counts_included_columns ++;}}
-  return matrix(Eigen::placeholders::all,ind);
+  return matrix(Eigen::all,ind);
 }
 
 // [[Rcpp::export]]
