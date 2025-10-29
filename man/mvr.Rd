@@ -23,6 +23,12 @@
 \alias{XSEMF}
 \alias{YSEMF}
 \alias{ZSEMF}
+\alias{PEGS}
+\alias{mwgr}
+\alias{ClusterBlup}
+\alias{IncMatrix}
+\alias{EM_recluster}
+\alias{Get_Cluster_Corr}
 
 \title{
   Multivariate Regression
@@ -34,6 +40,7 @@
   mkr(Y,K,...)
   mrr(Y,X,...)
   mrr_float(Y,X,...)
+  mwgr(Y,X,solver=MRR3F,...)
 }
 \arguments{
   \item{Y}{
@@ -46,13 +53,20 @@
     Numeric matrix containing the genotyping matrix.
   } 
   \item{...}{
-    Arguments to pass to MRR3/MRR3F. See \code{args(MRR3)}.
+    Arguments to pass to solver (e.g., MRR3). See \code{args(MRR3)}.
+  } 
+  \item{solver}{
+    Which multivariate solver to use for mwgr wrapper.
   } 
   
 }
 \details{
 
- Algorithm is described in Xavier and Habier (2022). The model for the ridge regression (mrr) is as follows:
+ Multivariate solver algorithms are described in Xavier and Habier (2022) and Xavier et al. (2024).
+ 
+ The mwgr function is a wrapper that adds row and column names to the output of multivariate solvers.
+ 
+ The model for the ridge regression (mrr) is as follows:
     
     \deqn{Y = Mu + XB + E}
   
@@ -92,9 +106,11 @@
 
     12) \code{XSEMF(Y,X,npc=0):} Full-rank MegaSEM, h2 fixed at 0.5, float precision.
     
+    13) \code{PEGS(Y,X,...):} Light PEGS implementation, float precision.
     
 In GSEM, XSEMF and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
 
+Additional functions (ClusterBlup, IncMatrix, EM_recluster, Get_Cluster_Corr) may help with downstream analysis.
     
 }
 \value{

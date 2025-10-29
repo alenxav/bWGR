@@ -654,8 +654,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // MRR3
-SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X, int maxit, double tol, int cores, bool TH, double NLfactor, bool InnerGS, bool NoInv, bool HCS, bool XFA, bool ACS, int NumXFA, double R2, double gc0, double df0, double weight_prior_h2, double weight_prior_gc, double PenCor, double MinCor, double uncorH2below, double roundGCupFrom, double roundGCupTo, double roundGCdownFrom, double roundGCdownTo, double bucketGCfrom, double bucketGCto, double DeflateMax, double DeflateBy, bool OneVarB, bool OneVarE, bool verbose);
-RcppExport SEXP _bWGR_MRR3(SEXP YSEXP, SEXP XSEXP, SEXP maxitSEXP, SEXP tolSEXP, SEXP coresSEXP, SEXP THSEXP, SEXP NLfactorSEXP, SEXP InnerGSSEXP, SEXP NoInvSEXP, SEXP HCSSEXP, SEXP XFASEXP, SEXP ACSSEXP, SEXP NumXFASEXP, SEXP R2SEXP, SEXP gc0SEXP, SEXP df0SEXP, SEXP weight_prior_h2SEXP, SEXP weight_prior_gcSEXP, SEXP PenCorSEXP, SEXP MinCorSEXP, SEXP uncorH2belowSEXP, SEXP roundGCupFromSEXP, SEXP roundGCupToSEXP, SEXP roundGCdownFromSEXP, SEXP roundGCdownToSEXP, SEXP bucketGCfromSEXP, SEXP bucketGCtoSEXP, SEXP DeflateMaxSEXP, SEXP DeflateBySEXP, SEXP OneVarBSEXP, SEXP OneVarESEXP, SEXP verboseSEXP) {
+SEXP MRR3(Eigen::MatrixXd Y, Eigen::MatrixXd X, int maxit, double tol, int cores, bool TH, double NLfactor, bool InnerGS, bool NoInv, bool HCS, bool XFA, bool ACS, int NumXFA, double R2, double gc0, double df0, bool updateMu, double weight_prior_h2, double weight_prior_gc, double PenCor, double MinCor, double uncorH2below, double roundGCupFrom, double roundGCupTo, double roundGCdownFrom, double roundGCdownTo, double bucketGCfrom, double bucketGCto, double DeflateMax, double DeflateBy, bool OneVarB, bool OneVarE, bool verbose);
+RcppExport SEXP _bWGR_MRR3(SEXP YSEXP, SEXP XSEXP, SEXP maxitSEXP, SEXP tolSEXP, SEXP coresSEXP, SEXP THSEXP, SEXP NLfactorSEXP, SEXP InnerGSSEXP, SEXP NoInvSEXP, SEXP HCSSEXP, SEXP XFASEXP, SEXP ACSSEXP, SEXP NumXFASEXP, SEXP R2SEXP, SEXP gc0SEXP, SEXP df0SEXP, SEXP updateMuSEXP, SEXP weight_prior_h2SEXP, SEXP weight_prior_gcSEXP, SEXP PenCorSEXP, SEXP MinCorSEXP, SEXP uncorH2belowSEXP, SEXP roundGCupFromSEXP, SEXP roundGCupToSEXP, SEXP roundGCdownFromSEXP, SEXP roundGCdownToSEXP, SEXP bucketGCfromSEXP, SEXP bucketGCtoSEXP, SEXP DeflateMaxSEXP, SEXP DeflateBySEXP, SEXP OneVarBSEXP, SEXP OneVarESEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -675,6 +675,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type R2(R2SEXP);
     Rcpp::traits::input_parameter< double >::type gc0(gc0SEXP);
     Rcpp::traits::input_parameter< double >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< bool >::type updateMu(updateMuSEXP);
     Rcpp::traits::input_parameter< double >::type weight_prior_h2(weight_prior_h2SEXP);
     Rcpp::traits::input_parameter< double >::type weight_prior_gc(weight_prior_gcSEXP);
     Rcpp::traits::input_parameter< double >::type PenCor(PenCorSEXP);
@@ -691,13 +692,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type OneVarB(OneVarBSEXP);
     Rcpp::traits::input_parameter< bool >::type OneVarE(OneVarESEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(MRR3(Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA, ACS, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose));
+    rcpp_result_gen = Rcpp::wrap(MRR3(Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA, ACS, NumXFA, R2, gc0, df0, updateMu, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
 // MRR3F
-SEXP MRR3F(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit, float tol, int cores, bool TH, float NonLinearFactor, bool InnerGS, bool NoInv, bool HCS, bool XFA, bool ACS, int NumXFA, float R2, float gc0, float df0, float weight_prior_h2, float weight_prior_gc, float PenCor, float MinCor, float uncorH2below, float roundGCupFrom, float roundGCupTo, float roundGCdownFrom, float roundGCdownTo, float bucketGCfrom, float bucketGCto, float DeflateMax, float DeflateBy, bool OneVarB, bool OneVarE, bool verbose);
-RcppExport SEXP _bWGR_MRR3F(SEXP YSEXP, SEXP XSEXP, SEXP maxitSEXP, SEXP tolSEXP, SEXP coresSEXP, SEXP THSEXP, SEXP NonLinearFactorSEXP, SEXP InnerGSSEXP, SEXP NoInvSEXP, SEXP HCSSEXP, SEXP XFASEXP, SEXP ACSSEXP, SEXP NumXFASEXP, SEXP R2SEXP, SEXP gc0SEXP, SEXP df0SEXP, SEXP weight_prior_h2SEXP, SEXP weight_prior_gcSEXP, SEXP PenCorSEXP, SEXP MinCorSEXP, SEXP uncorH2belowSEXP, SEXP roundGCupFromSEXP, SEXP roundGCupToSEXP, SEXP roundGCdownFromSEXP, SEXP roundGCdownToSEXP, SEXP bucketGCfromSEXP, SEXP bucketGCtoSEXP, SEXP DeflateMaxSEXP, SEXP DeflateBySEXP, SEXP OneVarBSEXP, SEXP OneVarESEXP, SEXP verboseSEXP) {
+SEXP MRR3F(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit, float tol, int cores, bool TH, float NonLinearFactor, bool InnerGS, bool NoInv, bool HCS, bool XFA, bool ACS, int NumXFA, float R2, float gc0, float df0, bool updateMu, float weight_prior_h2, float weight_prior_gc, float PenCor, float MinCor, float uncorH2below, float roundGCupFrom, float roundGCupTo, float roundGCdownFrom, float roundGCdownTo, float bucketGCfrom, float bucketGCto, float DeflateMax, float DeflateBy, bool OneVarB, bool OneVarE, bool verbose);
+RcppExport SEXP _bWGR_MRR3F(SEXP YSEXP, SEXP XSEXP, SEXP maxitSEXP, SEXP tolSEXP, SEXP coresSEXP, SEXP THSEXP, SEXP NonLinearFactorSEXP, SEXP InnerGSSEXP, SEXP NoInvSEXP, SEXP HCSSEXP, SEXP XFASEXP, SEXP ACSSEXP, SEXP NumXFASEXP, SEXP R2SEXP, SEXP gc0SEXP, SEXP df0SEXP, SEXP updateMuSEXP, SEXP weight_prior_h2SEXP, SEXP weight_prior_gcSEXP, SEXP PenCorSEXP, SEXP MinCorSEXP, SEXP uncorH2belowSEXP, SEXP roundGCupFromSEXP, SEXP roundGCupToSEXP, SEXP roundGCdownFromSEXP, SEXP roundGCdownToSEXP, SEXP bucketGCfromSEXP, SEXP bucketGCtoSEXP, SEXP DeflateMaxSEXP, SEXP DeflateBySEXP, SEXP OneVarBSEXP, SEXP OneVarESEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -717,6 +718,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< float >::type R2(R2SEXP);
     Rcpp::traits::input_parameter< float >::type gc0(gc0SEXP);
     Rcpp::traits::input_parameter< float >::type df0(df0SEXP);
+    Rcpp::traits::input_parameter< bool >::type updateMu(updateMuSEXP);
     Rcpp::traits::input_parameter< float >::type weight_prior_h2(weight_prior_h2SEXP);
     Rcpp::traits::input_parameter< float >::type weight_prior_gc(weight_prior_gcSEXP);
     Rcpp::traits::input_parameter< float >::type PenCor(PenCorSEXP);
@@ -733,7 +735,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type OneVarB(OneVarBSEXP);
     Rcpp::traits::input_parameter< bool >::type OneVarE(OneVarESEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(MRR3F(Y, X, maxit, tol, cores, TH, NonLinearFactor, InnerGS, NoInv, HCS, XFA, ACS, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose));
+    rcpp_result_gen = Rcpp::wrap(MRR3F(Y, X, maxit, tol, cores, TH, NonLinearFactor, InnerGS, NoInv, HCS, XFA, ACS, NumXFA, R2, gc0, df0, updateMu, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1000,6 +1002,70 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// PEGS
+SEXP PEGS(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit, float logtol, bool NonNegativeCorr);
+RcppExport SEXP _bWGR_PEGS(SEXP YSEXP, SEXP XSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP NonNegativeCorrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< float >::type logtol(logtolSEXP);
+    Rcpp::traits::input_parameter< bool >::type NonNegativeCorr(NonNegativeCorrSEXP);
+    rcpp_result_gen = Rcpp::wrap(PEGS(Y, X, maxit, logtol, NonNegativeCorr));
+    return rcpp_result_gen;
+END_RCPP
+}
+// ClusterBlup
+Eigen::MatrixXf ClusterBlup(Eigen::MatrixXf Y, Eigen::MatrixXf X, float lambda);
+RcppExport SEXP _bWGR_ClusterBlup(SEXP YSEXP, SEXP XSEXP, SEXP lambdaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
+    Rcpp::traits::input_parameter< float >::type lambda(lambdaSEXP);
+    rcpp_result_gen = Rcpp::wrap(ClusterBlup(Y, X, lambda));
+    return rcpp_result_gen;
+END_RCPP
+}
+// IncMatrix
+Eigen::MatrixXf IncMatrix(Eigen::VectorXf x);
+RcppExport SEXP _bWGR_IncMatrix(SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::VectorXf >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(IncMatrix(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// EM_recluster
+Eigen::MatrixXf EM_recluster(Eigen::MatrixXf Y, Eigen::MatrixXf C, int rounds);
+RcppExport SEXP _bWGR_EM_recluster(SEXP YSEXP, SEXP CSEXP, SEXP roundsSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type C(CSEXP);
+    Rcpp::traits::input_parameter< int >::type rounds(roundsSEXP);
+    rcpp_result_gen = Rcpp::wrap(EM_recluster(Y, C, rounds));
+    return rcpp_result_gen;
+END_RCPP
+}
+// Get_Cluster_Corr
+Eigen::MatrixXf Get_Cluster_Corr(Eigen::MatrixXf Y, Eigen::MatrixXf C);
+RcppExport SEXP _bWGR_Get_Cluster_Corr(SEXP YSEXP, SEXP CSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type C(CSEXP);
+    rcpp_result_gen = Rcpp::wrap(Get_Cluster_Corr(Y, C));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_KMUP", (DL_FUNC) &_bWGR_KMUP, 8},
@@ -1046,8 +1112,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_EigenAcc", (DL_FUNC) &_bWGR_EigenAcc, 4},
     {"_bWGR_GS2EIGEN", (DL_FUNC) &_bWGR_GS2EIGEN, 5},
     {"_bWGR_mrr2X", (DL_FUNC) &_bWGR_mrr2X, 3},
-    {"_bWGR_MRR3", (DL_FUNC) &_bWGR_MRR3, 32},
-    {"_bWGR_MRR3F", (DL_FUNC) &_bWGR_MRR3F, 32},
+    {"_bWGR_MRR3", (DL_FUNC) &_bWGR_MRR3, 33},
+    {"_bWGR_MRR3F", (DL_FUNC) &_bWGR_MRR3F, 33},
     {"_bWGR_mrr_svd", (DL_FUNC) &_bWGR_mrr_svd, 2},
     {"_bWGR_MLM", (DL_FUNC) &_bWGR_MLM, 8},
     {"_bWGR_solver1x", (DL_FUNC) &_bWGR_solver1x, 5},
@@ -1067,6 +1133,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_EigenGauZ", (DL_FUNC) &_bWGR_EigenGauZ, 4},
     {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 3},
     {"_bWGR_MvSimY", (DL_FUNC) &_bWGR_MvSimY, 8},
+    {"_bWGR_PEGS", (DL_FUNC) &_bWGR_PEGS, 5},
+    {"_bWGR_ClusterBlup", (DL_FUNC) &_bWGR_ClusterBlup, 3},
+    {"_bWGR_IncMatrix", (DL_FUNC) &_bWGR_IncMatrix, 1},
+    {"_bWGR_EM_recluster", (DL_FUNC) &_bWGR_EM_recluster, 3},
+    {"_bWGR_Get_Cluster_Corr", (DL_FUNC) &_bWGR_Get_Cluster_Corr, 2},
     {NULL, NULL, 0}
 };
 

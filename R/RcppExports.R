@@ -177,12 +177,12 @@ mrr2X <- function(Y, X1, X2) {
     .Call('_bWGR_mrr2X', PACKAGE = 'bWGR', Y, X1, X2)
 }
 
-MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, ACS = FALSE, NumXFA = 3L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
-    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA, ACS, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
+MRR3 <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NLfactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, ACS = FALSE, NumXFA = 3L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, updateMu = FALSE, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
+    .Call('_bWGR_MRR3', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NLfactor, InnerGS, NoInv, HCS, XFA, ACS, NumXFA, R2, gc0, df0, updateMu, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
 }
 
-MRR3F <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NonLinearFactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, ACS = FALSE, NumXFA = 3L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
-    .Call('_bWGR_MRR3F', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NonLinearFactor, InnerGS, NoInv, HCS, XFA, ACS, NumXFA, R2, gc0, df0, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
+MRR3F <- function(Y, X, maxit = 500L, tol = 10e-9, cores = 1L, TH = FALSE, NonLinearFactor = 0.0, InnerGS = FALSE, NoInv = FALSE, HCS = FALSE, XFA = FALSE, ACS = FALSE, NumXFA = 3L, R2 = 0.5, gc0 = 0.5, df0 = 1.0, updateMu = FALSE, weight_prior_h2 = 0.01, weight_prior_gc = 0.01, PenCor = 0.0, MinCor = 1.0, uncorH2below = 0.0, roundGCupFrom = 1.0, roundGCupTo = 1.0, roundGCdownFrom = 1.0, roundGCdownTo = 0.0, bucketGCfrom = 1.0, bucketGCto = 1.0, DeflateMax = 0.9, DeflateBy = 0.0, OneVarB = FALSE, OneVarE = FALSE, verbose = FALSE) {
+    .Call('_bWGR_MRR3F', PACKAGE = 'bWGR', Y, X, maxit, tol, cores, TH, NonLinearFactor, InnerGS, NoInv, HCS, XFA, ACS, NumXFA, R2, gc0, df0, updateMu, weight_prior_h2, weight_prior_gc, PenCor, MinCor, uncorH2below, roundGCupFrom, roundGCupTo, roundGCdownFrom, roundGCdownTo, bucketGCfrom, bucketGCto, DeflateMax, DeflateBy, OneVarB, OneVarE, verbose)
 }
 
 mrr_svd <- function(Y, W) {
@@ -259,5 +259,25 @@ K2X <- function(K, MinEV = 1e-8, cores = 1L) {
 
 MvSimY <- function(Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc = 20L, Seed = 123L) {
     .Call('_bWGR_MvSimY', PACKAGE = 'bWGR', Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc, Seed)
+}
+
+PEGS <- function(Y, X, maxit = 100L, logtol = -4.0, NonNegativeCorr = FALSE) {
+    .Call('_bWGR_PEGS', PACKAGE = 'bWGR', Y, X, maxit, logtol, NonNegativeCorr)
+}
+
+ClusterBlup <- function(Y, X, lambda = 2.0) {
+    .Call('_bWGR_ClusterBlup', PACKAGE = 'bWGR', Y, X, lambda)
+}
+
+IncMatrix <- function(x) {
+    .Call('_bWGR_IncMatrix', PACKAGE = 'bWGR', x)
+}
+
+EM_recluster <- function(Y, C, rounds = 3L) {
+    .Call('_bWGR_EM_recluster', PACKAGE = 'bWGR', Y, C, rounds)
+}
+
+Get_Cluster_Corr <- function(Y, C) {
+    .Call('_bWGR_Get_Cluster_Corr', PACKAGE = 'bWGR', Y, C)
 }
 
