@@ -63,7 +63,7 @@ Alterinative (and updated) implementations have similar syntax:
               M=NULL,bin=FALSE,AM=NULL,it=10,verb=TRUE,
               FLM=TRUE,wgtM=TRUE,cntM=TRUE,nPc=3)}
               
-    02) \code{mtmixed = function(resp, random=NULL, fixed=NULL,
+    02) \code{mtmixed(resp, random=NULL, fixed=NULL,
               data, X=list(), maxit=10, init=10, regVC=FALSE)}
 
 }

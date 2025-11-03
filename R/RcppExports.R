@@ -281,3 +281,7 @@ Get_Cluster_Corr <- function(Y, C) {
     .Call('_bWGR_Get_Cluster_Corr', PACKAGE = 'bWGR', Y, C)
 }
 
+PEGSX <- function(Y, X, Z_list, maxit = 500L, logtol = -8.0, cores = 1L, verbose = FALSE, df0 = 1.1, NonNegativeCorr = FALSE, InnerGS = FALSE, NoInv = FALSE, XFA = FALSE, NumXFA = 3L) {
+    .Call('_bWGR_PEGSX', PACKAGE = 'bWGR', Y, X, Z_list, maxit, logtol, cores, verbose, df0, NonNegativeCorr, InnerGS, NoInv, XFA, NumXFA)
+}
+
