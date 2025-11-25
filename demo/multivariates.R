@@ -16,5 +16,6 @@ system.time(fit_sem <- SEM(Y,Z)$hat)[3]
 system.time(fit_xsemf <- XSEMF(Y,Z)$hat)[3]
 system.time(fit_zsemf <- ZSEMF(Y,Z)$hat)[3]
 system.time(fit_ysemf <- YSEMF(Y,Z)$hat)[3]
+system.time(fit_pegs <- PEGS(Y,Z)$hat)[3]
 
 sort(sapply(grep('fit',ls(),value=T),function(x) mean(diag(cor(get(x),tbv)))))
