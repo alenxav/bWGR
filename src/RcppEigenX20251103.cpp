@@ -502,7 +502,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
           float logtol = -4.0, // convergence tolerance
           float covbend = 1.1, // covariance bending factor
           int XFA = -1, // number of principal components to fit
-          bool NNC = false){ // non-negative correlations
+          bool NNC = true){ // non-negative correlations
   
   // Get input dimensions
   int k = Y.cols(), n0 = Y.rows();
@@ -524,18 +524,18 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
         Y(i,j) = 0.0;
       }else{ Z(i,j) = 1.0;}}}
   
-  // Count observations per trait
+  // Count observations per trait and get inverses
   Eigen::VectorXf n = Z.colwise().sum();
-  Eigen::VectorXf iN = n.array().inverse();
+  Eigen::VectorXf iN_mu = n.array().inverse(); // for mean calculation
   
   // Centralize y
   Eigen::VectorXf mu = Y.colwise().sum();
-  mu = mu.array() * iN.array();
+  mu = mu.array() * iN_mu.array();
   Eigen::MatrixXf y(n0,k);
   for(int i=0; i<k; i++){
     y.col(i) = (Y.col(i).array()-mu(i)).array()*Z.col(i).array();}
   
-  // Sum of squares of X and Compute Tr(XSX) for each effect
+  // Pre-compute for each effect: Sum of squares of X and Tr(XSX)
   std::vector<Eigen::MatrixXf> XX_list;
   Eigen::MatrixXf TrXSX(n_effects, k);
   Eigen::MatrixXf MSx_mat(n_effects, k);
@@ -550,34 +550,33 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
     
     Eigen::MatrixXf XSX(p,k);
     for(int i=0; i<p; i++){
-      XSX.row(i) = XX.row(i).transpose().array()*iN.array() - 
-        ((X_mats[eff].col(i).transpose()*Z).transpose().array()*iN.array()).square();
+      XSX.row(i) = XX.row(i).transpose().array()*iN_mu.array() - 
+        ((X_mats[eff].col(i).transpose()*Z).transpose().array()*iN_mu.array()).square();
     }
     MSx_mat.row(eff) = XSX.colwise().sum();
     TrXSX.row(eff) = n.transpose().array() * MSx_mat.row(eff).array();
   }
   
   // Variances
-  iN = (n.array()-1).inverse();
-  Eigen::VectorXf vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
+  Eigen::VectorXf iN_var = (n.array()-1).inverse(); // for variance calculation
+  Eigen::VectorXf vy = y.colwise().squaredNorm(); vy = vy.array() * iN_var.array();
   Eigen::VectorXf ve = vy * 0.5;
   Eigen::VectorXf iVe = ve.array().inverse();
   
   std::vector<Eigen::MatrixXf> vb_list(n_effects, Eigen::MatrixXf(k,k));
   std::vector<Eigen::MatrixXf> iG_list(n_effects, Eigen::MatrixXf(k,k));
-  
   for(int eff=0; eff<n_effects; ++eff){
     vb_list[eff] = (ve.array() / MSx_mat.row(eff).transpose().array()).matrix().asDiagonal();
     iG_list[eff] = vb_list[eff].completeOrthogonalDecomposition().pseudoInverse();
   }
   
-  // Beta tilde;
+  // Beta tilde for each effect
   std::vector<Eigen::MatrixXf> tilde_list;
   for(int eff=0; eff<n_effects; ++eff){
     tilde_list.push_back(X_mats[eff].transpose() * y);
   }
   
-  // Initialize coefficient matrices
+  // Initialize coefficient matrices and residuals
   Eigen::MatrixXf LHS(k,k);
   Eigen::VectorXf RHS(k);
   std::vector<Eigen::MatrixXf> b_list(n_effects);
@@ -599,9 +598,10 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
   
   // Bending & XFA objects
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> EVDofA(k);
+  if(XFA<0) XFA = k;
   Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> eigen_solver(k);
   
-  // Loop
+  // Main iterative loop
   while(numit<maxit){
     
     // Store coefficients pre-iteration
@@ -624,26 +624,26 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
         RHS = RHS.array() *iVe.array();
         b1 = LHS.llt().solve(RHS);
         b_list[eff].row(J) = b1;
-        // Update residuals
-        e -= (X_mats[eff].col(J)*(b1-b0).transpose()).cwiseProduct(Z);
+        // Update total residuals sequentially
+        e = (e - (X_mats[eff].col(J)*(b1-b0).transpose()).cwiseProduct(Z)).matrix();
       }
     }
     
-    // Residual variance
+    // Update residual variance (using total residual)
     ve = (e.cwiseProduct(y)).colwise().sum();
-    ve = ve.array() * iN.array();
+    ve = ve.array() * iN_var.array();
     iVe = ve.array().inverse();
     
-    // Genetic variance, XFA, and Bending for each effect
+    // Update genetic variance, XFA, and Bending for each effect
     for(int eff=0; eff<n_effects; ++eff){
       Eigen::MatrixXf TildeHat = b_list[eff].transpose() * tilde_list[eff];
-      Eigen::MatrixXf vb = vb_list[eff];
+      Eigen::MatrixXf vb(k,k);
       for(int r=0; r<k; r++){
         for(int c=0; c<k; c++){
           if(r==c){ 
-            if(TrXSX(eff,r) != 0) vb(r,c) = TildeHat(r,c)/TrXSX(eff,r); 
+            if(TrXSX(eff,r) != 0) vb(r,c) = TildeHat(r,c)/TrXSX(eff,r); else vb(r,c) = 0;
           }else{
-            if((TrXSX(eff,r)+TrXSX(eff,c)) != 0) vb(r,c) = (TildeHat(r,c)+TildeHat(c,r))/(TrXSX(eff,r)+TrXSX(eff,c));
+            if((TrXSX(eff,r)+TrXSX(eff,c)) != 0) vb(r,c) = (TildeHat(r,c)+TildeHat(c,r))/(TrXSX(eff,r)+TrXSX(eff,c)); else vb(r,c) = 0;
           }
         }
       }
@@ -653,7 +653,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
         Eigen::VectorXf sd_diag = vb.diagonal();
         vb.setZero();
         vb.diagonal() = sd_diag;
-      }else if(XFA > 0 && XFA < k){
+      }else if(XFA>0 && XFA < k){
         Eigen::VectorXf sd = vb.diagonal().array().sqrt();
         for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
         Eigen::VectorXf inv_sd = sd.array().inverse();
@@ -681,13 +681,13 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
     
     // Update intercept
     b0 = e.colwise().sum();
-    b0 = b0.array() * iN.array();
+    b0 = b0.array() * iN_var.array(); // This uses n-1, replicating original code's behavior
     for(int i=0; i<k; i++){ 
       mu(i) += b0(i);
       e.col(i) = (e.col(i).array()-b0(i)).array() * Z.col(i).array();
     }
     
-    // Print status
+    // Check for convergence
     cnv = 0.0;
     for(int eff=0; eff<n_effects; ++eff){
       cnv += (beta0_list[eff].array() - b_list[eff].array()).square().sum();
@@ -698,23 +698,22 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
     if( cnv<logtol ){break;}
   }
   
-  // Fitting the model
+  // Fit final predicted values
   Eigen::MatrixXf hat = Eigen::MatrixXf::Zero(n0,k);
   for(int eff=0; eff<n_effects; ++eff){
     hat += X_mats[eff] * b_list[eff];
   }
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
   
-  // Heritability and Genetic Correlations
-  Eigen::Vector h2 = 1 - ve.array()/vy.array();
+  // Heritability (total, as per original formula)
+  Eigen::VectorXf h2 = 1.0 - ve.array()/vy.array();
   
-  // Prepare output lists
+  // Prepare output lists for b and GC
   Rcpp::List b_out(n_effects);
-  for(int eff=0; eff<n_effects; ++eff){
-    b_out[eff] = b_list[eff];
-  }
   Rcpp::List GC_out(n_effects);
   for(int eff=0; eff<n_effects; ++eff){
+    b_out[eff] = b_list[eff];
+    
     Eigen::VectorXf sd = vb_list[eff].diagonal().array().sqrt();
     for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
     Eigen::VectorXf inv_sd = sd.array().inverse();
@@ -722,7 +721,6 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
   }
   
   // Output
-  h2 = 1 - ve.array()/vy.array();
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
                             Rcpp::Named("b")=b_out,
                             Rcpp::Named("hat")=hat,
