@@ -30,6 +30,7 @@
 \alias{EM_recluster}
 \alias{Get_Cluster_Corr}
 \alias{PEGSX}
+\alias{PEGSZ}
 
 \title{
   Multivariate Regression
@@ -110,6 +111,8 @@
     13) \code{PEGS(Y,X,...):} Light PEGS implementation, float precision.
     
     14) \code{PEGSX(Y,X,Z_list,...):} MLM with fixed effect and multiple random effects.
+
+    15) \code{PEGSZ(Y,X_list,...):} MLM with multiple random effects.
     
     
 In GSEM, XSEMF and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
@@ -167,3 +170,4 @@ Xavier, A and Habier, D. (2022). A new approach fits multivariate genomic predic
 
 Xavier, A et al. (2024). Megavariate Methods Capture Complex Genotype-by-Environment Interactions. Genetics, DOI: 10.1093/genetics/iyae179
 }
+
