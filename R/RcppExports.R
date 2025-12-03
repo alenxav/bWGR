@@ -261,8 +261,8 @@ MvSimY <- function(Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc = 20L, Seed = 123
     .Call('_bWGR_MvSimY', PACKAGE = 'bWGR', Ufndr, Zfndr, Zsamp, GxY, GxL, H2plot, nLoc, Seed)
 }
 
-PEGS <- function(Y, X, maxit = 100L, logtol = -4.0, NonNegativeCorr = FALSE) {
-    .Call('_bWGR_PEGS', PACKAGE = 'bWGR', Y, X, maxit, logtol, NonNegativeCorr)
+PEGS <- function(Y, X, maxit = 100L, logtol = -4.0, covbend = 1.1, XFA = -1L, NNC = TRUE) {
+    .Call('_bWGR_PEGS', PACKAGE = 'bWGR', Y, X, maxit, logtol, covbend, XFA, NNC)
 }
 
 ClusterBlup <- function(Y, X, lambda = 2.0) {
@@ -281,7 +281,11 @@ Get_Cluster_Corr <- function(Y, C) {
     .Call('_bWGR_Get_Cluster_Corr', PACKAGE = 'bWGR', Y, C)
 }
 
-PEGSX <- function(Y, X, Z_list, maxit = 500L, logtol = -8.0, cores = 1L, verbose = FALSE, df0 = 1.1, NonNegativeCorr = FALSE, InnerGS = FALSE, NoInv = FALSE, XFA = FALSE, NumXFA = 3L) {
-    .Call('_bWGR_PEGSX', PACKAGE = 'bWGR', Y, X, Z_list, maxit, logtol, cores, verbose, df0, NonNegativeCorr, InnerGS, NoInv, XFA, NumXFA)
+PEGSX <- function(Y, X, Z_list, maxit = 500L, logtol = -8.0, cores = 1L, verbose = FALSE, df0 = 1.1, NNC = FALSE, InnerGS = FALSE, NoInv = FALSE, XFA = FALSE, NumXFA = 3L) {
+    .Call('_bWGR_PEGSX', PACKAGE = 'bWGR', Y, X, Z_list, maxit, logtol, cores, verbose, df0, NNC, InnerGS, NoInv, XFA, NumXFA)
+}
+
+PEGSZ <- function(Y, X_list, maxit = 100L, logtol = -4.0, covbend = 1.1, XFA = -1L, NNC = TRUE) {
+    .Call('_bWGR_PEGSZ', PACKAGE = 'bWGR', Y, X_list, maxit, logtol, covbend, XFA, NNC)
 }
 

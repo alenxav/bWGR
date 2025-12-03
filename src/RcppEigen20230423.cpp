@@ -2379,5 +2379,3 @@ Eigen::MatrixXf Get_Cluster_Corr(Eigen::MatrixXf Y, Eigen::MatrixXf C){
   for(int i=0; i<p; i++){ corr(i,i)=1.0;}
   return corr;
 }
-
-

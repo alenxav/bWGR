@@ -1003,8 +1003,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // PEGS
-SEXP PEGS(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit, float logtol, bool NonNegativeCorr);
-RcppExport SEXP _bWGR_PEGS(SEXP YSEXP, SEXP XSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP NonNegativeCorrSEXP) {
+SEXP PEGS(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit, float logtol, float covbend, int XFA, bool NNC);
+RcppExport SEXP _bWGR_PEGS(SEXP YSEXP, SEXP XSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP covbendSEXP, SEXP XFASEXP, SEXP NNCSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1012,8 +1012,10 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type X(XSEXP);
     Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
     Rcpp::traits::input_parameter< float >::type logtol(logtolSEXP);
-    Rcpp::traits::input_parameter< bool >::type NonNegativeCorr(NonNegativeCorrSEXP);
-    rcpp_result_gen = Rcpp::wrap(PEGS(Y, X, maxit, logtol, NonNegativeCorr));
+    Rcpp::traits::input_parameter< float >::type covbend(covbendSEXP);
+    Rcpp::traits::input_parameter< int >::type XFA(XFASEXP);
+    Rcpp::traits::input_parameter< bool >::type NNC(NNCSEXP);
+    rcpp_result_gen = Rcpp::wrap(PEGS(Y, X, maxit, logtol, covbend, XFA, NNC));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1067,8 +1069,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // PEGSX
-SEXP PEGSX(Eigen::MatrixXf Y, Eigen::MatrixXf X, Rcpp::List Z_list, int maxit, float logtol, int cores, bool verbose, float df0, bool NonNegativeCorr, bool InnerGS, bool NoInv, bool XFA, int NumXFA);
-RcppExport SEXP _bWGR_PEGSX(SEXP YSEXP, SEXP XSEXP, SEXP Z_listSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP coresSEXP, SEXP verboseSEXP, SEXP df0SEXP, SEXP NonNegativeCorrSEXP, SEXP InnerGSSEXP, SEXP NoInvSEXP, SEXP XFASEXP, SEXP NumXFASEXP) {
+SEXP PEGSX(Eigen::MatrixXf Y, Eigen::MatrixXf X, Rcpp::List Z_list, int maxit, float logtol, int cores, bool verbose, float df0, bool NNC, bool InnerGS, bool NoInv, bool XFA, int NumXFA);
+RcppExport SEXP _bWGR_PEGSX(SEXP YSEXP, SEXP XSEXP, SEXP Z_listSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP coresSEXP, SEXP verboseSEXP, SEXP df0SEXP, SEXP NNCSEXP, SEXP InnerGSSEXP, SEXP NoInvSEXP, SEXP XFASEXP, SEXP NumXFASEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -1080,12 +1082,29 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
     Rcpp::traits::input_parameter< float >::type df0(df0SEXP);
-    Rcpp::traits::input_parameter< bool >::type NonNegativeCorr(NonNegativeCorrSEXP);
+    Rcpp::traits::input_parameter< bool >::type NNC(NNCSEXP);
     Rcpp::traits::input_parameter< bool >::type InnerGS(InnerGSSEXP);
     Rcpp::traits::input_parameter< bool >::type NoInv(NoInvSEXP);
     Rcpp::traits::input_parameter< bool >::type XFA(XFASEXP);
     Rcpp::traits::input_parameter< int >::type NumXFA(NumXFASEXP);
-    rcpp_result_gen = Rcpp::wrap(PEGSX(Y, X, Z_list, maxit, logtol, cores, verbose, df0, NonNegativeCorr, InnerGS, NoInv, XFA, NumXFA));
+    rcpp_result_gen = Rcpp::wrap(PEGSX(Y, X, Z_list, maxit, logtol, cores, verbose, df0, NNC, InnerGS, NoInv, XFA, NumXFA));
+    return rcpp_result_gen;
+END_RCPP
+}
+// PEGSZ
+SEXP PEGSZ(Eigen::MatrixXf Y, Rcpp::List X_list, int maxit, float logtol, float covbend, int XFA, bool NNC);
+RcppExport SEXP _bWGR_PEGSZ(SEXP YSEXP, SEXP X_listSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP covbendSEXP, SEXP XFASEXP, SEXP NNCSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type X_list(X_listSEXP);
+    Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
+    Rcpp::traits::input_parameter< float >::type logtol(logtolSEXP);
+    Rcpp::traits::input_parameter< float >::type covbend(covbendSEXP);
+    Rcpp::traits::input_parameter< int >::type XFA(XFASEXP);
+    Rcpp::traits::input_parameter< bool >::type NNC(NNCSEXP);
+    rcpp_result_gen = Rcpp::wrap(PEGSZ(Y, X_list, maxit, logtol, covbend, XFA, NNC));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1156,12 +1175,13 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bWGR_EigenGauZ", (DL_FUNC) &_bWGR_EigenGauZ, 4},
     {"_bWGR_K2X", (DL_FUNC) &_bWGR_K2X, 3},
     {"_bWGR_MvSimY", (DL_FUNC) &_bWGR_MvSimY, 8},
-    {"_bWGR_PEGS", (DL_FUNC) &_bWGR_PEGS, 5},
+    {"_bWGR_PEGS", (DL_FUNC) &_bWGR_PEGS, 7},
     {"_bWGR_ClusterBlup", (DL_FUNC) &_bWGR_ClusterBlup, 3},
     {"_bWGR_IncMatrix", (DL_FUNC) &_bWGR_IncMatrix, 1},
     {"_bWGR_EM_recluster", (DL_FUNC) &_bWGR_EM_recluster, 3},
     {"_bWGR_Get_Cluster_Corr", (DL_FUNC) &_bWGR_Get_Cluster_Corr, 2},
     {"_bWGR_PEGSX", (DL_FUNC) &_bWGR_PEGSX, 13},
+    {"_bWGR_PEGSZ", (DL_FUNC) &_bWGR_PEGSZ, 7},
     {NULL, NULL, 0}
 };
 
