@@ -493,6 +493,8 @@ SEXP PEGSX(MatrixXf Y,     // n x k responses
   );
 }
 
+// PEGSZ - simpler implementation, no fixed effects
+
 // [[Rcpp::export]]
 SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
           Rcpp::List X_list, // LIST of design matrices of random effects
@@ -500,7 +502,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
           float logtol = -4.0, // convergence tolerance
           float covbend = 1.1, // covariance bending factor
           int XFA = -1, // number of principal components to fit
-          bool NNC = true){ // non-negative correlations
+          bool NNC = false){ // non-negative correlations
   
   // Get input dimensions
   int k = Y.cols(), n0 = Y.rows();
@@ -704,32 +706,23 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
   
   // Heritability and Genetic Correlations
-  Eigen::MatrixXf h2(n_effects, k);
-  Rcpp::List GC_out(n_effects);
-  Eigen::VectorXf Vg_total_diag = Eigen::VectorXf::Zero(k);
-  for(int eff=0; eff<n_effects; ++eff){
-    Vg_total_diag += vb_list[eff].diagonal();
-  }
-  Eigen::VectorXf Vp_diag = Vg_total_diag + ve;
-  
-  for(int eff=0; eff<n_effects; ++eff){
-    // h2
-    h2.row(eff) = (vb_list[eff].diagonal().array() / Vp_diag.array()).matrix().transpose();
-    
-    // GC
-    Eigen::VectorXf sd = vb_list[eff].diagonal().array().sqrt();
-    for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
-    Eigen::VectorXf inv_sd = sd.array().inverse();
-    GC_out[eff] = inv_sd.asDiagonal() * vb_list[eff] * inv_sd.asDiagonal();
-  }
+  Eigen::Vector h2 = 1 - ve.array()/vy.array();
   
   // Prepare output lists
   Rcpp::List b_out(n_effects);
   for(int eff=0; eff<n_effects; ++eff){
     b_out[eff] = b_list[eff];
   }
+  Rcpp::List GC_out(n_effects);
+  for(int eff=0; eff<n_effects; ++eff){
+    Eigen::VectorXf sd = vb_list[eff].diagonal().array().sqrt();
+    for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+    Eigen::VectorXf inv_sd = sd.array().inverse();
+    GC_out[eff] = inv_sd.asDiagonal() * vb_list[eff] * inv_sd.asDiagonal();
+  }
   
   // Output
+  h2 = 1 - ve.array()/vy.array();
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
                             Rcpp::Named("b")=b_out,
                             Rcpp::Named("hat")=hat,
