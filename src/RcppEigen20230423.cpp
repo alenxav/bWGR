@@ -2068,6 +2068,7 @@ SEXP MvSimY(
 
 // Light PEGS 10/29/2025
 // Update 12/02/2025, add XFA
+
 // [[Rcpp::export]]
 SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
           Eigen::MatrixXf X, // design matrix of random effects
@@ -2075,8 +2076,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
           float logtol = -4.0, // convergence tolerance
           float covbend = 1.1, // covariance bending factor
           int XFA = -1, // number of principal components to fit
-          bool NNC = true) // non-negative correlations
-{
+          bool NNC = true){ // non-negative correlations
   
   // Get input dimensions
   int k = Y.cols(), n0 = Y.rows(), p = X.cols();
@@ -2156,9 +2156,9 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
   if(XFA<0) XFA = k;
   Eigen::VectorXf sd = vb.diagonal().array().sqrt();
   Eigen::VectorXf inv_sd = sd.array().inverse();
-  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigen_solver(GC);
-  Eigen::MatrixXd V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
-  Eigen::VectorXd D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> eigen_solver(GC);
+  Eigen::MatrixXf V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
+  Eigen::VectorXf D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
   
   // Loop
   while(numit<maxit){
@@ -2205,7 +2205,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
       inv_sd = sd.array().inverse();
       GC = inv_sd.asDiagonal() * vb * inv_sd.asDiagonal();
       // Decompose and reconstruct GC
-      eigen_solver(GC);
+      eigen_solver.compute(GC);
       V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
       D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
       GC = V_reduced * D_reduced_diag.asDiagonal() * V_reduced.transpose();
@@ -2231,7 +2231,6 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
     cnv = log10((beta0.array()-b.array()).square().sum());  ++numit;
     if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
     if( cnv<logtol ){break;}
-    
   }
   
   // Fitting the model
@@ -2253,7 +2252,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
                             Rcpp::Named("GC")=GC,
                             Rcpp::Named("bend")=inflate,
                             Rcpp::Named("numit")=numit,
-                            Rcpp::Named("cnv")=cnv);  
+                            Rcpp::Named("cnv")=cnv);
 }
 
 
@@ -2380,4 +2379,5 @@ Eigen::MatrixXf Get_Cluster_Corr(Eigen::MatrixXf Y, Eigen::MatrixXf C){
   for(int i=0; i<p; i++){ corr(i,i)=1.0;}
   return corr;
 }
+
 
