@@ -2066,10 +2066,17 @@ SEXP MvSimY(
 }
 
 
-// Light PEGS 0 10/29/2025
-
+// Light PEGS 10/29/2025
+// Update 12/02/2025, add XFA
 // [[Rcpp::export]]
-SEXP PEGS(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit = 100, float logtol = -4.0, bool NonNegativeCorr = false){
+SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
+          Eigen::MatrixXf X, // design matrix of random effects
+          int maxit = 100, // maximum number of iterations
+          float logtol = -4.0, // convergence tolerance
+          float covbend = 1.1, // covariance bending factor
+          int XFA = -1, // number of principal components to fit
+          bool NNC = true) // non-negative correlations
+{
   
   // Get input dimensions
   int k = Y.cols(), n0 = Y.rows(), p = X.cols();
@@ -2145,6 +2152,14 @@ SEXP PEGS(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit = 100, float logtol = 
   Eigen::VectorXf inv_std_dev = std_dev.array().inverse();
   Eigen::MatrixXf GC = inv_std_dev.asDiagonal() * vb * inv_std_dev.asDiagonal();
   
+  // XFA
+  if(XFA<0) XFA = k;
+  Eigen::VectorXf sd = vb.diagonal().array().sqrt();
+  Eigen::VectorXf inv_sd = sd.array().inverse();
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> eigen_solver(GC);
+  Eigen::MatrixXd V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
+  Eigen::VectorXd D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
+  
   // Loop
   while(numit<maxit){
     
@@ -2177,10 +2192,32 @@ SEXP PEGS(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit = 100, float logtol = 
       if(i==j){ vb(i,i) = TildeHat(i,i)/TrXSX(i); }else{
         vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrXSX(i)+TrXSX(j));}}}
     
+    // XFA
+    if(XFA == 0){
+      // If XFA is set to zero, make traits independent
+      sd = vb.diagonal().array();
+      vb.setZero();
+      vb.diagonal() = sd.array();
+    }else if(XFA>0){
+      // Compute GC
+      sd = vb.diagonal().array().sqrt();
+      for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+      inv_sd = sd.array().inverse();
+      GC = inv_sd.asDiagonal() * vb * inv_sd.asDiagonal();
+      // Decompose and reconstruct GC
+      eigen_solver(GC);
+      V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
+      D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
+      GC = V_reduced * D_reduced_diag.asDiagonal() * V_reduced.transpose();
+      GC.diagonal().setOnes();
+      // Scale correlations back to covariances
+      vb = sd.asDiagonal() * GC * sd.asDiagonal();
+    }
+    
     // Bending
-    if(NonNegativeCorr) vb = vb.array().cwiseMax(0.0).matrix();
+    if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
     EVDofA.compute(vb); MinDVb = EVDofA.eigenvalues().minCoeff();
-    if( MinDVb < 0.001 ){if(abs(MinDVb*1.1)>inflate) inflate = abs(MinDVb*1.1);}
+    if( MinDVb < 0.001 ){if(abs(MinDVb*covbend)>inflate) inflate = abs(MinDVb*covbend);}
     vb.diagonal().array()+=inflate; 
     iG = vb.completeOrthogonalDecomposition().pseudoInverse();
     
@@ -2201,11 +2238,12 @@ SEXP PEGS(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit = 100, float logtol = 
   h2 = 1 - ve.array()/vy.array();
   Eigen::MatrixXf hat = X * b;
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
-  
+
   // GC
-  std_dev = vb.array().sqrt();
-  inv_std_dev = std_dev.array().inverse();
-  GC = inv_std_dev.asDiagonal() * vb * inv_std_dev.asDiagonal();
+  sd = vb.diagonal().array().sqrt();
+  for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+  inv_sd = sd.array().inverse();
+  GC = inv_sd.asDiagonal() * vb * inv_sd.asDiagonal();
   
   // Output
   return Rcpp::List::create(Rcpp::Named("mu")=mu,
@@ -2215,9 +2253,9 @@ SEXP PEGS(Eigen::MatrixXf Y, Eigen::MatrixXf X, int maxit = 100, float logtol = 
                             Rcpp::Named("GC")=GC,
                             Rcpp::Named("bend")=inflate,
                             Rcpp::Named("numit")=numit,
-                            Rcpp::Named("cnv")=cnv);
-  
+                            Rcpp::Named("cnv")=cnv);  
 }
+
 
 // SUPPORTING FUNCTIONS 10/29/2025
 
@@ -2342,3 +2380,4 @@ Eigen::MatrixXf Get_Cluster_Corr(Eigen::MatrixXf Y, Eigen::MatrixXf C){
   for(int i=0; i<p; i++){ corr(i,i)=1.0;}
   return corr;
 }
+
