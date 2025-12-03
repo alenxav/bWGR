@@ -1,0 +1,13 @@
+bibentry(
+  bibtype      = "Article",
+  title        = "bWGR: Bayesian whole-genome regression",
+  author       =  c(person("Alencar", "Xavier", role=c("aut", "cre"), email = "alenxav@gmail.com", comment = c(ORCID = "0000-0001-5034-9954")), person("William", "Muir", role=c("aut")), person("David", "Habier", role=c("aut")), person("Kyle", "Kocak", role=c("aut")),person("Shizhong", "Xu", role=c("aut")),person("Katy", "Rainey", role=c("aut"))),
+  journal      = "Bioinformatics",
+  volume       = "36",
+  number       = "6",
+  year         = "2019",
+  pages        = "1957-1959",
+  doi          = "10.1093/bioinformatics/btz794",
+  textVersion  = "Xavier A, et al. (2019). bWGR: Bayesian whole-genome regression.Bioinformatics. 36(6), 1957-1959.",
+  mheader = "To cite bWGR in publications use:"
+)
