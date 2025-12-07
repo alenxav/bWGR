@@ -12,7 +12,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
           int maxit = 100, // maximum number of iterations
           float logtol = -4.0, // convergence tolerance
           float covbend = 1.1, // covariance bending factor
-          float covMinEv = 10e-6, // minimum eigenvalue to bend covariance
+          float covMinEv = 10e-4, // minimum eigenvalue to bend covariance
           int XFA = -1, // number of principal components to fit
           bool NNC = true){ // non-negative correlations
   
@@ -200,7 +200,7 @@ SEXP PEGSX(Eigen::MatrixXf Y,
            int maxit = 500,
            float logtol = -8.0,
            float covbend = 1.1,
-           float covMinEv = 10e-6,
+           float covMinEv = 10e-4,
            int cores = 1,
            bool verbose = false,
            float df0 = 1.1,
@@ -578,7 +578,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
            int maxit = 100, // maximum number of iterations
            float logtol = -4.0, // convergence tolerance
            float covbend = 1.1, // covariance bending factor
-           float covMinEv = 10e-6,  // minimum eigenvalue to bend
+           float covMinEv = 10e-4,  // minimum eigenvalue to bend
            int XFA = -1, // number of principal components to fit
            bool NNC = true){ // non-negative correlations
   
@@ -806,4 +806,5 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
                             Rcpp::Named("cnv")=cnv);
   
 }
+
 
