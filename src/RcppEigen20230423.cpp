@@ -2074,7 +2074,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
           Eigen::MatrixXf X, // design matrix of random effects
           int maxit = 100, // maximum number of iterations
           float logtol = -4.0, // convergence tolerance
-          float covbend = 0.02, // covariance bending factor
+          float covbend = 0.1, // covariance bending factor
           int XFA = -1, // number of principal components to fit
           bool NNC = true){ // non-negative correlations
   
@@ -2218,6 +2218,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
     if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
     EVDofA.compute(vb); MinDVb = EVDofA.eigenvalues().minCoeff();
     if( MinDVb < 0.001 ){if(abs(MinDVb*covbend)>inflate) inflate = abs(MinDVb*covbend);}
+    if( k>=10 | MinDVb < 0.001 ){ vb.diagonal().array() += inflate; }
     iG = vb.completeOrthogonalDecomposition().pseudoInverse();
     
     // Update intercept
