@@ -298,7 +298,7 @@ SEXP PEGSX(Eigen::MatrixXf Y,     // n x k responses
       Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(vbr);
       float min_ev = es.eigenvalues().minCoeff();
       if (min_ev < 0.001f) {
-        float need = std::abs(min_ev * 1.1f);
+        float need = std::abs(min_ev * 1.02f);
         bend_inflate[r] = std::max(bend_inflate[r], need);
       }
       vbr.diagonal().array() += bend_inflate[r];
@@ -384,7 +384,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
            Rcpp::List X_list, // LIST of design matrices of random effects
            int maxit = 100, // maximum number of iterations
            float logtol = -4.0, // convergence tolerance
-           float covbend = 1.1, // covariance bending factor
+           float covbend = 1.02, // covariance bending factor
            int XFA = -1, // number of principal components to fit
            bool NNC = true){ // non-negative correlations
   
