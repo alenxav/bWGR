@@ -12,6 +12,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
           int maxit = 100, // maximum number of iterations
           float logtol = -4.0, // convergence tolerance
           float covbend = 1.1, // covariance bending factor
+          float covMinEv = 10e-6, // minimum eigenvalue to bend covariance
           int XFA = -1, // number of principal components to fit
           bool NNC = true){ // non-negative correlations
   
@@ -154,8 +155,8 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
     // Bending
     if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
     EVDofA.compute(vb); MinDVb = EVDofA.eigenvalues().minCoeff();
-    if( MinDVb < 0.00001 ){if(abs(MinDVb*covbend)>inflate) inflate = abs(MinDVb*covbend);}
-    if( k>=5 || MinDVb < 0.00001 ){ vb.diagonal().array() += inflate; }
+    if( MinDVb < covMinEv ){if(abs(MinDVb*covbend)>inflate) inflate = abs(MinDVb*covbend);}
+    if( k>=5 || MinDVb < covMinEv ){ vb.diagonal().array() += inflate; }
     iG = vb.completeOrthogonalDecomposition().pseudoInverse();
     
     // Update intercept
@@ -193,12 +194,13 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
 }
 
 // [[Rcpp::export]]
-SEXP PEGSX(Eigen::MatrixXf Y,     // n x k responses
-           Eigen::MatrixXf X,     // n x f fixed-effects design
-           Rcpp::List Z_list,    // list of random-effects designs (n x p_r)
+SEXP PEGSX(Eigen::MatrixXf Y,
+           Eigen::MatrixXf X,
+           Rcpp::List Z_list, 
            int maxit = 500,
            float logtol = -8.0,
            float covbend = 1.1,
+           float covMinEv = 10e-6,
            int cores = 1,
            bool verbose = false,
            float df0 = 1.1,
@@ -484,12 +486,12 @@ SEXP PEGSX(Eigen::MatrixXf Y,     // n x k responses
       
       Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(vbr);
       float min_ev = es.eigenvalues().minCoeff();
-      if (min_ev < 0.00001f) {
+      if (min_ev < covMinEv ) {
         float need = std::abs(min_ev * covbend);
         bend_inflate[r] = std::max(bend_inflate[r], need);
       }
 
-      if( k>=5 || MinDVb < 0.00001f ){ vbr.diagonal().array() += bend_inflate[r]; }
+      if( k>=5 || MinDVb < covMinEv ){ vbr.diagonal().array() += bend_inflate[r]; }
       iG_list[r] = vbr.completeOrthogonalDecomposition().pseudoInverse();
 
     } // end effects loop
@@ -573,6 +575,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
            int maxit = 100, // maximum number of iterations
            float logtol = -4.0, // convergence tolerance
            float covbend = 1.1, // covariance bending factor
+           float covMinEv = 10e-6,  // minimum eigenvalue to bend
            int XFA = -1, // number of principal components to fit
            bool NNC = true){ // non-negative correlations
   
@@ -744,8 +747,8 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
       if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
       EVDofA.compute(vb); 
       float MinDVb = EVDofA.eigenvalues().minCoeff();
-      if( MinDVb < 0.00001 ){if(abs(MinDVb*covbend) > inflate(eff)) inflate(eff) = abs(MinDVb*covbend);}
-      if( k>=5 || MinDVb < 0.00001 ){ vb.diagonal().array() += inflate(eff); }      
+      if( MinDVb < covMinEv ){if(abs(MinDVb*covbend) > inflate(eff)) inflate(eff) = abs(MinDVb*covbend);}
+      if( k>=5 || MinDVb < covMinEv ){ vb.diagonal().array() += inflate(eff); }      
       vb_list[eff] = vb;
       iG_list[eff] = vb.completeOrthogonalDecomposition().pseudoInverse();
     }
@@ -800,4 +803,5 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
                             Rcpp::Named("cnv")=cnv);
 
 }
+
 
