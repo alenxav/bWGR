@@ -2218,7 +2218,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
     if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
     EVDofA.compute(vb); MinDVb = EVDofA.eigenvalues().minCoeff();
     if( MinDVb < 0.001 ){if(abs(MinDVb*covbend)>inflate) inflate = abs(MinDVb*covbend);}
-    if( k>=10 | MinDVb < 0.001 ){ vb.diagonal().array() += inflate; }
+    if( k>=10 || MinDVb < 0.001 ){ vb.diagonal().array() += inflate; }
     iG = vb.completeOrthogonalDecomposition().pseudoInverse();
     
     // Update intercept
