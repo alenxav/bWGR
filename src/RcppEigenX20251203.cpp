@@ -175,7 +175,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
   h2 = 1 - ve.array()/vy.array();
   Eigen::MatrixXf hat = X * b;
   for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
-
+  
   // GC
   sd = vb.diagonal().array().sqrt();
   for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
@@ -209,7 +209,7 @@ SEXP PEGSX(Eigen::MatrixXf Y,
            bool NoInv = false,
            bool XFA = false,
            int NumXFA = 3){
-          
+  
   if (cores != 1) Eigen::setNbThreads(cores);
   
   // Dimensions
@@ -490,10 +490,13 @@ SEXP PEGSX(Eigen::MatrixXf Y,
         float need = std::abs(min_ev * covbend);
         bend_inflate[r] = std::max(bend_inflate[r], need);
       }
-
-      if( k>=5 || MinDVb < covMinEv ){ vbr.diagonal().array() += bend_inflate[r]; }
+      
+      if( k>=5 || min_ev < covMinEv ){ 
+        vbr.diagonal().array() += bend_inflate[r];
+      }
+      
       iG_list[r] = vbr.completeOrthogonalDecomposition().pseudoInverse();
-
+      
     } // end effects loop
     
     // Update fixed effects
@@ -801,7 +804,6 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
                             Rcpp::Named("bend")=inflate,
                             Rcpp::Named("numit")=numit,
                             Rcpp::Named("cnv")=cnv);
-
+  
 }
-
 
