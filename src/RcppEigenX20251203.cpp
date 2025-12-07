@@ -302,7 +302,7 @@ SEXP PEGSX(Eigen::MatrixXf Y,     // n x k responses
         bend_inflate[r] = std::max(bend_inflate[r], need);
       }
 
-      if( k>=10 | MinDVb < 0.001f ){ vbr.diagonal().array() += bend_inflate[r]; }
+      if( k>=10 || MinDVb < 0.001f ){ vbr.diagonal().array() += bend_inflate[r]; }
       iG_list[r] = vbr.completeOrthogonalDecomposition().pseudoInverse();
 
     } // end effects loop
@@ -558,7 +558,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
       EVDofA.compute(vb); 
       float MinDVb = EVDofA.eigenvalues().minCoeff();
       if( MinDVb < 0.001 ){if(abs(MinDVb*covbend) > inflate(eff)) inflate(eff) = abs(MinDVb*covbend);}
-      if( k>=10 | MinDVb < 0.001 ){ vb.diagonal().array() += inflate(eff); }
+      if( k>=10 || MinDVb < 0.001 ){ vb.diagonal().array() += inflate(eff); }
       
       vb_list[eff] = vb;
       iG_list[eff] = vb.completeOrthogonalDecomposition().pseudoInverse();
