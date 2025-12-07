@@ -2074,7 +2074,7 @@ SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
           Eigen::MatrixXf X, // design matrix of random effects
           int maxit = 100, // maximum number of iterations
           float logtol = -4.0, // convergence tolerance
-          float covbend = 1.1, // covariance bending factor
+          float covbend = 1.02, // covariance bending factor
           int XFA = -1, // number of principal components to fit
           bool NNC = true){ // non-negative correlations
   
