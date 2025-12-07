@@ -7,6 +7,192 @@
 #include <cmath>      // for std::isnan
 
 // [[Rcpp::export]]
+SEXP PEGS(Eigen::MatrixXf Y, // matrix response variables
+          Eigen::MatrixXf X, // design matrix of random effects
+          int maxit = 100, // maximum number of iterations
+          float logtol = -4.0, // convergence tolerance
+          float covbend = 0.1, // covariance bending factor
+          int XFA = -1, // number of principal components to fit
+          bool NNC = true){ // non-negative correlations
+  
+  // Get input dimensions
+  int k = Y.cols(), n0 = Y.rows(), p = X.cols();
+  
+  // Incidence matrix Z
+  Eigen::MatrixXf Z(n0,k);
+  for(int i=0; i<n0; i++){
+    for(int j=0; j<k; j++){
+      if(std::isnan(Y(i,j))){
+        Z(i,j) = 0.0;
+        Y(i,j) = 0.0;
+      }else{ Z(i,j) = 1.0;}}}
+  
+  // Count observations per trait
+  Eigen::VectorXf n = Z.colwise().sum();
+  Eigen::VectorXf iN = n.array().inverse();
+  
+  // Centralize y
+  Eigen::VectorXf mu = Y.colwise().sum();
+  mu = mu.array() * iN.array();
+  Eigen::MatrixXf y(n0,k);
+  for(int i=0; i<k; i++){
+    y.col(i) = (Y.col(i).array()-mu(i)).array()*Z.col(i).array();}
+  
+  // Sum of squares of X
+  Eigen::MatrixXf XX(p,k);
+  for(int i=0; i<p; i++){
+    XX.row(i) = X.col(i).array().square().matrix().transpose() * Z;}
+  
+  // Compute Tr(XSX);
+  Eigen::MatrixXf XSX(p,k);
+  for(int i=0; i<p; i++){
+    XSX.row(i) = XX.row(i).transpose().array()*iN.array() - 
+      ((X.col(i).transpose()*Z).transpose().array()*iN.array()).square();}
+  Eigen::VectorXf MSx = XSX.colwise().sum();
+  Eigen::VectorXf TrXSX = n.array()*MSx.array();
+  
+  // Variances
+  iN = (n.array()-1).inverse();
+  Eigen::VectorXf vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
+  Eigen::VectorXf ve = vy * 0.5;
+  Eigen::VectorXf iVe = ve.array().inverse();
+  Eigen::MatrixXf vb(k,k), TildeHat(k,k);
+  vb = (ve.array()/MSx.array()).matrix().asDiagonal();
+  Eigen::MatrixXf iG = vb.inverse();
+  Eigen::VectorXf h2 = 1 - ve.array()/vy.array();
+  
+  // Beta tilde;
+  Eigen::MatrixXf tilde = X.transpose() * y;
+  
+  // Initialize coefficient matrices
+  Eigen::MatrixXf LHS(k,k);
+  Eigen::VectorXf RHS(k);
+  Eigen::MatrixXf b = Eigen::MatrixXf::Zero(p,k);
+  Eigen::VectorXf b0(k), b1(k);
+  Eigen::MatrixXf e(n0,k); e = y*1.0;
+  
+  // RGS
+  std::vector<int> RGSvec(p);
+  for(int j=0; j<p; j++){RGSvec[j]=j;}
+  std::random_device rd;
+  std::mt19937 g(rd());
+  int J;
+  
+  // Convergence control
+  Eigen::MatrixXf beta0(p,k);
+  float cnv = 10.0, MinDVb = 0.0, inflate = 0.0;
+  int numit = 0;
+  
+  // Bending objects
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> EVDofA(vb);
+  Eigen::VectorXf std_dev = vb.array().sqrt();
+  Eigen::VectorXf inv_std_dev = std_dev.array().inverse();
+  Eigen::MatrixXf GC = inv_std_dev.asDiagonal() * vb * inv_std_dev.asDiagonal();
+  
+  // XFA
+  if(XFA<0) XFA = k;
+  Eigen::VectorXf sd = vb.diagonal().array().sqrt();
+  Eigen::VectorXf inv_sd = sd.array().inverse();
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> eigen_solver(GC);
+  Eigen::MatrixXf V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
+  Eigen::VectorXf D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
+  
+  // Loop
+  while(numit<maxit){
+    
+    // Store coefficients pre-iteration
+    beta0 = b*1.0;
+    
+    // Randomized Gauss-Seidel loop
+    std::shuffle(RGSvec.begin(), RGSvec.end(), g);
+    for(int j=0; j<p; j++){
+      J = RGSvec[j];
+      // Update coefficient
+      b0 = b.row(J)*1.0;
+      LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVe.array()).matrix();
+      RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
+      RHS = RHS.array() *iVe.array();
+      b1 = LHS.llt().solve(RHS);
+      b.row(J) = b1;
+      // Update residuals
+      e = (e-(X.col(J)*(b1-b0).transpose()).cwiseProduct(Z)).matrix();
+    }
+    
+    // Residual variance
+    ve = (e.cwiseProduct(y)).colwise().sum();
+    ve = ve.array() * iN.array();
+    iVe = ve.array().inverse();
+    
+    // Genetic variance
+    TildeHat = b.transpose()*tilde;
+    for(int i=0; i<k; i++){for(int j=0; j<k; j++){
+      if(i==j){ vb(i,i) = TildeHat(i,i)/TrXSX(i); }else{
+        vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrXSX(i)+TrXSX(j));}}}
+    
+    // XFA
+    if(XFA == 0){
+      // If XFA is set to zero, make traits independent
+      sd = vb.diagonal().array();
+      vb.setZero();
+      vb.diagonal() = sd.array();
+    }else if(XFA>0){
+      // Compute GC
+      sd = vb.diagonal().array().sqrt();
+      for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+      inv_sd = sd.array().inverse();
+      GC = inv_sd.asDiagonal() * vb * inv_sd.asDiagonal();
+      // Decompose and reconstruct GC
+      eigen_solver.compute(GC);
+      V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
+      D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
+      GC = V_reduced * D_reduced_diag.asDiagonal() * V_reduced.transpose();
+      GC.diagonal().setOnes();
+      // Scale correlations back to covariances
+      vb = sd.asDiagonal() * GC * sd.asDiagonal();
+    }
+    
+    // Bending
+    if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
+    EVDofA.compute(vb); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < 0.00001 ){if(abs(MinDVb*covbend)>inflate) inflate = abs(MinDVb*covbend);}
+    if( k>=10 || MinDVb < 0.00001 ){ vb.diagonal().array() += inflate; }
+    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
+    
+    // Update intercept
+    b0 = e.colwise().sum();
+    b0 = b0.array() * iN.array();
+    for(int i=0; i<k; i++){ mu(i) += b0(i);
+      e.col(i) = (e.col(i).array()-b0(i)).array() * Z.col(i).array();}
+    
+    // Print status
+    cnv = log10((beta0.array()-b.array()).square().sum());  ++numit;
+    if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
+    if( cnv<logtol ){break;}
+  }
+  
+  // Fitting the model
+  h2 = 1 - ve.array()/vy.array();
+  Eigen::MatrixXf hat = X * b;
+  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
+
+  // GC
+  sd = vb.diagonal().array().sqrt();
+  for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+  inv_sd = sd.array().inverse();
+  GC = inv_sd.asDiagonal() * vb * inv_sd.asDiagonal();
+  
+  // Output
+  return Rcpp::List::create(Rcpp::Named("mu")=mu,
+                            Rcpp::Named("b")=b,
+                            Rcpp::Named("hat")=hat,
+                            Rcpp::Named("h2")=h2,
+                            Rcpp::Named("GC")=GC,
+                            Rcpp::Named("bend")=inflate,
+                            Rcpp::Named("numit")=numit,
+                            Rcpp::Named("cnv")=cnv);
+}
+
+// [[Rcpp::export]]
 SEXP PEGSX(Eigen::MatrixXf Y,     // n x k responses
            Eigen::MatrixXf X,     // n x f fixed-effects design
            Rcpp::List Z_list,    // list of random-effects designs (n x p_r)
@@ -297,12 +483,12 @@ SEXP PEGSX(Eigen::MatrixXf Y,     // n x k responses
       
       Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> es(vbr);
       float min_ev = es.eigenvalues().minCoeff();
-      if (min_ev < 0.001f) {
-        float need = std::abs(min_ev * 1.02f);
+      if (min_ev < 0.00001f) {
+        float need = std::abs(min_ev * 0.1f);
         bend_inflate[r] = std::max(bend_inflate[r], need);
       }
 
-      if( k>=10 || MinDVb < 0.001f ){ vbr.diagonal().array() += bend_inflate[r]; }
+      if( k>=10 || MinDVb < 0.00001f ){ vbr.diagonal().array() += bend_inflate[r]; }
       iG_list[r] = vbr.completeOrthogonalDecomposition().pseudoInverse();
 
     } // end effects loop
@@ -385,7 +571,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
            Rcpp::List X_list, // LIST of design matrices of random effects
            int maxit = 100, // maximum number of iterations
            float logtol = -4.0, // convergence tolerance
-           float covbend = 1.02, // covariance bending factor
+           float covbend = 0.1, // covariance bending factor
            int XFA = -1, // number of principal components to fit
            bool NNC = true){ // non-negative correlations
   
@@ -557,8 +743,8 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
       if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
       EVDofA.compute(vb); 
       float MinDVb = EVDofA.eigenvalues().minCoeff();
-      if( MinDVb < 0.001 ){if(abs(MinDVb*covbend) > inflate(eff)) inflate(eff) = abs(MinDVb*covbend);}
-      if( k>=10 || MinDVb < 0.001 ){ vb.diagonal().array() += inflate(eff); }
+      if( MinDVb < 0.00001 ){if(abs(MinDVb*covbend) > inflate(eff)) inflate(eff) = abs(MinDVb*covbend);}
+      if( k>=10 || MinDVb < 0.00001 ){ vb.diagonal().array() += inflate(eff); }
       
       vb_list[eff] = vb;
       iG_list[eff] = vb.completeOrthogonalDecomposition().pseudoInverse();
@@ -612,4 +798,5 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
                             Rcpp::Named("bend")=inflate,
                             Rcpp::Named("numit")=numit,
                             Rcpp::Named("cnv")=cnv);
+
 }
