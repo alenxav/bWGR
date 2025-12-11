@@ -807,4 +807,446 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
   
 }
 
+// [[Rcpp::export]]
+SEXP PEGS_sparse(Eigen::MatrixXf Y, // matrix response variables
+                 const Eigen::MappedSparseMatrix<double>& S, // SPARSE design matrix of random effects
+                 int maxit = 100, // maximum number of iterations
+                 float logtol = -4.0, // convergence tolerance
+                 float covbend = 1.1, // covariance bending factor
+                 float covMinEv = 10e-4, // minimum eigenvalue to bend covariance
+                 int XFA = -1, // number of principal components to fit
+                 bool NNC = true){ // non-negative correlations
+  
+  // Cast input sparse matrix to float for consistency
+  Eigen::SparseMatrix<float> X = S.cast<float>();
+  
+  // Get input dimensions
+  int k = Y.cols(), n0 = Y.rows(), p = X.cols();
+  
+  // Incidence matrix Z
+  Eigen::MatrixXf Z(n0,k);
+  for(int i=0; i<n0; i++){
+    for(int j=0; j<k; j++){
+      if(std::isnan(Y(i,j))){
+        Z(i,j) = 0.0;
+        Y(i,j) = 0.0;
+      }else{ Z(i,j) = 1.0;}}}
+  
+  // Count observations per trait
+  Eigen::VectorXf n = Z.colwise().sum();
+  Eigen::VectorXf iN = n.array().inverse();
+  
+  // Centralize y
+  Eigen::VectorXf mu = Y.colwise().sum();
+  mu = mu.array() * iN.array();
+  Eigen::MatrixXf y(n0,k);
+  for(int i=0; i<k; i++){
+    y.col(i) = (Y.col(i).array()-mu(i)).array()*Z.col(i).array();}
+  
+  // Sum of squares of X (sparse matrix implementation)
+  Eigen::MatrixXf XX(p,k);
+  for(int i=0; i<p; i++){
+    // Square the elements of the sparse column vector
+    Eigen::SparseVector<float> x_col_sq = X.col(i).cwiseProduct(X.col(i));
+    // Efficiently compute row i of XX
+    XX.row(i) = x_col_sq.transpose() * Z;
+  }
+  
+  // Compute Tr(XSX);
+  Eigen::MatrixXf XSX(p,k);
+  for(int i=0; i<p; i++){
+    // X.col(i).transpose() * Z is an efficient sparse-vector dense-matrix multiply
+    XSX.row(i) = XX.row(i).transpose().array()*iN.array() - 
+      ((X.col(i).transpose()*Z).transpose().array()*iN.array()).square();}
+  Eigen::VectorXf MSx = XSX.colwise().sum();
+  Eigen::VectorXf TrXSX = n.array()*MSx.array();
+  
+  // Variances
+  iN = (n.array()-1).inverse();
+  Eigen::VectorXf vy = y.colwise().squaredNorm(); vy = vy.array() * iN.array();
+  Eigen::VectorXf ve = vy * 0.5;
+  Eigen::VectorXf iVe = ve.array().inverse();
+  Eigen::MatrixXf vb(k,k), TildeHat(k,k);
+  vb = (ve.array()/MSx.array()).matrix().asDiagonal();
+  Eigen::MatrixXf iG = vb.inverse();
+  Eigen::VectorXf h2 = 1 - ve.array()/vy.array();
+  
+  // Beta tilde; (efficient sparse-matrix dense-matrix multiply)
+  Eigen::MatrixXf tilde = X.transpose() * y;
+  
+  // Initialize coefficient matrices
+  Eigen::MatrixXf LHS(k,k);
+  Eigen::VectorXf RHS(k);
+  Eigen::MatrixXf b = Eigen::MatrixXf::Zero(p,k);
+  Eigen::VectorXf b0(k), b1(k);
+  Eigen::MatrixXf e(n0,k); e = y*1.0;
+  
+  // RGS
+  std::vector<int> RGSvec(p);
+  for(int j=0; j<p; j++){RGSvec[j]=j;}
+  std::random_device rd;
+  std::mt19937 g(rd());
+  int J;
+  
+  // Convergence control
+  Eigen::MatrixXf beta0(p,k);
+  float cnv = 10.0, MinDVb = 0.0, inflate = 0.0;
+  int numit = 0;
+  
+  // Bending objects
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> EVDofA(vb);
+  Eigen::VectorXf std_dev = vb.array().sqrt();
+  Eigen::VectorXf inv_std_dev = std_dev.array().inverse();
+  Eigen::MatrixXf GC = inv_std_dev.asDiagonal() * vb * inv_std_dev.asDiagonal();
+  
+  // XFA
+  if(XFA<0) XFA = k;
+  Eigen::VectorXf sd = vb.diagonal().array().sqrt();
+  Eigen::VectorXf inv_sd = sd.array().inverse();
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> eigen_solver(GC);
+  Eigen::MatrixXf V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
+  Eigen::VectorXf D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
+  
+  // Loop
+  while(numit<maxit){
+    
+    // Store coefficients pre-iteration
+    beta0 = b*1.0;
+    
+    // Randomized Gauss-Seidel loop
+    std::shuffle(RGSvec.begin(), RGSvec.end(), g);
+    for(int j=0; j<p; j++){
+      J = RGSvec[j];
+      // Update coefficient
+      b0 = b.row(J)*1.0;
+      LHS = iG;  LHS.diagonal() += (XX.row(J).transpose().array() * iVe.array()).matrix();
+      // X.col(J).transpose()*e is an efficient sparse-vector dense-matrix multiply
+      RHS = (X.col(J).transpose()*e).array() + XX.row(J).array()*b0.transpose().array();
+      RHS = RHS.array() *iVe.array();
+      b1 = LHS.llt().solve(RHS);
+      b.row(J) = b1;
+      
+      // Update residuals (sparse implementation)
+      // This avoids forming a large temporary n0 x k matrix
+      Eigen::VectorXf delta_b = b1 - b0;
+      Eigen::SparseVector<float> x_col_J = X.col(J);
+      for (Eigen::SparseVector<float>::InnerIterator it(x_col_J); it; ++it) {
+        // e.row(i) -= x_ij * delta_b' .* z_i'
+        e.row(it.index()) -= (it.value() * delta_b.transpose()).cwiseProduct(Z.row(it.index()));
+      }
+    }
+    
+    // Residual variance
+    ve = (e.cwiseProduct(y)).colwise().sum();
+    ve = ve.array() * iN.array();
+    iVe = ve.array().inverse();
+    
+    // Genetic variance
+    TildeHat = b.transpose()*tilde;
+    for(int i=0; i<k; i++){for(int j=0; j<k; j++){
+      if(i==j){ vb(i,i) = TildeHat(i,i)/TrXSX(i); }else{
+        vb(i,j) = (TildeHat(i,j)+TildeHat(j,i))/(TrXSX(i)+TrXSX(j));}}}
+    
+    // XFA
+    if(XFA == 0){
+      sd = vb.diagonal().array();
+      vb.setZero();
+      vb.diagonal() = sd.array();
+    }else if(XFA>0){
+      sd = vb.diagonal().array().sqrt();
+      for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+      inv_sd = sd.array().inverse();
+      GC = inv_sd.asDiagonal() * vb * inv_sd.asDiagonal();
+      eigen_solver.compute(GC);
+      V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
+      D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
+      GC = V_reduced * D_reduced_diag.asDiagonal() * V_reduced.transpose();
+      GC.diagonal().setOnes();
+      vb = sd.asDiagonal() * GC * sd.asDiagonal();
+    }
+    
+    // Bending
+    if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
+    EVDofA.compute(vb); MinDVb = EVDofA.eigenvalues().minCoeff();
+    if( MinDVb < covMinEv ){if(abs(MinDVb*covbend)>inflate) inflate = abs(MinDVb*covbend);}
+    if( k>=5 || MinDVb < covMinEv ){ vb.diagonal().array() += inflate; }
+    iG = vb.completeOrthogonalDecomposition().pseudoInverse();
+    
+    // Update intercept
+    b0 = e.colwise().sum();
+    b0 = b0.array() * iN.array();
+    for(int i=0; i<k; i++){ mu(i) += b0(i);
+      e.col(i) = (e.col(i).array()-b0(i)).array() * Z.col(i).array();}
+    
+    // Print status
+    cnv = log10((beta0.array()-b.array()).square().sum());  ++numit;
+    if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
+    if( cnv<logtol ){break;}
+  }
+  
+  // Fitting the model (efficient sparse-matrix dense-matrix multiply)
+  h2 = 1 - ve.array()/vy.array();
+  Eigen::MatrixXf hat = X * b;
+  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
+  
+  // GC
+  sd = vb.diagonal().array().sqrt();
+  for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+  inv_sd = sd.array().inverse();
+  GC = inv_sd.asDiagonal() * vb * inv_sd.asDiagonal();
+  
+  // Output
+  return Rcpp::List::create(Rcpp::Named("mu")=mu,
+                            Rcpp::Named("b")=b,
+                            Rcpp::Named("hat")=hat,
+                            Rcpp::Named("h2")=h2,
+                            Rcpp::Named("GC")=GC,
+                            Rcpp::Named("bend")=inflate,
+                            Rcpp::Named("numit")=numit,
+                            Rcpp::Named("cnv")=cnv);
+}
 
+// [[Rcpp::export]]
+SEXP PEGSZ_sparse(Eigen::MatrixXf Y, // matrix response variables
+                  Rcpp::List X_list, // LIST of SPARSE design matrices of random effects
+                  int maxit = 100, // maximum number of iterations
+                  float logtol = -4.0, // convergence tolerance
+                  float covbend = 1.1, // covariance bending factor
+                  float covMinEv = 10e-4, // minimum eigenvalue to bend
+                  int XFA = -1, // number of principal components to fit
+                  bool NNC = true){ // non-negative correlations
+  
+  // Get input dimensions
+  int k = Y.cols(), n0 = Y.rows();
+  int n_effects = X_list.size();
+  
+  // Store input sparse matrices (cast from double to float)
+  std::vector<Eigen::SparseMatrix<float>> X_mats;
+  Eigen::VectorXi p_vec(n_effects);
+  for(int i=0; i<n_effects; ++i){
+    const Eigen::MappedSparseMatrix<double> X_in(Rcpp::as<Eigen::MappedSparseMatrix<double>>(X_list[i]));
+    X_mats.push_back(X_in.cast<float>());
+    p_vec(i) = X_mats[i].cols();
+  }
+  
+  // Incidence matrix Z
+  Eigen::MatrixXf Z(n0,k);
+  for(int i=0; i<n0; i++){
+    for(int j=0; j<k; j++){
+      if(std::isnan(Y(i,j))){
+        Z(i,j) = 0.0;
+        Y(i,j) = 0.0;
+      }else{ Z(i,j) = 1.0;}}}
+  
+  // Count observations per trait and get inverses
+  Eigen::VectorXf n = Z.colwise().sum();
+  Eigen::VectorXf iN_mu = n.array().inverse(); // for mean calculation
+  
+  // Centralize y
+  Eigen::VectorXf mu = Y.colwise().sum();
+  mu = mu.array() * iN_mu.array();
+  Eigen::MatrixXf y(n0,k);
+  for(int i=0; i<k; i++){
+    y.col(i) = (Y.col(i).array()-mu(i)).array()*Z.col(i).array();}
+  
+  // Pre-compute for each effect: Sum of squares of X and Tr(XSX) (sparse implementation)
+  std::vector<Eigen::MatrixXf> XX_list;
+  Eigen::MatrixXf TrXSX(n_effects, k);
+  Eigen::MatrixXf MSx_mat(n_effects, k);
+  
+  for(int eff=0; eff<n_effects; ++eff){
+    int p = p_vec(eff);
+    Eigen::MatrixXf XX(p,k);
+    for(int i=0; i<p; i++){
+      Eigen::SparseVector<float> x_col_sq = X_mats[eff].col(i).cwiseProduct(X_mats[eff].col(i));
+      XX.row(i) = x_col_sq.transpose() * Z;
+    }
+    XX_list.push_back(XX);
+    
+    Eigen::MatrixXf XSX(p,k);
+    for(int i=0; i<p; i++){
+      XSX.row(i) = XX.row(i).transpose().array()*iN_mu.array() - 
+        ((X_mats[eff].col(i).transpose()*Z).transpose().array()*iN_mu.array()).square();
+    }
+    MSx_mat.row(eff) = XSX.colwise().sum();
+    TrXSX.row(eff) = n.transpose().array() * MSx_mat.row(eff).array();
+  }
+  
+  // Variances
+  Eigen::VectorXf iN_var = (n.array().max(1.0f)-1).array().inverse(); // for variance calculation, avoid n=1
+  Eigen::VectorXf vy = y.colwise().squaredNorm(); vy = vy.array() * iN_var.array();
+  Eigen::VectorXf ve = vy * 0.5;
+  Eigen::VectorXf iVe = ve.array().inverse();
+  
+  std::vector<Eigen::MatrixXf> vb_list(n_effects, Eigen::MatrixXf(k,k));
+  std::vector<Eigen::MatrixXf> iG_list(n_effects, Eigen::MatrixXf(k,k));
+  for(int eff=0; eff<n_effects; ++eff){
+    vb_list[eff] = (ve.array() / MSx_mat.row(eff).transpose().array()).matrix().asDiagonal();
+    iG_list[eff] = vb_list[eff].completeOrthogonalDecomposition().pseudoInverse();
+  }
+  
+  // Beta tilde for each effect (sparse-matrix dense-matrix multiply)
+  std::vector<Eigen::MatrixXf> tilde_list;
+  for(int eff=0; eff<n_effects; ++eff){
+    tilde_list.push_back(X_mats[eff].transpose() * y);
+  }
+  
+  // Initialize coefficient matrices and residuals
+  Eigen::MatrixXf LHS(k,k);
+  Eigen::VectorXf RHS(k);
+  std::vector<Eigen::MatrixXf> b_list(n_effects);
+  for(int eff=0; eff<n_effects; ++eff){
+    b_list[eff] = Eigen::MatrixXf::Zero(p_vec(eff), k);
+  }
+  Eigen::VectorXf b0(k), b1(k);
+  Eigen::MatrixXf e = y;
+  
+  // RGS
+  std::random_device rd;
+  std::mt19937 g(rd());
+  
+  // Convergence control
+  std::vector<Eigen::MatrixXf> beta0_list(n_effects);
+  float cnv = 10.0;
+  Eigen::VectorXf inflate(n_effects); inflate.setZero();
+  int numit = 0;
+  
+  // Bending & XFA objects
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> EVDofA(k);
+  if(XFA<0) XFA = k;
+  Eigen::SelfAdjointEigenSolver<Eigen::MatrixXf> eigen_solver(k);
+  
+  // Main iterative loop
+  while(numit<maxit){
+    
+    // Store coefficients pre-iteration
+    beta0_list = b_list;
+    
+    // Randomized Gauss-Seidel loop for each effect
+    for(int eff=0; eff<n_effects; ++eff){
+      int p = p_vec(eff);
+      std::vector<int> RGSvec(p);
+      for(int j=0; j<p; j++){RGSvec[j]=j;}
+      std::shuffle(RGSvec.begin(), RGSvec.end(), g);
+      
+      for(int j=0; j<p; j++){
+        int J = RGSvec[j];
+        // Update coefficient
+        b0 = b_list[eff].row(J);
+        LHS = iG_list[eff];
+        LHS.diagonal() += (XX_list[eff].row(J).transpose().array() * iVe.array()).matrix();
+        RHS = (X_mats[eff].col(J).transpose()*e).array() + XX_list[eff].row(J).array()*b0.transpose().array();
+        RHS = RHS.array() *iVe.array();
+        b1 = LHS.llt().solve(RHS);
+        b_list[eff].row(J) = b1;
+        
+        // Update total residuals sequentially (sparse implementation)
+        Eigen::VectorXf delta_b = b1 - b0;
+        Eigen::SparseVector<float> x_col_J = X_mats[eff].col(J);
+        for (Eigen::SparseVector<float>::InnerIterator it(x_col_J); it; ++it) {
+          e.row(it.index()) -= (it.value() * delta_b.transpose()).cwiseProduct(Z.row(it.index()));
+        }
+      }
+    }
+    
+    // Update residual variance (using total residual)
+    ve = (e.cwiseProduct(y)).colwise().sum();
+    ve = ve.array() * iN_var.array();
+    iVe = ve.array().inverse();
+    
+    // Update genetic variance, XFA, and Bending for each effect
+    for(int eff=0; eff<n_effects; ++eff){
+      Eigen::MatrixXf TildeHat = b_list[eff].transpose() * tilde_list[eff];
+      Eigen::MatrixXf vb(k,k);
+      for(int r=0; r<k; r++){
+        for(int c=0; c<k; c++){
+          if(r==c){ 
+            if(TrXSX(eff,r) != 0) vb(r,c) = TildeHat(r,c)/TrXSX(eff,r); else vb(r,c) = 0;
+          }else{
+            if((TrXSX(eff,r)+TrXSX(eff,c)) != 0) vb(r,c) = (TildeHat(r,c)+TildeHat(c,r))/(TrXSX(eff,r)+TrXSX(eff,c)); else vb(r,c) = 0;
+          }
+        }
+      }
+      
+      // XFA
+      if(XFA == 0){
+        Eigen::VectorXf sd_diag = vb.diagonal();
+        vb.setZero();
+        vb.diagonal() = sd_diag;
+      }else if(XFA>0 && XFA < k){
+        Eigen::VectorXf sd = vb.diagonal().array().sqrt();
+        for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+        Eigen::VectorXf inv_sd = sd.array().inverse();
+        Eigen::MatrixXf GC = inv_sd.asDiagonal() * vb * inv_sd.asDiagonal();
+        eigen_solver.compute(GC);
+        Eigen::MatrixXf V_reduced = eigen_solver.eigenvectors().rightCols(XFA);
+        Eigen::VectorXf D_reduced_diag = eigen_solver.eigenvalues().tail(XFA);
+        GC = V_reduced * D_reduced_diag.asDiagonal() * V_reduced.transpose();
+        GC.diagonal().setOnes();
+        vb = sd.asDiagonal() * GC * sd.asDiagonal();
+      }
+      
+      // Bending
+      if(NNC) vb = vb.array().cwiseMax(0.0).matrix();
+      EVDofA.compute(vb); 
+      float MinDVb = EVDofA.eigenvalues().minCoeff();
+      if( MinDVb < covMinEv ){if(abs(MinDVb*covbend) > inflate(eff)) inflate(eff) = abs(MinDVb*covbend);}
+      if( k>=5 || MinDVb < covMinEv ){ vb.diagonal().array() += inflate(eff); }      
+      vb_list[eff] = vb;
+      iG_list[eff] = vb.completeOrthogonalDecomposition().pseudoInverse();
+    }
+    
+    // Update intercept
+    b0 = e.colwise().sum();
+    // Using iN_mu for intercept update to be consistent with mean calculation
+    b0 = b0.array() * iN_mu.array(); 
+    for(int i=0; i<k; i++){ 
+      mu(i) += b0(i);
+      e.col(i) = (e.col(i).array()-b0(i)).array() * Z.col(i).array();
+    }
+    
+    // Check for convergence
+    cnv = 0.0;
+    for(int eff=0; eff<n_effects; ++eff){
+      cnv += (beta0_list[eff].array() - b_list[eff].array()).square().sum();
+    }
+    cnv = log10(cnv);
+    ++numit;
+    if( numit % 100 == 0){ Rcpp::Rcout << "Iter: "<< numit << " || Conv: "<< cnv << "\n"; } 
+    if( cnv<logtol ){break;}
+  }
+  
+  // Fit final predicted values
+  Eigen::MatrixXf hat = Eigen::MatrixXf::Zero(n0,k);
+  for(int eff=0; eff<n_effects; ++eff){
+    hat += X_mats[eff] * b_list[eff];
+  }
+  for(int i=0; i<k; i++){ hat.col(i) = hat.col(i).array() + mu(i);}
+  
+  // Heritability (total, as per original formula)
+  Eigen::VectorXf h2 = 1.0 - ve.array()/vy.array();
+  
+  // Prepare output lists for b and GC
+  Rcpp::List b_out(n_effects);
+  Rcpp::List GC_out(n_effects);
+  for(int eff=0; eff<n_effects; ++eff){
+    b_out[eff] = b_list[eff];
+    Eigen::VectorXf sd = vb_list[eff].diagonal().array().sqrt();
+    for (int t = 0; t < k; ++t) sd(t) = std::max(sd(t), 1e-12f);
+    Eigen::VectorXf inv_sd = sd.array().inverse();
+    GC_out[eff] = inv_sd.asDiagonal() * vb_list[eff] * inv_sd.asDiagonal();
+  }
+  
+  // Output
+  return Rcpp::List::create(Rcpp::Named("mu")=mu,
+                            Rcpp::Named("b")=b_out,
+                            Rcpp::Named("hat")=hat,
+                            Rcpp::Named("h2")=h2,
+                            Rcpp::Named("GC")=GC_out,
+                            Rcpp::Named("bend")=inflate,
+                            Rcpp::Named("numit")=numit,
+                            Rcpp::Named("cnv")=cnv);
+  
+}
+
+// End

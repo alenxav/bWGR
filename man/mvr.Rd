@@ -23,14 +23,16 @@
 \alias{XSEMF}
 \alias{YSEMF}
 \alias{ZSEMF}
-\alias{PEGS}
 \alias{mwgr}
 \alias{ClusterBlup}
 \alias{IncMatrix}
 \alias{EM_recluster}
 \alias{Get_Cluster_Corr}
+\alias{PEGS}
 \alias{PEGSX}
 \alias{PEGSZ}
+\alias{PEGS_sparse}
+\alias{PEGSZ_sparse}
 
 \title{
   Multivariate Regression
@@ -114,6 +116,9 @@
 
     15) \code{PEGSZ(Y,X_list,...):} MLM with multiple random effects.
     
+    16) \code{PEGS_sparse(Y,S,...):} Simple PEGS, but taking sparse feature matrix.
+    
+    17) \code{PEGSZ_sparse(Y,X_list,...):} PEGSZ taking list of sparse feature matrices.
     
 In GSEM, XSEMF and MEGA, 'npc' means number of latent spaces if input is above zero, otherwise, 0 means all and -1 means \code{2*sqrt(ncol(Y))}.
 
