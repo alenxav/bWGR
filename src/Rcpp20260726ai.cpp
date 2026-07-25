@@ -661,7 +661,8 @@ SEXP BayesB(Eigen::VectorXf y, Eigen::MatrixXf X,
   float mu = y.mean();
   Eigen::VectorXf e = y.array()-mu;
   Eigen::VectorXf e1(n), e2(n);
-  float b0,b1,eM,h2,C,MU=0,VE=0,cj,dj,pj;
+  float b0,b1,eM,h2,C,MU=0,VE=0,LR,pj;
+  float Pi0 = pi/(1.0f-pi);
   for(int i=0; i<iit; i++){
     C = -0.5f/std::sqrt(ve);
     for(int j=0; j<p; j++){
@@ -669,9 +670,8 @@ SEXP BayesB(Eigen::VectorXf y, Eigen::MatrixXf X,
       b1 = R::rnorm((X.col(j).dot(e)+xx[j]*b0)/(xx[j]+Lmb[j]), std::sqrt(ve/(xx[j]+Lmb[j])));
       e1 = e - X.col(j)*(b1-b0);
       e2 = e - X.col(j)*(0-b0);
-      cj = (1-pi)*std::exp(C*e1.squaredNorm());
-      dj = (pi)*std::exp(C*e2.squaredNorm());
-      pj = cj/(cj+dj);
+      LR = Pi0*std::exp(C*(e2.squaredNorm()-e1.squaredNorm()));
+      pj = 1.0f/(1.0f+LR);
       if(R::rbinom(1,pj)==1){
         b[j] = b1; d[j] = 1;
       }else{
@@ -714,7 +714,8 @@ SEXP BayesC(Eigen::VectorXf y, Eigen::MatrixXf X,
   float Sb = df*(R2)*vy/MSx/(1-pi);
   float Se = df*(1-R2)*vy;
   float mu = y.mean();
-  float b0,b1,eM,h2,C,MU=0,VB=0,VE=0,cj,dj,pj,vg,ve=vy,vb=Sb;
+  float b0,b1,eM,h2,C,MU=0,VB=0,VE=0,LR,pj,vg,ve=vy,vb=Sb;
+  float Pi0 = pi/(1.0f-pi);
   Eigen::VectorXf d = Eigen::VectorXf::Zero(p);
   Eigen::VectorXf b = Eigen::VectorXf::Zero(p);
   Eigen::VectorXf D = Eigen::VectorXf::Zero(p);
@@ -730,9 +731,8 @@ SEXP BayesC(Eigen::VectorXf y, Eigen::MatrixXf X,
       b1 = R::rnorm((X.col(j).dot(e)+xx[j]*b0)/(xx[j]+Lmb), std::sqrt(ve/(xx[j]+Lmb)));
       e1 = e - X.col(j)*(b1-b0);
       e2 = e - X.col(j)*(0-b0);
-      cj = (1-pi)*std::exp(C*e1.squaredNorm());
-      dj = (pi)*std::exp(C*e2.squaredNorm());
-      pj = cj/(cj+dj);
+      LR = Pi0*std::exp(C*(e2.squaredNorm()-e1.squaredNorm()));
+      pj = 1.0f/(1.0f+LR);
       if(R::rbinom(1,pj)==1){
         b[j] = b1; d[j] = 1;
       }else{
@@ -871,7 +871,7 @@ SEXP BayesCpi(Eigen::VectorXf y, Eigen::MatrixXf X,
   float Sb = df*(R2)*vy/MSx/(1-pi);
   float Se = df*(1-R2)*vy;
   float mu = y.mean();
-  float b0,b1,b2,eM,h2,C,MU=0,VB=0,VE=0,Pi=0,pj,vg,ve=vy,vb=Sb;
+  float b0,b1,b2,eM,h2,C,MU=0,VB=0,VE=0,Pi=0,LR,pj,vg,ve=vy,vb=Sb;
   Eigen::VectorXf d = Eigen::VectorXf::Zero(p);
   Eigen::VectorXf b = Eigen::VectorXf::Zero(p);
   Eigen::VectorXf D = Eigen::VectorXf::Zero(p);
@@ -880,6 +880,7 @@ SEXP BayesCpi(Eigen::VectorXf y, Eigen::MatrixXf X,
   Eigen::VectorXf e = y.array()-mu;
   Eigen::VectorXf e1(n), e2(n);
   float Lmb=ve/vb;
+  float Pi0 = pi/(1.0f-pi);
   for(int i=0; i<iit; i++){
     C = -0.5f/std::sqrt(ve);
     for(int j=0; j<p; j++){
@@ -888,8 +889,8 @@ SEXP BayesCpi(Eigen::VectorXf y, Eigen::MatrixXf X,
       b2 = R::rnorm(0, std::sqrt(ve/(xx[j]+Lmb)));
       e1 = e - X.col(j)*(b1-b0);
       e2 = e - X.col(j)*(0-b0);
-      pj = (1-pi)*std::exp(C*(e1.squaredNorm()-e2.squaredNorm()));
-      if(pj>1) pj = 1;
+      LR = Pi0*std::exp(C*(e2.squaredNorm()-e1.squaredNorm()));
+      pj = 1.0f/(1.0f+LR);
       if(R::rbinom(1,pj)==1){
         b[j] = b1; d[j] = 1;
       }else{
