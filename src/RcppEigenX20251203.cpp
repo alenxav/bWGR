@@ -809,7 +809,7 @@ SEXP PEGSZ(Eigen::MatrixXf Y, // matrix response variables
 
 // [[Rcpp::export]]
 SEXP PEGS_sparse(Eigen::MatrixXf Y, // matrix response variables
-                 const Eigen::MappedSparseMatrix<double>& S, // SPARSE design matrix of random effects
+                 const Eigen::Map<Eigen::SparseMatrix<double>>& S, // SPARSE design matrix of random effects
                  int maxit = 100, // maximum number of iterations
                  float logtol = -4.0, // convergence tolerance
                  float covbend = 1.1, // covariance bending factor
@@ -1024,7 +1024,7 @@ SEXP PEGSZ_sparse(Eigen::MatrixXf Y, // matrix response variables
   std::vector<Eigen::SparseMatrix<float>> X_mats;
   Eigen::VectorXi p_vec(n_effects);
   for(int i=0; i<n_effects; ++i){
-    const Eigen::MappedSparseMatrix<double> X_in(Rcpp::as<Eigen::MappedSparseMatrix<double>>(X_list[i]));
+    const Eigen::Map<Eigen::SparseMatrix<double>> X_in(Rcpp::as<Eigen::Map<Eigen::SparseMatrix<double>>>(X_list[i]));
     X_mats.push_back(X_in.cast<float>());
     p_vec(i) = X_mats[i].cols();
   }
