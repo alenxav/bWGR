@@ -586,13 +586,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // PEGS_sparse
-SEXP PEGS_sparse(Eigen::MatrixXf Y, const Eigen::MappedSparseMatrix<double>& S, int maxit, float logtol, float covbend, float covMinEv, int XFA, bool NNC);
+SEXP PEGS_sparse(Eigen::MatrixXf Y, const Eigen::Map<Eigen::SparseMatrix<double>>& S, int maxit, float logtol, float covbend, float covMinEv, int XFA, bool NNC);
 RcppExport SEXP _bWGR_PEGS_sparse(SEXP YSEXP, SEXP SSEXP, SEXP maxitSEXP, SEXP logtolSEXP, SEXP covbendSEXP, SEXP covMinEvSEXP, SEXP XFASEXP, SEXP NNCSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::MatrixXf >::type Y(YSEXP);
-    Rcpp::traits::input_parameter< const Eigen::MappedSparseMatrix<double>& >::type S(SSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::SparseMatrix<double>>& >::type S(SSEXP);
     Rcpp::traits::input_parameter< int >::type maxit(maxitSEXP);
     Rcpp::traits::input_parameter< float >::type logtol(logtolSEXP);
     Rcpp::traits::input_parameter< float >::type covbend(covbendSEXP);
@@ -723,15 +723,15 @@ BEGIN_RCPP
 END_RCPP
 }
 // GS2EIGEN
-SEXP GS2EIGEN(Eigen::Map<Eigen::VectorXd> e, Eigen::MappedSparseMatrix<double> X, Eigen::Map<Eigen::VectorXd> b, Eigen::MappedSparseMatrix<double> XX, double Lmb);
+SEXP GS2EIGEN(Eigen::Map<Eigen::VectorXd> e, Eigen::Map<Eigen::SparseMatrix<double>> X, Eigen::Map<Eigen::VectorXd> b, Eigen::Map<Eigen::SparseMatrix<double>> XX, double Lmb);
 RcppExport SEXP _bWGR_GS2EIGEN(SEXP eSEXP, SEXP XSEXP, SEXP bSEXP, SEXP XXSEXP, SEXP LmbSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type e(eSEXP);
-    Rcpp::traits::input_parameter< Eigen::MappedSparseMatrix<double> >::type X(XSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double>> >::type X(XSEXP);
     Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd> >::type b(bSEXP);
-    Rcpp::traits::input_parameter< Eigen::MappedSparseMatrix<double> >::type XX(XXSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::SparseMatrix<double>> >::type XX(XXSEXP);
     Rcpp::traits::input_parameter< double >::type Lmb(LmbSEXP);
     rcpp_result_gen = Rcpp::wrap(GS2EIGEN(e, X, b, XX, Lmb));
     return rcpp_result_gen;

@@ -92,9 +92,9 @@ Eigen::VectorXd EigenAcc(Eigen::MatrixXd X1, Eigen::MatrixXd X2, double h2 = 0.5
 
 // [[Rcpp::export]]
 SEXP GS2EIGEN(Eigen::Map<Eigen::VectorXd> e,
-              Eigen::MappedSparseMatrix<double> X,
+              Eigen::Map<Eigen::SparseMatrix<double>> X,
               Eigen::Map<Eigen::VectorXd> b,
-              Eigen::MappedSparseMatrix<double> XX,
+              Eigen::Map<Eigen::SparseMatrix<double>> XX,
               double Lmb){
   int P = X.cols();
   int N = X.rows();
@@ -2116,7 +2116,7 @@ Eigen::MatrixXf DropIncZero(Eigen::MatrixXf matrix) {
     if(Counts(i)>0){
       ind(counts_included_columns) = i;
       counts_included_columns ++;}}
-  return matrix(Eigen::all,ind);
+  return matrix(Eigen::indexing::all,ind);
 }
 
 // [[Rcpp::export]]
@@ -2151,7 +2151,7 @@ Eigen::MatrixXf ClusterBlup(Eigen::MatrixXf Y, Eigen::MatrixXf X, float lambda =
   return(DEV);
 }
 
-// [[Rcpp::export]]
+//  [[Rcpp::export]]
 Eigen::MatrixXf IncMatrix(Eigen::VectorXf x){
   int n = x.size();
   Eigen::VectorXf set = uniqueValues(x);
